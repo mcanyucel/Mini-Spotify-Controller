@@ -145,7 +145,7 @@ namespace Mini_Spotify_Controller.service.implementation
                         var device = devices.FirstOrDefault();
                         if (device != null)
                         {
-                            var deviceDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(device.ToString());
+                            var deviceDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(device.ToString() ?? "");
                             if (deviceDictionary != null)
                             {
                                 result = new Device
@@ -244,12 +244,9 @@ namespace Mini_Spotify_Controller.service.implementation
         internal static string HashString(string input)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(input);
-            using (var hash = System.Security.Cryptography.SHA256.Create())
-            {
-                byte[] hashedInputBytes = hash.ComputeHash(bytes);
-                var converted = Convert.ToBase64String(hashedInputBytes);
-                return converted.Replace('+', '-').Replace('/', '_').Replace("=", "").Trim();
-            }
+            byte[] hashedInputBytes = System.Security.Cryptography.SHA256.HashData(bytes);
+            var converted = Convert.ToBase64String(hashedInputBytes);
+            return converted.Replace('+', '-').Replace('/', '_').Replace("=", "").Trim();
         }
 
         async Task<PlaybackState> ISpotifyService.StartPlay(string deviceId)
@@ -362,7 +359,7 @@ namespace Mini_Spotify_Controller.service.implementation
 
 
         #region Fields
-        private string? clientId;
+        private readonly string? clientId;
         private const string redirectUri = "https://mustafacanyucel.com";
         private const string autorizationEndpoint = "https://accounts.spotify.com/authorize";
         private const string tokenEndpoint = "https://accounts.spotify.com/api/token";

@@ -145,11 +145,6 @@ namespace Mini_Spotify_Controller.viewmodel
             return true;
         }
 
-        private void RequestAccessToken()
-        {
-            m_WindowService.ShowAuthorizationWindowDialog();
-        }
-
         private async Task Authorize()
         {
             // if there is no client id, ask before authorizing
@@ -203,7 +198,5 @@ namespace Mini_Spotify_Controller.viewmodel
             DisplayName = "Guest",
             Email = ""
         };
-
-
     }
 }
