@@ -7,7 +7,7 @@
         xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel" 
         d:DataContext="{d:DesignInstance Type=viewmodel:ClientIdViewModel}"
         mc:Ignorable="d"
-        Title="EMTER CLIENT ID" SizeToContent="WidthAndHeight">
+        Title="ENTER CLIENT ID" SizeToContent="WidthAndHeight">
     <DockPanel LastChildFill="True" Margin="8">
         <TextBlock Text="Client ID" Margin="8" DockPanel.Dock="Left" VerticalAlignment="Center"/>
         <TextBox Margin="8" Width="200" Focusable="True" Text="{Binding Path=ClientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
