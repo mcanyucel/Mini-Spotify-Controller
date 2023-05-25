@@ -4,7 +4,7 @@ I am not a big fan of the original Spotify App that does not have a mini player.
 
 When you run the application, it will open a small window that you need to enter the client id for the Spotify API . You can get the client id from https://developer.spotify.com/dashboard/applications. You need to create an application and get the client id. Then you need to enter the client id to the application. After that, it will open a browser window to authenticate and authorize the application. After you authorize the application, it will close the browser window and start working.
 
-![Sample](https://imgur.com/a/wwWlVwa "All that the app does")
+![Sample](./assets/mini-spotify-controller.png "All that the app does")
 
 The application requires to have a Spotify Premium account to work. It will not work with free accounts, since free accounts does not support Web API.
 
