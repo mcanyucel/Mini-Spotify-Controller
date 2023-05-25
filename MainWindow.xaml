@@ -21,6 +21,11 @@
         <converters:PlaybackStateToNowPlayingConverter x:Key="PlaybackStateToNowPlayingConverter" />
         <converters:PlaybackStateButtonConverter x:Key="PlaybackStateButtonConverter" />
     </mah:MetroWindow.Resources>
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button Content="Settings" Command="{Binding OpenSettingsCommand}" />
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
 
     <Grid>
         <Grid.RowDefinitions>

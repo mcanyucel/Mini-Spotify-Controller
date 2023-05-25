@@ -17,6 +17,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IAsyncRelayCommand<Uri> NavigationCompletedCommand { get => m_NavigationCompletedCommand; }
         public IRelayCommand TogglePlayCommand { get => m_TogglePlayCommand; }
         public IRelayCommand NextCommand { get => m_NextCommand; }
+        public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User User { get => m_User; set => SetProperty(ref m_User, value); }
@@ -34,6 +35,7 @@ namespace Mini_Spotify_Controller.viewmodel
             m_TogglePlayCommand = new RelayCommand(TogglePlay, TogglePlayCanExecute);
             m_NextCommand = new RelayCommand(Next, NextCanExecute);
             m_PreviousCommand = new RelayCommand(Previous, PreviousCanExecute);
+            m_OpenSettingsCommand = new RelayCommand(OpenSettings);
             m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_NavigationCompletedCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand }.ToList();
 
@@ -49,6 +51,11 @@ namespace Mini_Spotify_Controller.viewmodel
         private void ShowStatus(string title, string message)
         {
             m_ToastService.ShowTextToast("status", 0, title, message);
+        }
+
+        private void OpenSettings()
+        {
+            m_WindowService.ShowClientIdWindow();
         }
 
         private async Task UpdateStatus()
@@ -242,6 +249,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IRelayCommand m_TogglePlayCommand;
         private readonly IRelayCommand m_NextCommand;
         private readonly IRelayCommand m_PreviousCommand;
+        private readonly IRelayCommand m_OpenSettingsCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_StatusTimer;
