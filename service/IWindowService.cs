@@ -3,6 +3,8 @@
     interface IWindowService
     {
         internal void ShowClientIdWindow();
+        internal void CloseClientIdWindow();
         internal string ShowAuthorizationWindow();
+
     }
 }

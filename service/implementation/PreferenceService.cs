@@ -2,6 +2,12 @@
 {
     class PreferenceService : IPreferenceService
     {
+        void IPreferenceService.SetClientId(string clientId)
+        {
+            Properties.Settings.Default.ClientId = clientId;
+            Properties.Settings.Default.Save();
+        }
+
         string? IPreferenceService.GetClientId()
         {
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.ClientId))

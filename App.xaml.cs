@@ -33,6 +33,7 @@ namespace Mini_Spotify_Controller
             services.AddSingleton<IWindowService, WindowService>();
             services.AddTransient<MainViewModel>();
             services.AddTransient<AuthViewModel>();
+            services.AddTransient<ClientIdViewModel>();
             return services.BuildServiceProvider();
         }
     }

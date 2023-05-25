@@ -186,6 +186,7 @@ namespace Mini_Spotify_Controller.viewmodel
             var clientId = m_PreferenceService.GetClientId();
             if (clientId == null)
             {
+                m_WindowService.ShowClientIdWindow();
             }
 
 

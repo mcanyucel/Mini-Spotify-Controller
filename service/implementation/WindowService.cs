@@ -1,24 +1,32 @@
-﻿using System;
-using Mini_Spotify_Controller.window;
+﻿using Mini_Spotify_Controller.window;
 
 namespace Mini_Spotify_Controller.service.implementation
 {
     class WindowService : IWindowService
     {
-        public string ShowAuthorizationWindow()
+
+        void IWindowService.ShowClientIdWindow()
+        {
+            m_ClientIdWindow = new ClientIdWindow();
+            m_ClientIdWindow.ShowDialog();
+        }
+
+        void IWindowService.CloseClientIdWindow()
+        {
+            m_ClientIdWindow?.Close();
+            m_ClientIdWindow = null;
+        }
+
+        string IWindowService.ShowAuthorizationWindow()
         {
             m_AuthWindow = new AuthWindow();
             m_AuthWindow.ShowDialog();
             return "";
         }
 
-        public void ShowClientIdWindow()
-        {
-            throw new NotImplementedException();
-        }
-
         #region Fields
         private AuthWindow? m_AuthWindow;
+        private ClientIdWindow? m_ClientIdWindow;
         #endregion
     }
 }
