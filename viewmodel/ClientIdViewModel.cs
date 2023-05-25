@@ -18,7 +18,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private void Save()
         {
             m_PreferenceService.SetClientId(m_ClientId);
-            m_WindowService.CloseClientIdWindow();
+            m_WindowService.CloseClientIdWindowDialog();
 
         }
 

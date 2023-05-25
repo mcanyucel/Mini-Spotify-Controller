@@ -9,7 +9,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:converters="clr-namespace:Mini_Spotify_Controller.converter"
         xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel"
-        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel, IsDesignTimeCreatable=True}"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
         Width="480" Height="96" ResizeMode="NoResize"
         mc:Ignorable="d">
     <behaviors:Interaction.Triggers>

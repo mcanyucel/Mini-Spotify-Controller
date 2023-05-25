@@ -5,23 +5,28 @@ namespace Mini_Spotify_Controller.service.implementation
     class WindowService : IWindowService
     {
 
-        void IWindowService.ShowClientIdWindow()
+        void IWindowService.ShowClientIdWindowDialog()
         {
             m_ClientIdWindow = new ClientIdWindow();
             m_ClientIdWindow.ShowDialog();
         }
 
-        void IWindowService.CloseClientIdWindow()
+        void IWindowService.CloseClientIdWindowDialog()
         {
             m_ClientIdWindow?.Close();
             m_ClientIdWindow = null;
         }
 
-        string IWindowService.ShowAuthorizationWindow()
+        void IWindowService.ShowAuthorizationWindowDialog()
         {
             m_AuthWindow = new AuthWindow();
             m_AuthWindow.ShowDialog();
-            return "";
+        }
+
+        void IWindowService.CloseAuthorizationWindowDialog()
+        {
+            m_AuthWindow?.Close();
+            m_AuthWindow = null;
         }
 
         #region Fields

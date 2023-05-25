@@ -11,9 +11,13 @@ namespace Mini_Spotify_Controller.service.implementation
 {
     class SpotifyService : ISpotifyService, IDisposable
     {
-        public SpotifyService(IPreferenceService preferenceService)
+        AccessData? ISpotifyService.AccessData => m_AccessData;
+        bool ISpotifyService.IsAuthorized => m_AccessData != null && m_AccessData.AccessToken != null;
+
+        public SpotifyService(IPreferenceService preferenceService, IWindowService windowService)
         {
             m_PreferenceService = preferenceService;
+            m_WindowService = windowService;
             clientId = m_PreferenceService.GetClientId();
         }
 
@@ -22,6 +26,106 @@ namespace Mini_Spotify_Controller.service.implementation
             httpClient.Dispose();
         }
 
+        async Task ISpotifyService.Authorize()
+        {
+
+            if (clientId == null)
+            {
+                m_WindowService.ShowClientIdWindowDialog();
+            }
+
+            m_AccessData = await RefreshAccessToken();
+            // If we still don't have an access token, we need to request one
+            if (m_AccessData == null)
+                ShowAccessTokenRequest();
+        }
+
+        async Task<AccessData?> RefreshAccessToken()
+        {
+            AccessData? result = null;
+            string? refreshToken = m_PreferenceService.GetRefreshToken();
+            if (refreshToken != null)
+            {
+                result = await RefreshAccessToken(refreshToken);
+            }
+            return result;
+        }
+
+        void ShowAccessTokenRequest()
+        {
+            m_WindowService.ShowAuthorizationWindowDialog();
+        }
+
+        async Task<AccessData?> RefreshAccessToken(string refreshToken)
+        {
+            if (clientId == null)
+            {
+                throw new InvalidOperationException("Client Id is not set");
+            }
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
+            var body = new Dictionary<string, string>
+            {
+                { "client_id", clientId },
+                { "grant_type", "refresh_token" },
+                { "refresh_token", refreshToken }
+            };
+            var content = new FormUrlEncodedContent(body);
+            httpRequestMessage.Content = content;
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            if (response.IsSuccessStatusCode == false)
+            {
+                return null;
+            }
+            else
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                return responseDictionary == null
+                    ? null
+                    : new AccessData
+                    {
+                        AccessToken = responseDictionary["access_token"].ToString(),
+                        RefreshToken = refreshToken,
+                        ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
+                        TokenType = responseDictionary["token_type"].ToString()
+                    };
+            }
+        }
+
+        async Task ISpotifyService.RequestAccessToken(string codeVerifier, string code)
+        {
+            if (clientId == null)
+            {
+                throw new InvalidOperationException("Client Id is not set");
+            }
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
+            var body = new Dictionary<string, string>
+            {
+                { "client_id", clientId },
+                { "grant_type", "authorization_code" },
+                { "code", code },
+                { "redirect_uri", redirectUri },
+                { "code_verifier", codeVerifier }
+            };
+
+            var content = new FormUrlEncodedContent(body);
+            httpRequestMessage.Content = content;
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var responseString = await response.Content.ReadAsStringAsync();
+            var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+            m_AccessData = responseDictionary == null
+                ? null
+                : new AccessData
+                {
+                    AccessToken = responseDictionary["access_token"].ToString(),
+                    RefreshToken = responseDictionary["refresh_token"].ToString(),
+                    ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
+                    TokenType = responseDictionary["token_type"].ToString()
+                };
+            if (m_AccessData != null && m_AccessData.RefreshToken != null)
+                m_PreferenceService.SetRefreshToken(m_AccessData.RefreshToken);
+        }
 
         async Task<Device?> ISpotifyService.GetLastListenedDevice(string accessToken)
         {
@@ -61,17 +165,17 @@ namespace Mini_Spotify_Controller.service.implementation
             return result;
         }
 
-        async Task<PlaybackState> ISpotifyService.GetPlaybackState(string accessToken)
+        async Task<PlaybackState> ISpotifyService.GetPlaybackState()
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, playbackStateEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
             var result = new PlaybackState() { IsPlaying = false, CurrentlyPlaying = string.Empty, CurrentlyPlayingAlbum = string.Empty, CurrentlyPlayingArtist = string.Empty };
             if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
             {
                 // No active devices, get the device
-                var device = await ((ISpotifyService)this).GetLastListenedDevice(accessToken);
+                var device = await ((ISpotifyService)this).GetLastListenedDevice(m_AccessData?.AccessToken ?? string.Empty);
                 result.DeviceId = device?.Id;
             }
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -107,14 +211,14 @@ namespace Mini_Spotify_Controller.service.implementation
             return result;
         }
 
-        async Task<User?> ISpotifyService.GetUser(string accessToken)
+        async Task<User?> ISpotifyService.GetUser()
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, userEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
             var responseString = await response.Content.ReadAsStringAsync();
-            var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+            var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
             return responseDictionary == null
                 ? null
                 : new User
@@ -123,75 +227,6 @@ namespace Mini_Spotify_Controller.service.implementation
                     DisplayName = responseDictionary["display_name"].ToString(),
                     Email = responseDictionary["email"].ToString(),
                     Country = responseDictionary["country"].ToString(),
-                };
-        }
-
-        async Task<AccessData?> ISpotifyService.RefreshAccessToken(string refreshToken)
-        {
-            if (clientId == null)
-            {
-                throw new InvalidOperationException("Client Id is not set");
-            }
-
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
-            var body = new Dictionary<string, string>
-            {
-                { "client_id", clientId },
-                { "grant_type", "refresh_token" },
-                { "refresh_token", refreshToken }
-            };
-            var content = new FormUrlEncodedContent(body);
-            httpRequestMessage.Content = content;
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode == false)
-            {
-                return null;
-            }
-            else
-            {
-                var responseString = await response.Content.ReadAsStringAsync();
-                var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-                return responseDictionary == null
-                    ? null
-                    : new AccessData
-                    {
-                        AccessToken = responseDictionary["access_token"].ToString(),
-                        RefreshToken = refreshToken,
-                        ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
-                        TokenType = responseDictionary["token_type"].ToString()
-                    };
-            }
-        }
-
-        async Task<AccessData?> ISpotifyService.RequestAccessToken(string codeVerifier, string code)
-        {
-            if (clientId == null)
-            {
-                throw new InvalidOperationException("Client Id is not set");
-            }
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
-            var body = new Dictionary<string, string>
-            {
-                { "client_id", clientId },
-                { "grant_type", "authorization_code" },
-                { "code", code },
-                { "redirect_uri", redirectUri },
-                { "code_verifier", codeVerifier }
-            };
-
-            var content = new FormUrlEncodedContent(body);
-            httpRequestMessage.Content = content;
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-            return responseDictionary == null
-                ? null
-                : new AccessData
-                {
-                    AccessToken = responseDictionary["access_token"].ToString(),
-                    RefreshToken = responseDictionary["refresh_token"].ToString(),
-                    ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
-                    TokenType = responseDictionary["token_type"].ToString()
                 };
         }
 
@@ -217,18 +252,18 @@ namespace Mini_Spotify_Controller.service.implementation
             }
         }
 
-        async Task<PlaybackState> ISpotifyService.StartPlay(string accessToken, string deviceId)
+        async Task<PlaybackState> ISpotifyService.StartPlay(string deviceId)
         {
             var endpoint = playbackStartEndpoint + $"?device_id={deviceId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
 
 
             var response = await httpClient.SendAsync(httpRequestMessage);
             if (response.IsSuccessStatusCode)
             {
                 await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState(accessToken);
+                return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
             {
@@ -241,10 +276,10 @@ namespace Mini_Spotify_Controller.service.implementation
             }
         }
 
-        async Task<PlaybackState> ISpotifyService.PausePlay(string accessToken, string deviceId)
+        async Task<PlaybackState> ISpotifyService.PausePlay(string deviceId)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, playbackPauseEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
             var body = new Dictionary<string, string>
             {
                 { "device_id", deviceId }
@@ -256,7 +291,7 @@ namespace Mini_Spotify_Controller.service.implementation
             if (response.IsSuccessStatusCode)
             {
                 await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState(accessToken);
+                return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
             {
@@ -268,10 +303,10 @@ namespace Mini_Spotify_Controller.service.implementation
             }
         }
 
-        async Task<PlaybackState> ISpotifyService.NextTrack(string accessToken, string deviceId)
+        async Task<PlaybackState> ISpotifyService.NextTrack(string deviceId)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackNextEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
             var body = new Dictionary<string, string>
             {
                 { "device_id", deviceId }
@@ -283,7 +318,7 @@ namespace Mini_Spotify_Controller.service.implementation
             if (response.IsSuccessStatusCode)
             {
                 await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState(accessToken);
+                return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
             {
@@ -295,10 +330,10 @@ namespace Mini_Spotify_Controller.service.implementation
             }
         }
 
-        async Task<PlaybackState> ISpotifyService.PreviousTrack(string accessToken, string deviceId)
+        async Task<PlaybackState> ISpotifyService.PreviousTrack(string deviceId)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackPreviousEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
             var body = new Dictionary<string, string>
             {
                 { "device_id", deviceId }
@@ -310,7 +345,7 @@ namespace Mini_Spotify_Controller.service.implementation
             if (response.IsSuccessStatusCode)
             {
                 await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState(accessToken);
+                return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
             {
@@ -327,7 +362,7 @@ namespace Mini_Spotify_Controller.service.implementation
 
 
         #region Fields
-        private readonly string? clientId;
+        private string? clientId;
         private const string redirectUri = "https://mustafacanyucel.com";
         private const string autorizationEndpoint = "https://accounts.spotify.com/authorize";
         private const string tokenEndpoint = "https://accounts.spotify.com/api/token";
@@ -338,13 +373,11 @@ namespace Mini_Spotify_Controller.service.implementation
         private const string playbackNextEndpoint = "https://api.spotify.com/v1/me/player/next";
         private const string playbackPreviousEndpoint = "https://api.spotify.com/v1/me/player/previous";
         private const string devicesEndpoint = "https://api.spotify.com/v1/me/player/devices";
-        private const int delay = 250; // ms - delay between consecutive requests
+        private const int delay = 500; // ms - delay between consecutive requests
         private readonly HttpClient httpClient = new();
         private readonly IPreferenceService m_PreferenceService;
+        private readonly IWindowService m_WindowService;
+        private AccessData? m_AccessData;
         #endregion
-
-
-
-
     }
 }

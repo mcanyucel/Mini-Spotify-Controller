@@ -7,15 +7,17 @@ namespace Mini_Spotify_Controller.service
 {
     interface ISpotifyService
     {
+        internal Task Authorize();
+        internal AccessData? AccessData { get; }
+        internal bool IsAuthorized { get; }
         internal string GetRequestUrl(string codeVerifier);
-        internal Task<AccessData?> RequestAccessToken(string codeVerifier, string code);
-        internal Task<AccessData?> RefreshAccessToken(string refreshToken);
-        internal Task<PlaybackState> GetPlaybackState(string accessToken);
-        internal Task<PlaybackState> StartPlay(string accessToken, string deviceId);
-        internal Task<PlaybackState> PausePlay(string accessToken, string deviceId);
-        internal Task<PlaybackState> NextTrack(string accessToken, string deviceId);
-        internal Task<PlaybackState> PreviousTrack(string accessToken, string deviceId);
-        internal Task<User?> GetUser(string accessToken);
+        internal Task RequestAccessToken(string codeVerifier, string accessCode);
+        internal Task<PlaybackState> GetPlaybackState();
+        internal Task<PlaybackState> StartPlay(string deviceId);
+        internal Task<PlaybackState> PausePlay(string deviceId);
+        internal Task<PlaybackState> NextTrack(string deviceId);
+        internal Task<PlaybackState> PreviousTrack(string deviceId);
+        internal Task<User?> GetUser();
         internal Task<Device?> GetLastListenedDevice(string accessToken);
         internal static string GenerateRandomString(int length)
         {
@@ -24,5 +26,9 @@ namespace Mini_Spotify_Controller.service
             return new string(Enumerable.Repeat(chars, length)
                              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+        
+
+        
     }
 }
