@@ -1,0 +1,23 @@
+﻿<mah:MetroWindow x:Class="Mini_Spotify_Controller.window.AuthWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel"
+        d:DataContext="{d:DesignInstance Type=viewmodel:AuthViewModel}"
+        xmlns:local="clr-namespace:Mini_Spotify_Controller.window"
+        mc:Ignorable="d"
+        Title="AuthWindow" Height="450" Width="800">
+    <DockPanel LastChildFill="True">
+        <wv2:WebView2 Name="webView" Source="{Binding Path=RequestUrl}">
+            <behaviors:Interaction.Triggers>
+                <behaviors:EventTrigger EventName="NavigationCompleted">
+                    <behaviors:InvokeCommandAction Command="{Binding Path=NavigationCompletedCommand}" CommandParameter="{Binding ElementName=webView, Path=Source}" />
+                </behaviors:EventTrigger>
+            </behaviors:Interaction.Triggers>
+        </wv2:WebView2>
+    </DockPanel>
+</mah:MetroWindow>

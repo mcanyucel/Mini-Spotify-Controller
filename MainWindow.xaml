@@ -1,0 +1,56 @@
+﻿<mah:MetroWindow x:Class="Mini_Spotify_Controller.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Mini_Spotify_Controller"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:converters="clr-namespace:Mini_Spotify_Controller.converter"
+        xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel, IsDesignTimeCreatable=True}"
+        Width="480" Height="96" ResizeMode="NoResize"
+        mc:Ignorable="d">
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Loaded">
+            <behaviors:InvokeCommandAction Command="{Binding Path=AuthorizeCommand}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
+    <mah:MetroWindow.Resources>
+        <converters:PlaybackStateToNowPlayingConverter x:Key="PlaybackStateToNowPlayingConverter" />
+        <converters:PlaybackStateButtonConverter x:Key="PlaybackStateButtonConverter" />
+    </mah:MetroWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Margin="8,0,8,0" Text="{Binding Path=User.DisplayName}" VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="8">
+            <Button Command="{Binding Path=PreviousCommand}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="0,0,4,0">
+                <Button.Content>
+                    <iconPacks:PackIconMaterial Kind="SkipPrevious" />
+                </Button.Content>
+            </Button>
+            <Button Command="{Binding Path=TogglePlayCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="48" Height="48">
+                <iconPacks:PackIconMaterial Kind="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateButtonConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Button>
+            <Button Command="{Binding Path=NextCommand}" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="4,0,0,0">
+                <Button.Content>
+                    <iconPacks:PackIconMaterial Kind="SkipNext" />
+                </Button.Content>
+            </Button>
+
+        </StackPanel>
+
+        <TextBlock Grid.Row="0" Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap" />
+
+    </Grid>
+</mah:MetroWindow>

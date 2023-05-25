@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mini Spotify Controller", "Mini Spotify Controller.csproj", "{45B859C4-1CA9-4AA1-9800-D5A63BE769FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{45B859C4-1CA9-4AA1-9800-D5A63BE769FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45B859C4-1CA9-4AA1-9800-D5A63BE769FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45B859C4-1CA9-4AA1-9800-D5A63BE769FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45B859C4-1CA9-4AA1-9800-D5A63BE769FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D6EC2BD-EBA0-44D9-8B7F-2E177F5F1BA6}
+	EndGlobalSection
+EndGlobal
