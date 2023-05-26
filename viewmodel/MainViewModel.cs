@@ -4,7 +4,6 @@ using Mini_Spotify_Controller.model;
 using Mini_Spotify_Controller.service;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +20,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IAsyncRelayCommand<double> SeekEndCommand { get => m_SeekEndCommand; }
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
+        public bool Topmost { get => m_Topmost; private set => SetProperty(ref m_Topmost, value); }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User User { get => m_User; set => SetProperty(ref m_User, value); }
         public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); } }
@@ -177,6 +177,7 @@ namespace Mini_Spotify_Controller.viewmodel
         {
             if (m_SpotifyService.IsAuthorized)
             {
+                Topmost = true;
                 await GetUser();
                 PlaybackState = await m_SpotifyService.GetPlaybackState();
                 UpdateCommandStates();
@@ -252,6 +253,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private string? m_AuthorizationCallbackUrl;
         private PlaybackState m_PlaybackState = new();
         private bool m_IsSeeking;
+        private bool m_Topmost = false;
 
         private const int m_ProgressUpdateInterval = 1000;
         private const int m_StatusUpdateInterval = 10000;

@@ -9,7 +9,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:converters="clr-namespace:Mini_Spotify_Controller.converter"
         xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel"
-        Topmost="True"
+        Topmost="{Binding Topmost}"
         d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
         Width="480" Height="100" ResizeMode="NoResize"
         mc:Ignorable="d">
