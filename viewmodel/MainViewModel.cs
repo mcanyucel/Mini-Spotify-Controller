@@ -42,9 +42,7 @@ namespace Mini_Spotify_Controller.viewmodel
             m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand }.ToList();
 
-            m_StatusTimer = new Timer(async (object? _) => await UpdateStatus(), null, Timeout.Infinite, m_StatusUpdateInterval);
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
-
         }
 
         private void ShowError(string title, string message)
@@ -62,22 +60,14 @@ namespace Mini_Spotify_Controller.viewmodel
             m_WindowService.ShowClientIdWindowDialog();
         }
 
-        private async Task UpdateStatus()
-        {
-            if (m_SpotifyService.IsAuthorized)
-                PlaybackState = await m_SpotifyService.GetPlaybackState();
-        }
-
         private void SetTimers()
         {
             if (m_PlaybackState.IsPlaying)
             {
-                //m_StatusTimer.Change(0, m_StatusUpdateInterval);
                 m_ProgressTimer.Change(0, m_ProgressUpdateInterval);
             }
             else
             {
-                //m_StatusTimer.Change(Timeout.Infinite, m_StatusUpdateInterval);
                 m_ProgressTimer.Change(Timeout.Infinite, m_ProgressUpdateInterval);
             }
         }
@@ -231,7 +221,6 @@ namespace Mini_Spotify_Controller.viewmodel
 
         public void Dispose()
         {
-            m_StatusTimer.Dispose();
             m_ProgressTimer.Dispose();
         }
 
@@ -248,7 +237,6 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IAsyncRelayCommand<double> m_SeekEndCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
-        private readonly Timer m_StatusTimer;
         private readonly Timer m_ProgressTimer;
         private string? m_AuthorizationCallbackUrl;
         private PlaybackState m_PlaybackState = new();
@@ -256,8 +244,6 @@ namespace Mini_Spotify_Controller.viewmodel
         private bool m_Topmost = false;
 
         private const int m_ProgressUpdateInterval = 1000;
-        private const int m_StatusUpdateInterval = 10000;
-
         private User m_User = new()
         {
             Id = "",
