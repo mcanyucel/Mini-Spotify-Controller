@@ -12,7 +12,7 @@ namespace Mini_Spotify_Controller.converter
             {
                 if (playbackState.IsPlaying)
                 {
-                    return $"{playbackState.CurrentlyPlayingArtist} - {playbackState.CurrentlyPlaying} ({playbackState.CurrentlyPlayingAlbum})";
+                    return $"{playbackState.CurrentlyPlayingArtist} - {playbackState.CurrentlyPlaying} ({playbackState.CurrentlyPlayingAlbum?.Name})";
                 }
                 else
                 {

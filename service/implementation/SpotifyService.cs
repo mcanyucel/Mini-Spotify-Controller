@@ -190,7 +190,7 @@ namespace Mini_Spotify_Controller.service.implementation
             httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
-            var result = new PlaybackState() { IsPlaying = false, CurrentlyPlaying = string.Empty, CurrentlyPlayingAlbum = string.Empty, CurrentlyPlayingArtist = string.Empty };
+            var result = new PlaybackState() { IsPlaying = false, CurrentlyPlaying = string.Empty, CurrentlyPlayingAlbum = new(), CurrentlyPlayingArtist = string.Empty };
             if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
             {
                 // No active devices, get the device
@@ -216,8 +216,13 @@ namespace Mini_Spotify_Controller.service.implementation
                             result.CurrentlyPlaying = item?["name"]?.ToString() ?? string.Empty;
                             result.DurationMs = int.Parse(item?["duration_ms"]?.ToString() ?? "0");
 
-                            var album = JsonSerializer.Deserialize<Dictionary<string, object>>(item?["album"]?.ToString() ?? "");
-                            result.CurrentlyPlayingAlbum = album?["name"]?.ToString() ?? string.Empty;
+                            var albumDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(item?["album"]?.ToString() ?? "");
+                            result.CurrentlyPlayingAlbum = new Album
+                            {
+                                Name = albumDictionary?["name"]?.ToString() ?? string.Empty,
+                                ImageUrl = JsonSerializer.Deserialize<List<object>>(albumDictionary?["images"]?.ToString() ?? "")?.FirstOrDefault()?.ToString() ?? string.Empty
+                            };
+                            result.CurrentlyPlayingAlbum = ExtractAlbumData(albumDictionary);
 
 
                             var artist = JsonSerializer.Deserialize<List<object>>(item?["artists"].ToString() ?? "")?.First();
@@ -387,6 +392,20 @@ namespace Mini_Spotify_Controller.service.implementation
             byte[] hashedInputBytes = System.Security.Cryptography.SHA256.HashData(bytes);
             var converted = Convert.ToBase64String(hashedInputBytes);
             return converted.Replace('+', '-').Replace('/', '_').Replace("=", "").Trim();
+        }
+
+        private static Album ExtractAlbumData(Dictionary<string, object>? albumDictionary)
+        {
+            if (albumDictionary == null) return new();
+
+            var images = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(albumDictionary["images"]?.ToString() ?? string.Empty);
+            var imageUrl = images?[0]["url"].ToString() ?? string.Empty;
+            return new Album
+            {
+                Id = albumDictionary["id"]?.ToString() ?? string.Empty,
+                Name = albumDictionary["name"]?.ToString() ?? string.Empty,
+                ImageUrl = imageUrl
+            };
         }
         #endregion
 
