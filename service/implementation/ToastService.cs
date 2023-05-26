@@ -8,7 +8,6 @@ namespace Mini_Spotify_Controller.service.implementation
         {
             ToastNotificationManagerCompat.Uninstall();
         }
-
         void IToastService.ShowTextToast(string action, int conversationId, string header, string content)
         {
             new ToastContentBuilder()

@@ -11,20 +11,25 @@ namespace Mini_Spotify_Controller.service.implementation
 {
     class SpotifyService : ISpotifyService, IDisposable
     {
+        #region Properties
         AccessData? ISpotifyService.AccessData => m_AccessData;
         bool ISpotifyService.IsAuthorized => m_AccessData != null && m_AccessData.AccessToken != null;
+        #endregion
 
+        #region Lifecycle
         public SpotifyService(IPreferenceService preferenceService, IWindowService windowService)
         {
             m_PreferenceService = preferenceService;
             m_WindowService = windowService;
             clientId = m_PreferenceService.GetClientId();
         }
-
         public void Dispose()
         {
             httpClient.Dispose();
         }
+        #endregion
+
+        #region Authorization
 
         async Task ISpotifyService.Authorize()
         {
@@ -126,7 +131,19 @@ namespace Mini_Spotify_Controller.service.implementation
             if (m_AccessData != null && m_AccessData.RefreshToken != null)
                 m_PreferenceService.SetRefreshToken(m_AccessData.RefreshToken);
         }
+        string ISpotifyService.GetRequestUrl(string codeVerifier)
+        {
+            string codeChallenge = HashString(codeVerifier);
+            string state = ISpotifyService.GenerateRandomString(16);
+            string scope = "user-read-private user-read-email user-library-read user-read-playback-state user-modify-playback-state";
+            string responseType = "code";
+            string url = $"{autorizationEndpoint}?client_id={clientId}&response_type={responseType}&redirect_uri={redirectUri}&code_challenge_method=S256&code_challenge={codeChallenge}&state={state}&scope={scope}";
 
+            return url;
+        }
+        #endregion
+
+        #region Devices
         async Task<Device?> ISpotifyService.GetLastListenedDevice(string accessToken)
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, devicesEndpoint);
@@ -164,7 +181,9 @@ namespace Mini_Spotify_Controller.service.implementation
             }
             return result;
         }
+        #endregion
 
+        #region Playback State
         async Task<PlaybackState> ISpotifyService.GetPlaybackState()
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, playbackStateEndpoint);
@@ -212,45 +231,6 @@ namespace Mini_Spotify_Controller.service.implementation
             }
             return result;
         }
-
-        async Task<User?> ISpotifyService.GetUser()
-        {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, userEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-            return responseDictionary == null
-                ? null
-                : new User
-                {
-                    Id = responseDictionary["id"].ToString(),
-                    DisplayName = responseDictionary["display_name"].ToString(),
-                    Email = responseDictionary["email"].ToString(),
-                    Country = responseDictionary["country"].ToString(),
-                };
-        }
-
-        string ISpotifyService.GetRequestUrl(string codeVerifier)
-        {
-            string codeChallenge = HashString(codeVerifier);
-            string state = ISpotifyService.GenerateRandomString(16);
-            string scope = "user-read-private user-read-email user-library-read user-read-playback-state user-modify-playback-state";
-            string responseType = "code";
-            string url = $"{autorizationEndpoint}?client_id={clientId}&response_type={responseType}&redirect_uri={redirectUri}&code_challenge_method=S256&code_challenge={codeChallenge}&state={state}&scope={scope}";
-
-            return url;
-        }
-
-        internal static string HashString(string input)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(input);
-            byte[] hashedInputBytes = System.Security.Cryptography.SHA256.HashData(bytes);
-            var converted = Convert.ToBase64String(hashedInputBytes);
-            return converted.Replace('+', '-').Replace('/', '_').Replace("=", "").Trim();
-        }
-
         async Task<PlaybackState> ISpotifyService.StartPlay(string deviceId)
         {
             var endpoint = playbackStartEndpoint + $"?device_id={deviceId}";
@@ -377,6 +357,38 @@ namespace Mini_Spotify_Controller.service.implementation
                 };
             }
         }
+        #endregion
+
+        #region User
+        async Task<User?> ISpotifyService.GetUser()
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, userEndpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var responseString = await response.Content.ReadAsStringAsync();
+            var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+            return responseDictionary == null
+                ? null
+                : new User
+                {
+                    Id = responseDictionary["id"].ToString(),
+                    DisplayName = responseDictionary["display_name"].ToString(),
+                    Email = responseDictionary["email"].ToString(),
+                    Country = responseDictionary["country"].ToString(),
+                };
+        }
+        #endregion
+
+        #region Helpers
+        internal static string HashString(string input)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(input);
+            byte[] hashedInputBytes = System.Security.Cryptography.SHA256.HashData(bytes);
+            var converted = Convert.ToBase64String(hashedInputBytes);
+            return converted.Replace('+', '-').Replace('/', '_').Replace("=", "").Trim();
+        }
+        #endregion
 
         #region Fields
         private readonly string? clientId;

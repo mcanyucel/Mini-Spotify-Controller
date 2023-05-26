@@ -12,7 +12,7 @@ namespace Mini_Spotify_Controller.viewmodel
 {
     class MainViewModel : ObservableObject, IDisposable
     {
-
+        #region Properties
         public IAsyncRelayCommand AuthorizeCommand { get => m_AutorizeCommand; }
         public IRelayCommand TogglePlayCommand { get => m_TogglePlayCommand; }
         public IRelayCommand NextCommand { get => m_NextCommand; }
@@ -24,7 +24,9 @@ namespace Mini_Spotify_Controller.viewmodel
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User User { get => m_User; set => SetProperty(ref m_User, value); }
         public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); } }
+        #endregion
 
+        #region Lifecycle
         public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IPreferenceService preferenceService, IWindowService windowService)
         {
             m_SpotifyService = spotifyService;
@@ -39,57 +41,59 @@ namespace Mini_Spotify_Controller.viewmodel
             m_OpenSettingsCommand = new RelayCommand(OpenSettings);
             m_SeekStartCommand = new RelayCommand(SeekStart);
             m_SeekEndCommand = new AsyncRelayCommand<double>(SeekEnd);
-            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand }.ToList();
-            m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand }.ToList();
+            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand }.ToList();
+            m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
 
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
         }
-
-        private void ShowError(string title, string message)
+        public void Dispose()
         {
-            m_ToastService.ShowTextToast("error", 0, title, message);
+            m_ProgressTimer.Dispose();
         }
+        #endregion
 
-        private void ShowStatus(string title, string message)
+        #region Authorization Flow
+        private async Task Authorize()
         {
-            m_ToastService.ShowTextToast("status", 0, title, message);
-        }
-
-        private void OpenSettings()
-        {
-            m_WindowService.ShowClientIdWindowDialog();
-        }
-
-        private void SetTimers()
-        {
-            if (m_PlaybackState.IsPlaying)
+            // if there is no client id, ask before authorizing
+            var clientId = m_PreferenceService.GetClientId();
+            if (clientId == null)
             {
-                m_ProgressTimer.Change(0, m_ProgressUpdateInterval);
+                m_WindowService.ShowClientIdWindowDialog();
             }
+
+            ShowStatus("Status", "Authorizing...");
+            await m_SpotifyService.Authorize();
+
+            if (!m_SpotifyService.IsAuthorized)
+                m_ToastService.ShowTextToast("error", 0, "Error", "Authorization failed!");
             else
-            {
-                m_ProgressTimer.Change(Timeout.Infinite, m_ProgressUpdateInterval);
-            }
+                await OnAuthorizeSuccess();
         }
-
-        private void UpdateProgress()
+        private async Task OnAuthorizeSuccess()
         {
-            PlaybackState.IncrementProgress(m_ProgressUpdateInterval);
-
-            if (PlaybackState.ProgressMs >= PlaybackState.DurationMs && m_SpotifyService.IsAuthorized)
+            if (m_SpotifyService.IsAuthorized)
             {
-                PlaybackState.ResetProgress();
-                _ = Task.Run(async () => PlaybackState = await m_SpotifyService.GetPlaybackState());
-            }
-            else
-            {
-                // For some reason the OnPropertyChanged is not called when the progress is updated
-                // we do not update the slider in the UI if we are in seek mode - The slider is updated when the seek is finished                
-                if (!m_IsSeeking)
-                    OnPropertyChanged(nameof(PlaybackState));
+                Topmost = true;
+                await GetUser();
+                PlaybackState = await m_SpotifyService.GetPlaybackState();
+                UpdateCommandStates();
             }
         }
+        private async Task GetUser()
+        {
+            if (m_SpotifyService.IsAuthorized)
+            {
+                User? user = await m_SpotifyService.GetUser();
+                if (user != null)
+                {
+                    User = user;
+                }
+            }
+        }
+        #endregion
 
+        #region Playback State
         private void TogglePlay()
         {
             if (m_PlaybackState.IsPlaying)
@@ -148,68 +152,40 @@ namespace Mini_Spotify_Controller.viewmodel
             }
         }
 
-        private bool TogglePlayCanExecute()
+        private void UpdateProgress()
         {
-            return m_SpotifyService.IsAuthorized;
-        }
+            PlaybackState.IncrementProgress(m_ProgressUpdateInterval);
 
-        private bool NextCanExecute()
-        {
-            return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
-        }
-
-        private bool PreviousCanExecute()
-        {
-            return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
-        }
-
-        private async Task OnAuthorizeSuccess()
-        {
-            if (m_SpotifyService.IsAuthorized)
+            if (PlaybackState.ProgressMs >= PlaybackState.DurationMs && m_SpotifyService.IsAuthorized)
             {
-                Topmost = true;
-                await GetUser();
-                PlaybackState = await m_SpotifyService.GetPlaybackState();
-                UpdateCommandStates();
+                PlaybackState.ResetProgress();
+                _ = Task.Run(async () => PlaybackState = await m_SpotifyService.GetPlaybackState());
             }
-        }
-
-        private async Task GetUser()
-        {
-            if (m_SpotifyService.IsAuthorized)
-            {
-                User? user = await m_SpotifyService.GetUser();
-                if (user != null)
-                {
-                    User = user;
-                }
-            }
-        }
-
-
-        private bool AuthorizeCanExecute()
-        {
-            return true;
-        }
-
-        private async Task Authorize()
-        {
-            // if there is no client id, ask before authorizing
-            var clientId = m_PreferenceService.GetClientId();
-            if (clientId == null)
-            {
-                m_WindowService.ShowClientIdWindowDialog();
-            }
-
-            ShowStatus("Status", "Authorizing...");
-            await m_SpotifyService.Authorize();
-
-            if (!m_SpotifyService.IsAuthorized)
-                m_ToastService.ShowTextToast("error", 0, "Error", "Authorization failed!");
             else
-                await OnAuthorizeSuccess();
+            {
+                // For some reason the OnPropertyChanged is not called when the progress is updated
+                // we do not update the slider in the UI if we are in seek mode - The slider is updated when the seek is finished                
+                if (!m_IsSeeking)
+                    OnPropertyChanged(nameof(PlaybackState));
+            }
         }
+        #endregion
 
+        #region Internal Configuration
+        private void SetTimers()
+        {
+            if (m_PlaybackState.IsPlaying)
+            {
+                m_ProgressTimer.Change(0, m_ProgressUpdateInterval);
+            }
+            else
+            {
+                m_ProgressTimer.Change(Timeout.Infinite, m_ProgressUpdateInterval);
+            }
+        }
+        #endregion
+
+        #region Command States
         private void UpdateCommandStates()
         {
             App.Current.Dispatcher.Invoke(() =>
@@ -218,12 +194,40 @@ namespace Mini_Spotify_Controller.viewmodel
                 m_CommandList.ForEach(x => x.NotifyCanExecuteChanged());
             });
         }
-
-        public void Dispose()
+        private bool AuthorizeCanExecute()
         {
-            m_ProgressTimer.Dispose();
+            return true;
         }
+        private bool TogglePlayCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized;
+        }
+        private bool NextCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
+        }
+        private bool PreviousCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
+        }
+        #endregion
 
+        #region UI Helpers
+        private void ShowError(string title, string message)
+        {
+            m_ToastService.ShowTextToast("error", 0, title, message);
+        }
+        private void ShowStatus(string title, string message)
+        {
+            m_ToastService.ShowTextToast("status", 0, title, message);
+        }
+        private void OpenSettings()
+        {
+            m_WindowService.ShowClientIdWindowDialog();
+        }
+        #endregion
+
+        #region Fields
         private readonly ISpotifyService m_SpotifyService;
         private readonly IToastService m_ToastService;
         private readonly IPreferenceService m_PreferenceService;
@@ -250,5 +254,6 @@ namespace Mini_Spotify_Controller.viewmodel
             DisplayName = "Guest",
             Email = ""
         };
+        #endregion
     }
 }
