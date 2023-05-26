@@ -33,7 +33,6 @@ namespace Mini_Spotify_Controller.service.implementation
 
         async Task ISpotifyService.Authorize()
         {
-
             if (clientId == null)
             {
                 m_WindowService.ShowClientIdWindowDialog();

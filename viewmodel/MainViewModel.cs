@@ -55,13 +55,6 @@ namespace Mini_Spotify_Controller.viewmodel
         #region Authorization Flow
         private async Task Authorize()
         {
-            // if there is no client id, ask before authorizing
-            var clientId = m_PreferenceService.GetClientId();
-            if (clientId == null)
-            {
-                m_WindowService.ShowClientIdWindowDialog();
-            }
-
             ShowStatus("Status", "Authorizing...");
             await m_SpotifyService.Authorize();
 
