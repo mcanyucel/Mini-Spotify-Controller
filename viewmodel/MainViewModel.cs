@@ -16,6 +16,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IAsyncRelayCommand AuthorizeCommand { get => m_AutorizeCommand; }
         public IRelayCommand TogglePlayCommand { get => m_TogglePlayCommand; }
         public IRelayCommand NextCommand { get => m_NextCommand; }
+        public IAsyncRelayCommand<double> SeekCommand { get => m_SeekCommand; }
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
@@ -34,6 +35,7 @@ namespace Mini_Spotify_Controller.viewmodel
             m_NextCommand = new RelayCommand(Next, NextCanExecute);
             m_PreviousCommand = new RelayCommand(Previous, PreviousCanExecute);
             m_OpenSettingsCommand = new RelayCommand(OpenSettings);
+            m_SeekCommand = new AsyncRelayCommand<double>(Seek);
             m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand }.ToList();
 
@@ -80,7 +82,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private void UpdateProgress()
         {
             PlaybackState.IncrementProgress(m_ProgressUpdateInterval);
-            
+
             if (PlaybackState.ProgressMs >= PlaybackState.DurationMs && m_SpotifyService.IsAuthorized)
             {
                 PlaybackState.ResetProgress();
@@ -126,6 +128,11 @@ namespace Mini_Spotify_Controller.viewmodel
         {
             if (m_SpotifyService.IsAuthorized && m_PlaybackState.DeviceId != null)
                 _ = Task.Run(async () => PlaybackState = await m_SpotifyService.PreviousTrack(m_PlaybackState.DeviceId));
+        }
+
+        private async Task Seek(double progressMs)
+        {
+            // TODO implement
         }
 
         private bool TogglePlayCanExecute()
@@ -209,6 +216,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IPreferenceService m_PreferenceService;
         private readonly IWindowService m_WindowService;
         private readonly IAsyncRelayCommand m_AutorizeCommand;
+        private readonly IAsyncRelayCommand<double> m_SeekCommand;
         private readonly IRelayCommand m_TogglePlayCommand;
         private readonly IRelayCommand m_NextCommand;
         private readonly IRelayCommand m_PreviousCommand;

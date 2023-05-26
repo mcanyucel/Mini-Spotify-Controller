@@ -61,7 +61,13 @@
 
         <TextBlock Grid.Row="0" Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap" />
 
-        <Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Value="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToProgressConverter}, Mode=OneWay}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}, Mode=OneWay}"  />
+        <Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Value="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToProgressConverter}, Mode=OneWay}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}, Mode=OneWay}" SmallChange="30" LargeChange="60" IsManipulationEnabled="True">
+            <behaviors:Interaction.Triggers>
+                <behaviors:EventTrigger EventName="ValueChanged">
+                    <behaviors:InvokeCommandAction Command="{Binding Path=SeekCommand}" CommandParameter="{Binding Path=Value, RelativeSource={RelativeSource AncestorType=Slider}}" />
+                </behaviors:EventTrigger>
+            </behaviors:Interaction.Triggers>
+        </Slider>
 
     </Grid>
 </mah:MetroWindow>

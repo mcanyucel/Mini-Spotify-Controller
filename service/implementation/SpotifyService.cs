@@ -356,9 +356,27 @@ namespace Mini_Spotify_Controller.service.implementation
             }
         }
 
+        async Task<PlaybackState> ISpotifyService.Seek(string deviceId, int positionMs)
+        {
+            string endpoint = seekEndpoint + $"?device_id={deviceId}&position_ms={positionMs}";
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
 
-
-
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(delay);
+                return await ((ISpotifyService)this).GetPlaybackState();
+            }
+            else
+            {
+                return new PlaybackState
+                {
+                    IsPlaying = false,
+                    CurrentlyPlaying = "Error"
+                };
+            }
+        }
 
         #region Fields
         private readonly string? clientId;
@@ -372,6 +390,7 @@ namespace Mini_Spotify_Controller.service.implementation
         private const string playbackNextEndpoint = "https://api.spotify.com/v1/me/player/next";
         private const string playbackPreviousEndpoint = "https://api.spotify.com/v1/me/player/previous";
         private const string devicesEndpoint = "https://api.spotify.com/v1/me/player/devices";
+        private const string seekEndpoint = "https://api.spotify.com/v1/me/player/seek";
         private const int delay = 500; // ms - delay between consecutive requests
         private readonly HttpClient httpClient = new();
         private readonly IPreferenceService m_PreferenceService;

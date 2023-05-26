@@ -17,6 +17,7 @@ namespace Mini_Spotify_Controller.service
         internal Task<PlaybackState> PausePlay(string deviceId);
         internal Task<PlaybackState> NextTrack(string deviceId);
         internal Task<PlaybackState> PreviousTrack(string deviceId);
+        internal Task<PlaybackState> Seek(string deviceId, int positionMs);
         internal Task<User?> GetUser();
         internal Task<Device?> GetLastListenedDevice(string accessToken);
         internal static string GenerateRandomString(int length)
