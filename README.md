@@ -13,6 +13,16 @@ The application requires to have a Spotify Premium account to work. It will not 
 * Displays current track, artist and album name.
 * Requires a spotify device to be active. If there is no active device, it show a message to open a Spotify app in any of your devices.
 
+## How to build
+* Clone the repository.
+* Open the solution in Visual Studio (preferably 2023).
+* Build the solution.
+
+## Requirements
+* Windows 10.0.17763.0 or newer. This is because the application uses `Microsoft.Toolkit.Uwp.Notifications` library which requires Windows 10.0.17763.0 or newer.
+* .NET 7
+* Spotify Premium account
+
 ## 3rd Party Dependencies
 
 * .NET 7
@@ -25,6 +35,8 @@ The application requires to have a Spotify Premium account to work. It will not 
 * Microsoft.Xaml.Behaviors.Wpf: A great library for WPF behaviors (mainly used for binding commands to event handlers).
 
 ## TODO
-* Add a feature to display the track progress and (maybe) allow to seek.
-* Currently the application makes an API call at every 10 seconds to get the current playback state. It can be changed so that it only makes an API call when the playing track has ended (based on the track progress and the track duration). This will still fail to capture changes made from other devices, but it will be more efficient.
-* If spotify allows web sockets, it can be used to get the current playback state in real time. This will allow to capture changes made from other devices.
+* ~~Add an icon to the application.~~
+* ~~Add a feature to display the track progress and (maybe) allow to seek.~~
+* ~~Currently the application makes an API call at every 10 seconds to get the current playback state. It can be changed so that it only makes an API call when the playing track has ended (based on the track progress and the track duration). This will still fail to capture changes made from other devices, but it will be more efficient.~~ Now the application keeps track of the track progress offline. It only makes an API call when the track has ended. This fails to capture changes made from other devices, but it is more efficient.
+* ~~If spotify allows web sockets, it can be used to get the current playback state in real time. This will allow to capture changes made from other devices.~~ It looks like Spotify does not support web sockets.
+* Seeking method is available but not implemented yet. The current approach is to use the `ValueChanged` callback of the `Slider`; however this method is called both at every second (since the slider value is updated every second) and when the user drags the slider. This causes the track to seek to the current position when the user drags the slider. This can be fixed by using a flag to indicate whether the slider is being dragged or not. If the slider is being dragged, the `ValueChanged` callback can be ignored. If the slider is not being dragged, the `ValueChanged` callback can be used to seek the track.
