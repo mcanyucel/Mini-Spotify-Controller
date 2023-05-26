@@ -11,7 +11,7 @@
         xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel"
         Topmost="True"
         d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
-        Width="480" Height="96" ResizeMode="NoResize"
+        Width="480" Height="100" ResizeMode="NoResize"
         mc:Ignorable="d">
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="Loaded">
@@ -21,6 +21,8 @@
     <mah:MetroWindow.Resources>
         <converters:PlaybackStateToNowPlayingConverter x:Key="PlaybackStateToNowPlayingConverter" />
         <converters:PlaybackStateButtonConverter x:Key="PlaybackStateButtonConverter" />
+        <converters:PlaybackStateDurationConverter x:Key="PlaybackStateDurationConverter" />
+        <converters:PlaybackStateToProgressConverter x:Key="PlaybackStateToProgressConverter" />
     </mah:MetroWindow.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -30,6 +32,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -57,6 +60,8 @@
         </StackPanel>
 
         <TextBlock Grid.Row="0" Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap" />
+
+        <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,-4,0,0" Value="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToProgressConverter}}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}}"  />
 
     </Grid>
 </mah:MetroWindow>

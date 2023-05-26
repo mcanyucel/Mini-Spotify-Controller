@@ -20,7 +20,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User User { get => m_User; set => SetProperty(ref m_User, value); }
-        public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); } }
+        public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); } }
 
         public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IPreferenceService preferenceService, IWindowService windowService)
         {
@@ -37,7 +37,8 @@ namespace Mini_Spotify_Controller.viewmodel
             m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand }.ToList();
 
-            m_StatusTimer = new Timer(async (object? _) => await UpdateStatus(), null, Timeout.Infinite, 10000);
+            m_StatusTimer = new Timer(async (object? _) => await UpdateStatus(), null, Timeout.Infinite, m_StatusUpdateInterval);
+            m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
 
         }
 
@@ -60,6 +61,33 @@ namespace Mini_Spotify_Controller.viewmodel
         {
             if (m_SpotifyService.IsAuthorized)
                 PlaybackState = await m_SpotifyService.GetPlaybackState();
+        }
+
+        private void SetTimers()
+        {
+            if (m_PlaybackState.IsPlaying)
+            {
+                //m_StatusTimer.Change(0, m_StatusUpdateInterval);
+                m_ProgressTimer.Change(0, m_ProgressUpdateInterval);
+            }
+            else
+            {
+                //m_StatusTimer.Change(Timeout.Infinite, m_StatusUpdateInterval);
+                m_ProgressTimer.Change(Timeout.Infinite, m_ProgressUpdateInterval);
+            }
+        }
+
+        private void UpdateProgress()
+        {
+            PlaybackState.IncrementProgress(m_ProgressUpdateInterval);
+            
+            if (PlaybackState.ProgressMs >= PlaybackState.DurationMs && m_SpotifyService.IsAuthorized)
+            {
+                PlaybackState.ResetProgress();
+                _ = Task.Run(async () => PlaybackState = await m_SpotifyService.GetPlaybackState());
+            }
+            // For some reason the OnPropertyChanged is not called when the progress is updated
+            OnPropertyChanged(nameof(PlaybackState));
         }
 
         private void TogglePlay()
@@ -122,8 +150,6 @@ namespace Mini_Spotify_Controller.viewmodel
                 await GetUser();
                 PlaybackState = await m_SpotifyService.GetPlaybackState();
                 UpdateCommandStates();
-                if (PlaybackState.IsPlaying)
-                    m_StatusTimer.Change(0, 10000);
             }
         }
 
@@ -175,6 +201,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public void Dispose()
         {
             m_StatusTimer.Dispose();
+            m_ProgressTimer.Dispose();
         }
 
         private readonly ISpotifyService m_SpotifyService;
@@ -189,8 +216,12 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_StatusTimer;
+        private readonly Timer m_ProgressTimer;
         private string? m_AuthorizationCallbackUrl;
         private PlaybackState m_PlaybackState = new();
+
+        private const int m_ProgressUpdateInterval = 1000;
+        private const int m_StatusUpdateInterval = 10000;
 
         private User m_User = new()
         {

@@ -113,7 +113,7 @@ namespace Mini_Spotify_Controller.service.implementation
             httpRequestMessage.Content = content;
             var response = await httpClient.SendAsync(httpRequestMessage);
             var responseString = await response.Content.ReadAsStringAsync();
-            var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+            var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
             m_AccessData = responseDictionary == null
                 ? null
                 : new AccessData
@@ -185,6 +185,8 @@ namespace Mini_Spotify_Controller.service.implementation
                 if (responseDictionary != null)
                 {
                     result.IsPlaying = responseDictionary["is_playing"]?.ToString() == "True";
+                    result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0"));   
+
                     var device = JsonSerializer.Deserialize<Dictionary<string, object>>(responseDictionary["device"]?.ToString() ?? "");
                     result.DeviceId = device?["id"]?.ToString() ?? string.Empty;
                     if (result.IsPlaying)
@@ -193,6 +195,7 @@ namespace Mini_Spotify_Controller.service.implementation
                         {
                             var item = JsonSerializer.Deserialize<Dictionary<string, object>>(responseDictionary["item"]?.ToString() ?? "");
                             result.CurrentlyPlaying = item?["name"]?.ToString() ?? string.Empty;
+                            result.DurationMs = int.Parse(item?["duration_ms"]?.ToString() ?? "0");
 
                             var album = JsonSerializer.Deserialize<Dictionary<string, object>>(item?["album"]?.ToString() ?? "");
                             result.CurrentlyPlayingAlbum = album?["name"]?.ToString() ?? string.Empty;
@@ -201,13 +204,12 @@ namespace Mini_Spotify_Controller.service.implementation
                             var artist = JsonSerializer.Deserialize<List<object>>(item?["artists"].ToString() ?? "")?.First();
                             result.CurrentlyPlayingArtist = (JsonSerializer.Deserialize<Dictionary<string, object>>(artist?.ToString() ?? ""))?["name"]?.ToString() ?? string.Empty;
 
-                            result.ProgressMs = int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0");
+                            result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0"));
                         }
                         catch (Exception) { }
                     }
                 }
             }
-
             return result;
         }
 
