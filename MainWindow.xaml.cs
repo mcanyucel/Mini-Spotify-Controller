@@ -15,12 +15,14 @@ namespace Mini_Spotify_Controller
 
         }
 
-        
-
-        private void Slider_ValueChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e)
+        private void Slider_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Debug.WriteLine($"Slider_ValueChanged in Main Window {e.OldValue}, {e.NewValue}");
-            Debug.WriteLine($"{e.Source}, | {e.OriginalSource}");
+            Debug.WriteLine("Slider_MouseLeftButtonDown");
+        }
+
+        private void Slider_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Debug.WriteLine("Slider_MouseLeftButtonUp");
         }
     }
 }

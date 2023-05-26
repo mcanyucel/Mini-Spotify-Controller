@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using Mini_Spotify_Controller.service;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Mini_Spotify_Controller.viewmodel
@@ -22,7 +21,6 @@ namespace Mini_Spotify_Controller.viewmodel
 
         private async Task NavigationCompleted(Uri? uri)
         {
-            Debug.WriteLine($"Navigation completed to {uri}");
             if (uri != null && m_CodeVerifier != null)
             {
                 string url = uri?.ToString() ?? string.Empty;

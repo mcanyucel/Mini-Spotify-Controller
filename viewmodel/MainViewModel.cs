@@ -4,6 +4,7 @@ using Mini_Spotify_Controller.model;
 using Mini_Spotify_Controller.service;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,8 @@ namespace Mini_Spotify_Controller.viewmodel
         public IAsyncRelayCommand AuthorizeCommand { get => m_AutorizeCommand; }
         public IRelayCommand TogglePlayCommand { get => m_TogglePlayCommand; }
         public IRelayCommand NextCommand { get => m_NextCommand; }
-        public IAsyncRelayCommand<double> SeekCommand { get => m_SeekCommand; }
+        public IRelayCommand SeekStartCommand { get => m_SeekStartCommand; }
+        public IAsyncRelayCommand<double> SeekEndCommand { get => m_SeekEndCommand; }
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
@@ -35,7 +37,8 @@ namespace Mini_Spotify_Controller.viewmodel
             m_NextCommand = new RelayCommand(Next, NextCanExecute);
             m_PreviousCommand = new RelayCommand(Previous, PreviousCanExecute);
             m_OpenSettingsCommand = new RelayCommand(OpenSettings);
-            m_SeekCommand = new AsyncRelayCommand<double>(Seek);
+            m_SeekStartCommand = new RelayCommand(SeekStart);
+            m_SeekEndCommand = new AsyncRelayCommand<double>(SeekEnd);
             m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand }.ToList();
 
@@ -88,8 +91,13 @@ namespace Mini_Spotify_Controller.viewmodel
                 PlaybackState.ResetProgress();
                 _ = Task.Run(async () => PlaybackState = await m_SpotifyService.GetPlaybackState());
             }
-            // For some reason the OnPropertyChanged is not called when the progress is updated
-            OnPropertyChanged(nameof(PlaybackState));
+            else
+            {
+                // For some reason the OnPropertyChanged is not called when the progress is updated
+                // we do not update the slider in the UI if we are in seek mode - The slider is updated when the seek is finished                
+                if (!m_IsSeeking)
+                    OnPropertyChanged(nameof(PlaybackState));
+            }
         }
 
         private void TogglePlay()
@@ -130,9 +138,24 @@ namespace Mini_Spotify_Controller.viewmodel
                 _ = Task.Run(async () => PlaybackState = await m_SpotifyService.PreviousTrack(m_PlaybackState.DeviceId));
         }
 
-        private async Task Seek(double progressMs)
+        private void SeekStart()
         {
-            // TODO implement
+            if (m_PlaybackState.IsPlaying)
+            {
+                m_IsSeeking = true;
+            }
+        }
+
+        private async Task SeekEnd(double progressSec)
+        {
+            if (m_PlaybackState.IsPlaying && m_IsSeeking)
+            {
+                int progressMs = (int)(progressSec * 1000);
+                if (m_SpotifyService.IsAuthorized && m_PlaybackState.DeviceId != null)
+                    PlaybackState = await m_SpotifyService.Seek(m_PlaybackState.DeviceId, progressMs);
+
+                m_IsSeeking = false;
+            }
         }
 
         private bool TogglePlayCanExecute()
@@ -216,17 +239,19 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IPreferenceService m_PreferenceService;
         private readonly IWindowService m_WindowService;
         private readonly IAsyncRelayCommand m_AutorizeCommand;
-        private readonly IAsyncRelayCommand<double> m_SeekCommand;
         private readonly IRelayCommand m_TogglePlayCommand;
         private readonly IRelayCommand m_NextCommand;
         private readonly IRelayCommand m_PreviousCommand;
         private readonly IRelayCommand m_OpenSettingsCommand;
+        private readonly IRelayCommand m_SeekStartCommand;
+        private readonly IAsyncRelayCommand<double> m_SeekEndCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_StatusTimer;
         private readonly Timer m_ProgressTimer;
         private string? m_AuthorizationCallbackUrl;
         private PlaybackState m_PlaybackState = new();
+        private bool m_IsSeeking;
 
         private const int m_ProgressUpdateInterval = 1000;
         private const int m_StatusUpdateInterval = 10000;
