@@ -10,10 +10,11 @@ namespace Mini_Spotify_Controller.viewmodel
     {
         public IAsyncRelayCommand<Uri?> NavigationCompletedCommand { get => m_NavigationCompletedCommand; }
         public string RequestUrl { get => m_RequestUrl; }
-        public AuthViewModel(ISpotifyService spotifyService, IWindowService windowService)
+        public AuthViewModel(ISpotifyService spotifyService, IWindowService windowService, ILogService logService)
         {
             m_SpotifyService = spotifyService;
             m_WindowService = windowService;
+            m_LogService = logService;
             m_NavigationCompletedCommand = new AsyncRelayCommand<Uri?>(NavigationCompleted);
             m_CodeVerifier = ISpotifyService.GenerateRandomString(128);
             m_RequestUrl = m_SpotifyService.GetRequestUrl(m_CodeVerifier);
@@ -39,6 +40,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly string m_RequestUrl;
         private readonly IAsyncRelayCommand<Uri?> m_NavigationCompletedCommand;
         private readonly IWindowService m_WindowService;
+        private readonly ILogService m_LogService;
         //endregion
     }
 }

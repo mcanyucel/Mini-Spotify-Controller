@@ -31,6 +31,7 @@ namespace Mini_Spotify_Controller
             services.AddSingleton<IToastService, ToastService>();
             services.AddSingleton<IPreferenceService, PreferenceService>();
             services.AddSingleton<IWindowService, WindowService>();
+            services.AddSingleton<ILogService, LogService>();
             services.AddTransient<MainViewModel>();
             services.AddTransient<AuthViewModel>();
             services.AddTransient<ClientIdViewModel>();

@@ -17,11 +17,12 @@ namespace Mini_Spotify_Controller.service.implementation
         #endregion
 
         #region Lifecycle
-        public SpotifyService(IPreferenceService preferenceService, IWindowService windowService)
+        public SpotifyService(IPreferenceService preferenceService, IWindowService windowService, ILogService logService)
         {
             m_PreferenceService = preferenceService;
             m_WindowService = windowService;
             clientId = m_PreferenceService.GetClientId();
+            m_LogService = logService;
         }
         public void Dispose()
         {
@@ -30,7 +31,19 @@ namespace Mini_Spotify_Controller.service.implementation
         #endregion
 
         #region Authorization
-
+        /**
+         * Authorization Flow:
+         * 1. Client Id is acquired during construction of this class.
+         * 2. 
+         *    a. If the client id is not set, the user is prompted to enter it. It is a dialog, so it will suspend the flow until the user enters the client id. 
+         *    b. If the client id is set, go to step 3.
+         * 3. Refresh access token using the refresh token
+         *    a. If the access token is successfully refreshed,set m_AccessData and go to step 5.
+         *    b. If the access token is not successfully refreshed, go to step 4.
+         * 4. Show the access token request dialog. This is a dialog, so it will suspend the flow until the logs in, allows the access, and the access token is acquired. Note tjat tje AuthViewModel will call
+         *    RequestAccessToken method with the code verifier and the access code, and this method will set m_AccessData. Then, go to step 5.
+         * 5. The access token is successfully refreshed or acquired, and the m_AccessData is set. The flow is complete.
+         */ 
         async Task ISpotifyService.Authorize()
         {
             if (clientId == null)
@@ -44,67 +57,14 @@ namespace Mini_Spotify_Controller.service.implementation
                 ShowAccessTokenRequest();
         }
 
-        async Task<AccessData?> RefreshAccessToken()
-        {
-            AccessData? result = null;
-            string? refreshToken = m_PreferenceService.GetRefreshToken();
-            if (refreshToken != null)
-            {
-                result = await RefreshAccessToken(refreshToken);
-            }
-            return result;
-        }
-
-        void ShowAccessTokenRequest()
-        {
-            m_WindowService.ShowAuthorizationWindowDialog();
-        }
-
-        async Task<AccessData?> RefreshAccessToken(string refreshToken)
-        {
-            if (clientId == null)
-            {
-                throw new InvalidOperationException("Client Id is not set");
-            }
-
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
-            var body = new Dictionary<string, string>
-            {
-                { "client_id", clientId },
-                { "grant_type", "refresh_token" },
-                { "refresh_token", refreshToken }
-            };
-            var content = new FormUrlEncodedContent(body);
-            httpRequestMessage.Content = content;
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode == false)
-            {
-                return null;
-            }
-            else
-            {
-                var responseString = await response.Content.ReadAsStringAsync();
-                var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-                return responseDictionary == null
-                    ? null
-                    : new AccessData
-                    {
-                        AccessToken = responseDictionary["access_token"].ToString(),
-                        RefreshToken = refreshToken,
-                        ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
-                        TokenType = responseDictionary["token_type"].ToString()
-                    };
-            }
-        }
-
         async Task ISpotifyService.RequestAccessToken(string codeVerifier, string code)
         {
-            if (clientId == null)
+            try
             {
-                throw new InvalidOperationException("Client Id is not set");
-            }
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
-            var body = new Dictionary<string, string>
+                if (clientId == null) throw new InvalidOperationException("Client Id is not set");
+
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
+                var body = new Dictionary<string, string>
             {
                 { "client_id", clientId },
                 { "grant_type", "authorization_code" },
@@ -113,22 +73,28 @@ namespace Mini_Spotify_Controller.service.implementation
                 { "code_verifier", codeVerifier }
             };
 
-            var content = new FormUrlEncodedContent(body);
-            httpRequestMessage.Content = content;
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-            m_AccessData = responseDictionary == null
-                ? null
-                : new AccessData
-                {
-                    AccessToken = responseDictionary["access_token"].ToString(),
-                    RefreshToken = responseDictionary["refresh_token"].ToString(),
-                    ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
-                    TokenType = responseDictionary["token_type"].ToString()
-                };
-            if (m_AccessData != null && m_AccessData.RefreshToken != null)
-                m_PreferenceService.SetRefreshToken(m_AccessData.RefreshToken);
+                var content = new FormUrlEncodedContent(body);
+                httpRequestMessage.Content = content;
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                m_AccessData = responseDictionary == null
+                    ? null
+                    : new AccessData
+                    {
+                        AccessToken = responseDictionary["access_token"].ToString(),
+                        RefreshToken = responseDictionary["refresh_token"].ToString(),
+                        ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
+                        TokenType = responseDictionary["token_type"].ToString()
+                    };
+                if (m_AccessData != null && m_AccessData.RefreshToken != null)
+                    m_PreferenceService.SetRefreshToken(m_AccessData.RefreshToken);
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to request access token: {ex.Message}");
+                m_AccessData = null;
+            }
         }
         string ISpotifyService.GetRequestUrl(string codeVerifier)
         {
@@ -139,6 +105,72 @@ namespace Mini_Spotify_Controller.service.implementation
             string url = $"{autorizationEndpoint}?client_id={clientId}&response_type={responseType}&redirect_uri={redirectUri}&code_challenge_method=S256&code_challenge={codeChallenge}&state={state}&scope={scope}";
 
             return url;
+        }
+
+
+        private async Task<AccessData?> RefreshAccessToken()
+        {
+            AccessData? result = null;
+            try
+            {
+                string? refreshToken = m_PreferenceService.GetRefreshToken();
+                if (refreshToken != null)
+                {
+                    result = await RefreshAccessToken(refreshToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to refresh access token: {ex.Message}");
+            }
+            return result;
+        }
+
+        private void ShowAccessTokenRequest()
+        {
+            m_WindowService.ShowAuthorizationWindowDialog();
+        }
+
+        private async Task<AccessData?> RefreshAccessToken(string refreshToken)
+        {
+            try
+            {
+                if (clientId == null) throw new Exception("Client Id is not set");
+
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, tokenEndpoint);
+                var body = new Dictionary<string, string>
+            {
+                { "client_id", clientId },
+                { "grant_type", "refresh_token" },
+                { "refresh_token", refreshToken }
+            };
+                var content = new FormUrlEncodedContent(body);
+                httpRequestMessage.Content = content;
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                if (response.IsSuccessStatusCode == false)
+                {
+                    return null;
+                }
+                else
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                    return responseDictionary == null
+                        ? null
+                        : new AccessData
+                        {
+                            AccessToken = responseDictionary["access_token"].ToString(),
+                            RefreshToken = refreshToken,
+                            ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
+                            TokenType = responseDictionary["token_type"].ToString()
+                        };
+                }
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to refresh access token: {ex.Message}");
+                return null;
+            }
         }
         #endregion
 
@@ -203,7 +235,7 @@ namespace Mini_Spotify_Controller.service.implementation
                 if (responseDictionary != null)
                 {
                     result.IsPlaying = responseDictionary["is_playing"]?.ToString() == "True";
-                    result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0"));   
+                    result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0"));
 
                     var device = JsonSerializer.Deserialize<Dictionary<string, object>>(responseDictionary["device"]?.ToString() ?? "");
                     result.DeviceId = device?["id"]?.ToString() ?? string.Empty;
@@ -425,6 +457,7 @@ namespace Mini_Spotify_Controller.service.implementation
         private readonly HttpClient httpClient = new();
         private readonly IPreferenceService m_PreferenceService;
         private readonly IWindowService m_WindowService;
+        private readonly ILogService m_LogService;
         private AccessData? m_AccessData;
         #endregion
     }
