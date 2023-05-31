@@ -1,5 +1,4 @@
 ﻿using Mini_Spotify_Controller.viewmodel;
-using System.Diagnostics;
 
 namespace Mini_Spotify_Controller.window
 {

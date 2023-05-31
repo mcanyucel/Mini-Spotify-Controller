@@ -10,7 +10,7 @@
         d:DataContext="{d:DesignInstance Type=viewmodel:AuthViewModel}"
         xmlns:local="clr-namespace:Mini_Spotify_Controller.window"
         mc:Ignorable="d"
-        Title="AuthWindow" Height="450" Width="800">
+        Title="" Height="450" Width="800">
     <DockPanel LastChildFill="True">
         <wv2:WebView2 Name="webView" Source="{Binding Path=RequestUrl}">
             <behaviors:Interaction.Triggers>

@@ -14,6 +14,7 @@ namespace Mini_Spotify_Controller.viewmodel
     {
         #region Properties
         public IAsyncRelayCommand AuthorizeCommand { get => m_AutorizeCommand; }
+        public IAsyncRelayCommand RefreshCommand { get => m_RefreshCommand; }
         public IRelayCommand TogglePlayCommand { get => m_TogglePlayCommand; }
         public IRelayCommand NextCommand { get => m_NextCommand; }
         public IRelayCommand SeekStartCommand { get => m_SeekStartCommand; }
@@ -27,11 +28,10 @@ namespace Mini_Spotify_Controller.viewmodel
         #endregion
 
         #region Lifecycle
-        public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IPreferenceService preferenceService, IWindowService windowService)
+        public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IWindowService windowService)
         {
             m_SpotifyService = spotifyService;
             m_ToastService = toastService;
-            m_PreferenceService = preferenceService;
             m_WindowService = windowService;
 
             m_AutorizeCommand = new AsyncRelayCommand(Authorize, AuthorizeCanExecute);
@@ -41,7 +41,8 @@ namespace Mini_Spotify_Controller.viewmodel
             m_OpenSettingsCommand = new RelayCommand(OpenSettings);
             m_SeekStartCommand = new RelayCommand(SeekStart);
             m_SeekEndCommand = new AsyncRelayCommand<double>(SeekEnd);
-            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand }.ToList();
+            m_RefreshCommand = new AsyncRelayCommand(Refresh, RefreshCanExecute);
+            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
 
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
@@ -125,6 +126,15 @@ namespace Mini_Spotify_Controller.viewmodel
                 _ = Task.Run(async () => PlaybackState = await m_SpotifyService.PreviousTrack(m_PlaybackState.DeviceId));
         }
 
+        private async Task Refresh()
+        {
+            if (m_SpotifyService.IsAuthorized)
+            {
+                PlaybackState = await m_SpotifyService.GetPlaybackState();
+                UpdateCommandStates();
+            }
+        }
+
         private void SeekStart()
         {
             if (m_PlaybackState.IsPlaying)
@@ -187,6 +197,10 @@ namespace Mini_Spotify_Controller.viewmodel
                 m_CommandList.ForEach(x => x.NotifyCanExecuteChanged());
             });
         }
+        private bool RefreshCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized;
+        }
         private bool AuthorizeCanExecute()
         {
             return true;
@@ -223,7 +237,6 @@ namespace Mini_Spotify_Controller.viewmodel
         #region Fields
         private readonly ISpotifyService m_SpotifyService;
         private readonly IToastService m_ToastService;
-        private readonly IPreferenceService m_PreferenceService;
         private readonly IWindowService m_WindowService;
         private readonly IAsyncRelayCommand m_AutorizeCommand;
         private readonly IRelayCommand m_TogglePlayCommand;
@@ -232,6 +245,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IRelayCommand m_OpenSettingsCommand;
         private readonly IRelayCommand m_SeekStartCommand;
         private readonly IAsyncRelayCommand<double> m_SeekEndCommand;
+        private readonly IAsyncRelayCommand m_RefreshCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_ProgressTimer;

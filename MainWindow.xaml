@@ -27,6 +27,9 @@
     </mah:MetroWindow.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
+            <Button Command="{Binding RefreshCommand}" ToolTip="Refresh Playback State">
+                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Refresh" />
+            </Button>
             <Button Content="Settings" Command="{Binding OpenSettingsCommand}" />
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
