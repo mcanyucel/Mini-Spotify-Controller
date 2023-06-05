@@ -35,6 +35,8 @@ The application requires to have a Spotify Premium account to work. It will not 
 * Microsoft.Xaml.Behaviors.Wpf: A great library for WPF behaviors (mainly used for binding commands to event handlers).
 
 ## TODO
+* ~~Implement displaying like (i.e. added to library) status~~
+* ~~Implement liking (i.e. adding to library) and unliking (i.e. removing from library) tracks.~~
 * ~~Add an icon to the application.~~
 * ~~Add a feature to display the track progress and (maybe) allow to seek.~~
 * ~~Currently the application makes an API call at every 10 seconds to get the current playback state. It can be changed so that it only makes an API call when the playing track has ended (based on the track progress and the track duration). This will still fail to capture changes made from other devices, but it will be more efficient.~~ Now the application keeps track of the track progress offline. It only makes an API call when the track has ended. This fails to capture changes made from other devices, but it is more efficient.

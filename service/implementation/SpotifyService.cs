@@ -43,7 +43,7 @@ namespace Mini_Spotify_Controller.service.implementation
          * 4. Show the access token request dialog. This is a dialog, so it will suspend the flow until the logs in, allows the access, and the access token is acquired. Note tjat tje AuthViewModel will call
          *    RequestAccessToken method with the code verifier and the access code, and this method will set m_AccessData. Then, go to step 5.
          * 5. The access token is successfully refreshed or acquired, and the m_AccessData is set. The flow is complete.
-         */ 
+         */
         async Task ISpotifyService.Authorize()
         {
             if (clientId == null)
@@ -100,14 +100,12 @@ namespace Mini_Spotify_Controller.service.implementation
         {
             string codeChallenge = HashString(codeVerifier);
             string state = ISpotifyService.GenerateRandomString(16);
-            string scope = "user-read-private user-read-email user-library-read user-read-playback-state user-modify-playback-state";
+            string scope = "user-read-private user-read-email user-library-read user-library-modify user-read-playback-state user-modify-playback-state";
             string responseType = "code";
             string url = $"{autorizationEndpoint}?client_id={clientId}&response_type={responseType}&redirect_uri={redirectUri}&code_challenge_method=S256&code_challenge={codeChallenge}&state={state}&scope={scope}";
 
             return url;
         }
-
-
         private async Task<AccessData?> RefreshAccessToken()
         {
             AccessData? result = null;
@@ -154,7 +152,7 @@ namespace Mini_Spotify_Controller.service.implementation
                 else
                 {
                     var responseString = await response.Content.ReadAsStringAsync();
-                    var responseDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                    var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
                     return responseDictionary == null
                         ? null
                         : new AccessData
@@ -244,6 +242,7 @@ namespace Mini_Spotify_Controller.service.implementation
                         try
                         {
                             var item = JsonSerializer.Deserialize<Dictionary<string, object>>(responseDictionary["item"]?.ToString() ?? "");
+                            result.CurrentlyPlayingId = item?["id"]?.ToString() ?? string.Empty;
                             result.CurrentlyPlaying = item?["name"]?.ToString() ?? string.Empty;
                             result.DurationMs = int.Parse(item?["duration_ms"]?.ToString() ?? "0");
 
@@ -260,12 +259,75 @@ namespace Mini_Spotify_Controller.service.implementation
                             result.CurrentlyPlayingArtist = (JsonSerializer.Deserialize<Dictionary<string, object>>(artist?.ToString() ?? ""))?["name"]?.ToString() ?? string.Empty;
 
                             result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0"));
+
+                            result.IsLiked = await ((ISpotifyService)this).CheckIfTrackIsSaved(result.CurrentlyPlayingId);
                         }
-                        catch (Exception) { }
+                        catch (Exception ex)
+                        {
+                            m_LogService.LogError($"Failed to get playback state: {ex.Message}");
+                        }
                     }
                 }
             }
             return result;
+        }
+        async Task<bool> ISpotifyService.CheckIfTrackIsSaved(string spotifyId)
+        {
+            var result = false;
+            try
+            {
+                var endpoint = libraryCheckEndpoint + $"?ids={spotifyId}";
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
+                httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                response.EnsureSuccessStatusCode();
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                var resultList = JsonSerializer.Deserialize<List<bool>>(responseString);
+                result = resultList?.FirstOrDefault() ?? false;
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to check if track is saved: {ex.Message}");
+            }
+            return result;
+        }
+        async Task<bool> ISpotifyService.SaveTrack(string spotifyId)
+        {
+            var result = false;
+            try
+            {
+                var endpoint = savedTracksEndpoint + $"?ids={spotifyId}";
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
+                httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                response.EnsureSuccessStatusCode();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to save track: {ex.Message}");
+            }
+            return result;
+        }
+        async Task<bool> ISpotifyService.RemoveTrack(string spotifyId)
+        {
+            var result = false;
+            try
+            {
+                var endpoint = savedTracksEndpoint + $"?ids={spotifyId}";
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, endpoint);
+                httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                response.EnsureSuccessStatusCode();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to remove track: {ex.Message}");
+            }
+            return result;
+
         }
         async Task<PlaybackState> ISpotifyService.StartPlay(string deviceId)
         {
@@ -453,6 +515,8 @@ namespace Mini_Spotify_Controller.service.implementation
         private const string playbackPreviousEndpoint = "https://api.spotify.com/v1/me/player/previous";
         private const string devicesEndpoint = "https://api.spotify.com/v1/me/player/devices";
         private const string seekEndpoint = "https://api.spotify.com/v1/me/player/seek";
+        private const string libraryCheckEndpoint = "https://api.spotify.com/v1/me/tracks/contains";
+        private const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
         private const int delay = 500; // ms - delay between consecutive requests
         private readonly HttpClient httpClient = new();
         private readonly IPreferenceService m_PreferenceService;

@@ -19,6 +19,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IRelayCommand NextCommand { get => m_NextCommand; }
         public IRelayCommand SeekStartCommand { get => m_SeekStartCommand; }
         public IAsyncRelayCommand<double> SeekEndCommand { get => m_SeekEndCommand; }
+        public IAsyncRelayCommand ToggleLikedCommand { get => m_ToggleLikedCommand; }
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public bool Topmost { get => m_Topmost; private set => SetProperty(ref m_Topmost, value); }
@@ -42,7 +43,8 @@ namespace Mini_Spotify_Controller.viewmodel
             m_SeekStartCommand = new RelayCommand(SeekStart);
             m_SeekEndCommand = new AsyncRelayCommand<double>(SeekEnd);
             m_RefreshCommand = new AsyncRelayCommand(Refresh, RefreshCanExecute);
-            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand }.ToList();
+            m_ToggleLikedCommand = new AsyncRelayCommand(ToggleLiked, ToggleLikedCanExecute);
+            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
 
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
@@ -88,6 +90,18 @@ namespace Mini_Spotify_Controller.viewmodel
         #endregion
 
         #region Playback State
+        private async Task ToggleLiked()
+        {
+            var oldValue = m_PlaybackState.IsLiked;
+            bool saved;
+            if (oldValue)
+                saved = await m_SpotifyService.RemoveTrack(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+            else
+                saved = await m_SpotifyService.SaveTrack(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+
+            if (saved)
+                m_PlaybackState.IsLiked = !oldValue;
+        }
         private void TogglePlay()
         {
             if (m_PlaybackState.IsPlaying)
@@ -217,6 +231,10 @@ namespace Mini_Spotify_Controller.viewmodel
         {
             return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
         }
+        private bool ToggleLikedCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
+        }
         #endregion
 
         #region UI Helpers
@@ -246,6 +264,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IRelayCommand m_SeekStartCommand;
         private readonly IAsyncRelayCommand<double> m_SeekEndCommand;
         private readonly IAsyncRelayCommand m_RefreshCommand;
+        private readonly IAsyncRelayCommand m_ToggleLikedCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_ProgressTimer;
