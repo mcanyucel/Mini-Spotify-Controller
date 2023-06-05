@@ -21,6 +21,8 @@ namespace Mini_Spotify_Controller.service
         internal Task<User?> GetUser();
         internal Task<Device?> GetLastListenedDevice(string accessToken);
         internal Task<bool> CheckIfTrackIsSaved(string spotifyId);
+        internal Task<bool> SaveTrack(string spotifyId);
+        internal Task<bool> RemoveTrack(string spotifyId);
         internal static string GenerateRandomString(int length)
         {
             Random random = new();

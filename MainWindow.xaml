@@ -48,7 +48,7 @@
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
 
-        <Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="8,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Add to My Library" >
+        <Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="8,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Add to My Library" Command="{Binding ToggleLikedCommand}">
             <Button.Content>
                 <iconPacks:PackIconMaterial Kind="Heart">
                     <iconPacks:PackIconMaterial.Style>
