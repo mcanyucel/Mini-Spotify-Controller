@@ -50,7 +50,12 @@
         <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Instrumentalness, StringFormat=Instrumentalness \= {0:N3}}" />
         <TextBlock Grid.Row="7" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
         <mah:MetroProgressBar Grid.Row="7" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.InstrumentalnessMin}" Maximum="{Binding AudioFeatures.InstrumentalnessMax}" Value="{Binding AudioFeatures.Instrumentalness}" />
-        <TextBlock Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" /
+
+
+
+
+
 
 
     </Grid>

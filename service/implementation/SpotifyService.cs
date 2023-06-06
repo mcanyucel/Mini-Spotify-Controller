@@ -409,7 +409,7 @@ namespace Mini_Spotify_Controller.service.implementation
 
                 var responseString = response.Content.ReadAsStringAsync().Result;
                 var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-                result = ExtractAudioFeatures(responseDictionary);
+                result = ExtractAudioFeatures(spotifyId, responseDictionary);
             }
             catch (Exception ex)
             {
@@ -544,27 +544,25 @@ namespace Mini_Spotify_Controller.service.implementation
             };
         }
 
-        private AudioFeatures? ExtractAudioFeatures(Dictionary<string, object>? audioFeaturesDictionary)
+        private AudioFeatures? ExtractAudioFeatures(string spotifyId, Dictionary<string, object>? audioFeaturesDictionary)
         {
             if (audioFeaturesDictionary == null) return null;
 
             AudioFeatures? audioFeatures = null;
             try
             {
-                audioFeatures = new AudioFeatures
-                {
-                    Danceability = Convert.ToDouble(audioFeaturesDictionary["danceability"].ToString()),
-                    Energy = Convert.ToDouble(audioFeaturesDictionary["energy"].ToString()),
-                    KeyNumber = Convert.ToInt32(audioFeaturesDictionary["key"].ToString()),
-                    Loudness = Convert.ToDouble(audioFeaturesDictionary["loudness"].ToString()),
-                    ModeNumber = Convert.ToInt32(audioFeaturesDictionary["mode"].ToString()),
-                    Acousticness = Convert.ToDouble(audioFeaturesDictionary["acousticness"].ToString()),
-                    Instrumentalness = Convert.ToDouble(audioFeaturesDictionary["instrumentalness"].ToString()),
-                    Liveness = Convert.ToDouble(audioFeaturesDictionary["liveness"].ToString()),
-                    Valence = Convert.ToDouble(audioFeaturesDictionary["valence"].ToString()),
-                    Tempo = Convert.ToDouble(audioFeaturesDictionary["tempo"].ToString()),
-                    TimeSignature = Convert.ToInt32(audioFeaturesDictionary["time_signature"].ToString())
-                };
+                audioFeatures = new AudioFeatures(spotifyId);
+                audioFeatures.Features.Add(new AudioFeature("Danceability", Convert.ToDouble(audioFeaturesDictionary["danceability"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Energy", Convert.ToDouble(audioFeaturesDictionary["energy"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Key", Convert.ToDouble(audioFeaturesDictionary["key"].ToString()), 0d, 11d));
+                audioFeatures.Features.Add(new AudioFeature("Loudness", Convert.ToDouble(audioFeaturesDictionary["loudness"].ToString()), -60d, 0d));
+                audioFeatures.Features.Add(new AudioFeature("Mode", Convert.ToDouble(audioFeaturesDictionary["mode"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Acousticness", Convert.ToDouble(audioFeaturesDictionary["acousticness"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Instrumentalness", Convert.ToDouble(audioFeaturesDictionary["instrumentalness"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Liveness", Convert.ToDouble(audioFeaturesDictionary["liveness"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Valence", Convert.ToDouble(audioFeaturesDictionary["valence"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Tempo", Convert.ToDouble(audioFeaturesDictionary["tempo"].ToString()), 0d, 250d));
+                audioFeatures.Features.Add(new AudioFeature("TimeSignature", Convert.ToDouble(audioFeaturesDictionary["time_signature"].ToString()), 3d, 7d));
             }
             catch (Exception ex)
             {

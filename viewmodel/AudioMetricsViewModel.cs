@@ -7,11 +7,9 @@ namespace Mini_Spotify_Controller.viewmodel
     {
         public AudioFeatures? AudioFeatures { get => m_AudioFeatures; private set => SetProperty(ref m_AudioFeatures, value); }
         public AudioAnalysis? AudioAnalysis { get => m_AudioAnalysis; private set => SetProperty(ref m_AudioAnalysis, value); }
-        public string SongTitle { get => m_SongTitle; private set => SetProperty(ref m_SongTitle, value); }
 
-        internal void UpdateData(string songTitle, AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
+        public void UpdateData(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
         {
-            SongTitle = songTitle;
             AudioAnalysis = audioAnalysis;
             AudioFeatures = audioFeatures;
         }
@@ -20,7 +18,6 @@ namespace Mini_Spotify_Controller.viewmodel
         #region Fields
         private AudioFeatures? m_AudioFeatures;
         private AudioAnalysis? m_AudioAnalysis;
-        private string m_SongTitle = string.Empty;
         #endregion
     }
 }

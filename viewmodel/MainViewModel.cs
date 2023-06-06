@@ -202,7 +202,10 @@ namespace Mini_Spotify_Controller.viewmodel
             AudioAnalysis? audioAnalysis = new(); //await m_SpotifyService.GetAudioAnalysis(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
 
             if (audioAnalysis != null && audioFeatures != null)
-                m_WindowService.ShowAudioMetricsWindow(PlaybackState.CurrentlyPlaying ?? string.Empty, audioFeatures, audioAnalysis);
+            {
+                audioFeatures.TrackName = PlaybackState.CurrentlyPlaying ?? string.Empty;
+                m_WindowService.ShowAudioMetricsWindow(audioFeatures, audioAnalysis);
+            }
             else
                 ShowError("Error", "Failed to get audio metrics.");
         }

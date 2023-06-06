@@ -32,17 +32,17 @@ namespace Mini_Spotify_Controller.service.implementation
             Clipboard.SetText(text);
         }
 
-        void IWindowService.ShowAudioMetricsWindow(string songTitle, AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
+        void IWindowService.ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
         {
             if (m_AudioMetricsWindow == null)
             {
-                m_AudioMetricsWindow = new AudioMetricsWindow(songTitle, audioFeatures, audioAnalysis);
+                m_AudioMetricsWindow = new AudioMetricsWindow(audioFeatures, audioAnalysis);
                 m_AudioMetricsWindow.Show();
                 m_AudioMetricsWindow.Closed += (sender, args) => m_AudioMetricsWindow = null;
             }
             else
             {
-                m_AudioMetricsWindow.UpdateData(songTitle, audioFeatures, audioAnalysis);
+                m_AudioMetricsWindow.UpdateData(audioFeatures, audioAnalysis);
                 m_AudioMetricsWindow.Activate();
             }
         }
