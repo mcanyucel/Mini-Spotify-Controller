@@ -1,0 +1,36 @@
+﻿<mah:MetroWindow x:Class="Mini_Spotify_Controller.window.AudioMetricsWindow"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:model="clr-namespace:Mini_Spotify_Controller.model"
+                xmlns:converter="clr-namespace:Mini_Spotify_Controller.converter"
+                 SizeToContent="Height"
+                 Background="DarkCyan"
+                xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel" d:DataContext="{d:DesignInstance Type=viewmodel:AudioMetricsViewModel}"
+        mc:Ignorable="d"
+        Title="{Binding AudioFeatures.TrackName, StringFormat=AUDIO METRICS FOR {0}}" Width="400">
+    <mah:MetroWindow.Resources>
+        <converter:AudioFeatureTitleConverter x:Key="AudioFeatureTitleConverter" />
+    </mah:MetroWindow.Resources>
+    <Grid Margin="0,8,0,8">
+        <ItemsControl ItemsSource="{Binding AudioFeatures.Features}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="model:AudioFeature">
+                    <DockPanel LastChildFill="True">
+                        
+                        <TextBlock Text="Low" DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="8,0,4,0" Foreground="DarkBlue" VerticalAlignment="Center" />
+                        <TextBlock Text="High" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,8,0" Foreground="DarkRed" VerticalAlignment="Center"/>
+                        <Grid >
+                            
+                            <mah:MetroProgressBar Value="{Binding FeatureValue, Mode=OneTime}" Minimum="{Binding FeatureMin}" Maximum="{Binding FeatureMax}" Foreground="DarkGreen" Margin="0,4,0,4" />
+                            <TextBlock Text="{Binding Converter={StaticResource AudioFeatureTitleConverter}}" TextAlignment="Center" FontWeight="Bold" Foreground="AliceBlue" Margin="0,4,0,4"/>
+                        </Grid>
+                        
+                    </DockPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</mah:MetroWindow>

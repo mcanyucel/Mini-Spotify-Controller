@@ -396,6 +396,27 @@ namespace Mini_Spotify_Controller.service.implementation
         #endregion
 
         #region Track Data
+        async Task<AudioFeatures?> ISpotifyService.GetAudioFeatures(string spotifyId)
+        {
+            AudioFeatures? result = null;
+            try
+            {
+                var endpoint = audioFeaturesEndpoint + $"/{spotifyId}";
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
+                httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                response.EnsureSuccessStatusCode();
+
+                var responseString = response.Content.ReadAsStringAsync().Result;
+                var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                result = ExtractAudioFeatures(spotifyId, responseDictionary);
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to get audio features: {ex.Message}");
+            }
+            return result;
+        }
         async Task<string> ISpotifyService.GetShareUrl(string spotifyId)
         {
             var result = string.Empty;
@@ -409,14 +430,14 @@ namespace Mini_Spotify_Controller.service.implementation
 
                 var responseString = response.Content.ReadAsStringAsync().Result;
                 var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-                var urls = JsonSerializer.Deserialize<Dictionary<string,object>>(responseDictionary?["external_urls"].ToString() ?? string.Empty); 
+                var urls = JsonSerializer.Deserialize<Dictionary<string, object>>(responseDictionary?["external_urls"].ToString() ?? string.Empty);
                 result = urls?["spotify"].ToString() ?? string.Empty;
             }
             catch (Exception ex)
             {
                 m_LogService.LogError($"Failed to get share url: {ex.Message}");
             }
-            
+
             return result;
         }
         async Task<bool> ISpotifyService.CheckIfTrackIsSaved(string spotifyId)
@@ -522,6 +543,34 @@ namespace Mini_Spotify_Controller.service.implementation
                 ImageUrl = imageUrl
             };
         }
+
+        private AudioFeatures? ExtractAudioFeatures(string spotifyId, Dictionary<string, object>? audioFeaturesDictionary)
+        {
+            if (audioFeaturesDictionary == null) return null;
+
+            AudioFeatures? audioFeatures = null;
+            try
+            {
+                audioFeatures = new AudioFeatures(spotifyId);
+                audioFeatures.Features.Add(new AudioFeature("Mode", Convert.ToDouble(audioFeaturesDictionary["mode"].ToString()), 0d, 1d, FeatureType.Text));
+                audioFeatures.Features.Add(new AudioFeature("Key", Convert.ToDouble(audioFeaturesDictionary["key"].ToString()), 0d, 11d, FeatureType.Text));
+                audioFeatures.Features.Add(new AudioFeature("Tempo", Convert.ToDouble(audioFeaturesDictionary["tempo"].ToString()), 0d, 250d));
+                audioFeatures.Features.Add(new AudioFeature("TimeSignature", Convert.ToDouble(audioFeaturesDictionary["time_signature"].ToString()), 3d, 7d));
+                audioFeatures.Features.Add(new AudioFeature("Danceability", Convert.ToDouble(audioFeaturesDictionary["danceability"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Energy", Convert.ToDouble(audioFeaturesDictionary["energy"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Loudness", Convert.ToDouble(audioFeaturesDictionary["loudness"].ToString()), -60d, 0d));
+                audioFeatures.Features.Add(new AudioFeature("Acousticness", Convert.ToDouble(audioFeaturesDictionary["acousticness"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Instrumentalness", Convert.ToDouble(audioFeaturesDictionary["instrumentalness"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Liveness", Convert.ToDouble(audioFeaturesDictionary["liveness"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Valence", Convert.ToDouble(audioFeaturesDictionary["valence"].ToString()), 0d, 1d));
+                
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to extract audio features: {ex.Message}");
+            }
+            return audioFeatures;
+        }
         #endregion
 
         #region Fields
@@ -540,6 +589,7 @@ namespace Mini_Spotify_Controller.service.implementation
         private const string libraryCheckEndpoint = "https://api.spotify.com/v1/me/tracks/contains";
         private const string tracksEndpoint = "https://api.spotify.com/v1/tracks";
         private const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
+        private const string audioFeaturesEndpoint = "https://api.spotify.com/v1/audio-features";
         private const int delay = 500; // ms - delay between consecutive requests
         private readonly HttpClient httpClient = new();
         private readonly IPreferenceService m_PreferenceService;

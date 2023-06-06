@@ -1,4 +1,6 @@
-﻿namespace Mini_Spotify_Controller.service
+﻿using Mini_Spotify_Controller.model;
+
+namespace Mini_Spotify_Controller.service
 {
     interface IWindowService
     {
@@ -7,6 +9,8 @@
         internal void ShowAuthorizationWindowDialog();
         internal void CloseAuthorizationWindowDialog();
         internal void SetClipboardText(string text);
+        internal void ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis);
+        internal bool IsAudioMetricsWindowOpen();
 
     }
 }

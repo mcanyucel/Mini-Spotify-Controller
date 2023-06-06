@@ -36,17 +36,17 @@ The application requires to have a Spotify Premium account to work. It will not 
 
 ## New Features
 
-### v1.1.1
+### 1.1.2
+
+* Added a "Stats for Nerds" style "audio features" window. It can be accessed by the button on the app bar with a chart icon.
+
+### 1.1.1
+
 * Added a feature to share. Clicking the share button will copy the currently playing track's Spotify url to the clipboard.
 
-### v1.0.0
+### 1.0.0
+
 * Added a feature to display if the current track is added to the library or not. User can click the heart icon to add or remove the track from the library. Added tracks will be displayed with a red heart icon, and removed tracks will be displayed with a light gray heart icon.
 
 ## TODO
-* ~~Implement displaying like (i.e. added to library) status~~
-* ~~Implement liking (i.e. adding to library) and unliking (i.e. removing from library) tracks.~~
-* ~~Add an icon to the application.~~
-* ~~Add a feature to display the track progress and (maybe) allow to seek.~~
-* ~~Currently the application makes an API call at every 10 seconds to get the current playback state. It can be changed so that it only makes an API call when the playing track has ended (based on the track progress and the track duration). This will still fail to capture changes made from other devices, but it will be more efficient.~~ Now the application keeps track of the track progress offline. It only makes an API call when the track has ended. This fails to capture changes made from other devices, but it is more efficient.
-* ~~If spotify allows web sockets, it can be used to get the current playback state in real time. This will allow to capture changes made from other devices.~~ It looks like Spotify does not support web sockets.
-* ~~Seeking method is available but not implemented yet.~~ Seeking is implemented by `PreviewMouseUp` and `PreviewMouseDown` events manipulating an `IsSeeking` flag. This allows to stop the auto-movement of the slider during seeking, and also allows to seek to the desired position when the mouse button is released.
+* Fix the issue where the client id is not registered on the first launch of the application.
