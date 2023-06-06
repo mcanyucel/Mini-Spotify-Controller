@@ -213,6 +213,89 @@ namespace Mini_Spotify_Controller.service.implementation
         #endregion
 
         #region Playback State
+
+        async Task<PlaybackState?> ISpotifyService.Randomize(string deviceId)
+        {
+            /**
+             * Flow
+             * 1. Get user's saved tracks with a random offset (betwen 0 and 10k) and a limit of 1: https://developer.spotify.com/documentation/web-api/reference/get-users-saved-tracks
+             * 2. Extract the artist ids and the genres from the returned track.
+             * 3. Combine the artist ids and genres to form a seed list for the recommendation endpoint: https://developer.spotify.com/documentation/web-api/reference/get-recommendations
+             * 4. Get max number of recommendations from the recommendation endpoint (100).
+             * 5. Start playback of the recommendations with the device id
+             */
+            try
+            {
+                var offset = new Random().Next(0, 10000);
+                var limit = 1;
+                var seedSongEndpoint = $"{savedTracksEndpoint}?offset={offset}&limit={limit}";
+                HttpRequestMessage savedTracksRequestMessage = new(HttpMethod.Get, seedSongEndpoint);
+                savedTracksRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var savedTracksResponse = await httpClient.SendAsync(savedTracksRequestMessage);
+                savedTracksResponse.EnsureSuccessStatusCode();
+                var savedTracksResponseString = await savedTracksResponse.Content.ReadAsStringAsync();
+                var savedTracksResponseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(savedTracksResponseString);
+                if (savedTracksResponseDictionary?["items"] is not List<object> savedTracks || savedTracks.Count == 0)
+                    throw new Exception("No saved tracks found");
+
+                var savedTrack = JsonSerializer.Deserialize<Dictionary<string, object>>(savedTracks[0].ToString() ?? "");
+                var savedTrackData = JsonSerializer.Deserialize<Dictionary<string, object>>(savedTrack?["track"].ToString() ?? "");
+                var albumData = JsonSerializer.Deserialize<Dictionary<string, object>>(savedTrackData?["album"].ToString() ?? "");
+                var genres = JsonSerializer.Deserialize<List<string>>(albumData?["genres"].ToString() ?? "");
+
+                var artistData = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(savedTrackData?["artists"].ToString() ?? "");
+                var artistIds = artistData?.Select(a => a["id"].ToString() ?? string.Empty).ToList();
+
+                if ((artistIds == null || artistIds.Count == 0) && (genres == null || genres.Count == 0))
+                    throw new Exception("No starting seed found");
+
+                // a total of 5 seeds are allowed; 5 artists, 5 genres, or any combination in between.
+                // try to take 2 artists and 3 genres - if not enough artist available, try to complete to 5 with genres
+                var seedCount = 5;
+
+                var seedArtists = artistIds?.Take(2).ToList() ?? new List<string>();
+                var seedGenres = genres?.Take(seedCount - seedArtists.Count).ToList() ?? new List<string>();
+
+                var seedArtistsString = seedArtists.Count > 0 ? $"seed_artists={string.Join(",", seedArtists)}" : string.Empty;
+                var seedGenresString = seedGenres.Count > 0 ? $"seed_genres={string.Join(",", seedGenres)}" : string.Empty;
+
+                var stringBuilder = new StringBuilder();
+                if (!string.IsNullOrEmpty(seedArtistsString))
+                    stringBuilder.Append(seedArtistsString);
+                if (!string.IsNullOrEmpty(seedGenresString))
+                    stringBuilder.Append(stringBuilder.Length > 0 ? $"&{seedGenresString}" : seedGenresString);
+                var seedString = stringBuilder.ToString();
+
+                var recommendationEndpoint = $"{recommendationsEndpoint}?limit={100}&{seedString}";
+                HttpRequestMessage recommendationRequestMessage = new(HttpMethod.Get, recommendationEndpoint);
+                recommendationRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var recommendationResponse = await httpClient.SendAsync(recommendationRequestMessage);
+                recommendationResponse.EnsureSuccessStatusCode();
+                var recommendationResponseString = await recommendationResponse.Content.ReadAsStringAsync();
+                var recommendationResponseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(recommendationResponseString);
+                if (recommendationResponseDictionary?["tracks"] is not List<object> tracks || tracks.Count == 0)
+                    throw new Exception("No recommendations found");
+                var trackList = tracks.Select(t => JsonSerializer.Deserialize<Dictionary<string, object>>(t.ToString() ?? "")).ToList();
+                var trackIds = trackList.Select(t => t["id"].ToString() ?? string.Empty).ToList();
+                if (trackIds == null || trackIds.Count == 0)
+                    throw new Exception("No track ids found");
+
+                var playEndpoint = $"{playbackStartEndpoint}?device_id={deviceId}";
+                var body = JsonSerializer.Serialize(new { uris = trackIds.ToList() });
+                HttpRequestMessage playRequestMessage = new(HttpMethod.Put, playEndpoint);
+                playRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                var playResponse = await httpClient.SendAsync(playRequestMessage);
+                playResponse.EnsureSuccessStatusCode();
+                return await ((ISpotifyService)this).GetPlaybackState();
+            }
+            catch (Exception ex)
+            {
+                m_LogService?.LogError($"Error randomizing: {ex.Message}");
+                return null;
+            }
+        }
+
         async Task<PlaybackState> ISpotifyService.GetPlaybackState()
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, playbackStateEndpoint);
@@ -563,7 +646,7 @@ namespace Mini_Spotify_Controller.service.implementation
                 audioFeatures.Features.Add(new AudioFeature("Instrumentalness", Convert.ToDouble(audioFeaturesDictionary["instrumentalness"].ToString()), 0d, 1d));
                 audioFeatures.Features.Add(new AudioFeature("Liveness", Convert.ToDouble(audioFeaturesDictionary["liveness"].ToString()), 0d, 1d));
                 audioFeatures.Features.Add(new AudioFeature("Valence", Convert.ToDouble(audioFeaturesDictionary["valence"].ToString()), 0d, 1d));
-                
+
             }
             catch (Exception ex)
             {
@@ -590,6 +673,7 @@ namespace Mini_Spotify_Controller.service.implementation
         private const string tracksEndpoint = "https://api.spotify.com/v1/tracks";
         private const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
         private const string audioFeaturesEndpoint = "https://api.spotify.com/v1/audio-features";
+        private const string recommendationsEndpoint = "https://api.spotify.com/v1/recommendations";
         private const int delay = 500; // ms - delay between consecutive requests
         private readonly HttpClient httpClient = new();
         private readonly IPreferenceService m_PreferenceService;

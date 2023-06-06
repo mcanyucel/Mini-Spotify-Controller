@@ -25,16 +25,13 @@ namespace Mini_Spotify_Controller.service
         internal Task<bool> RemoveTrack(string spotifyId);
         internal Task<string> GetShareUrl(string spotifyId);
         internal Task<AudioFeatures?> GetAudioFeatures(string spotifyId);
+        internal Task<PlaybackState?> Randomize(string deviceId);
         internal static string GenerateRandomString(int length)
         {
             Random random = new();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             return new string(Enumerable.Repeat(chars, length)
                              .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-        
-
-        
+        }   
     }
 }
