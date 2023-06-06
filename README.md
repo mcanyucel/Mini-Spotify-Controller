@@ -34,6 +34,14 @@ The application requires to have a Spotify Premium account to work. It will not 
 * Microsoft.Web.WebView2: A great library for Chromium based webview. It is used to display the user authentication and authorization page.
 * Microsoft.Xaml.Behaviors.Wpf: A great library for WPF behaviors (mainly used for binding commands to event handlers).
 
+## New Features
+
+### v1.1.1
+* Added a feature to share. Clicking the share button will copy the currently playing track's Spotify url to the clipboard.
+
+### v1.0.0
+* Added a feature to display if the current track is added to the library or not. User can click the heart icon to add or remove the track from the library. Added tracks will be displayed with a red heart icon, and removed tracks will be displayed with a light gray heart icon.
+
 ## TODO
 * ~~Implement displaying like (i.e. added to library) status~~
 * ~~Implement liking (i.e. adding to library) and unliking (i.e. removing from library) tracks.~~

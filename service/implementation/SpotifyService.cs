@@ -271,6 +271,154 @@ namespace Mini_Spotify_Controller.service.implementation
             }
             return result;
         }
+        async Task<PlaybackState> ISpotifyService.StartPlay(string deviceId)
+        {
+            var endpoint = playbackStartEndpoint + $"?device_id={deviceId}";
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(delay);
+                return await ((ISpotifyService)this).GetPlaybackState();
+            }
+            else
+            {
+                return new PlaybackState
+                {
+                    IsPlaying = false,
+                    CurrentlyPlaying = "Error"
+
+                };
+            }
+        }
+        async Task<PlaybackState> ISpotifyService.PausePlay(string deviceId)
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, playbackPauseEndpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+            var body = new Dictionary<string, string>
+            {
+                { "device_id", deviceId }
+            };
+            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+            httpRequestMessage.Content = content;
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(delay);
+                return await ((ISpotifyService)this).GetPlaybackState();
+            }
+            else
+            {
+                return new PlaybackState
+                {
+                    IsPlaying = false,
+                    CurrentlyPlaying = "Error"
+                };
+            }
+        }
+        async Task<PlaybackState> ISpotifyService.NextTrack(string deviceId)
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackNextEndpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+            var body = new Dictionary<string, string>
+            {
+                { "device_id", deviceId }
+            };
+            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+            httpRequestMessage.Content = content;
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(delay);
+                return await ((ISpotifyService)this).GetPlaybackState();
+            }
+            else
+            {
+                return new PlaybackState
+                {
+                    IsPlaying = false,
+                    CurrentlyPlaying = "Error"
+                };
+            }
+        }
+        async Task<PlaybackState> ISpotifyService.PreviousTrack(string deviceId)
+        {
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackPreviousEndpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+            var body = new Dictionary<string, string>
+            {
+                { "device_id", deviceId }
+            };
+            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+            httpRequestMessage.Content = content;
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(delay);
+                return await ((ISpotifyService)this).GetPlaybackState();
+            }
+            else
+            {
+                return new PlaybackState
+                {
+                    IsPlaying = false,
+                    CurrentlyPlaying = "Error"
+                };
+            }
+        }
+        async Task<PlaybackState> ISpotifyService.Seek(string deviceId, int positionMs)
+        {
+            string endpoint = seekEndpoint + $"?device_id={deviceId}&position_ms={positionMs}";
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await Task.Delay(delay);
+                return await ((ISpotifyService)this).GetPlaybackState();
+            }
+            else
+            {
+                return new PlaybackState
+                {
+                    IsPlaying = false,
+                    CurrentlyPlaying = "Error"
+                };
+            }
+        }
+        #endregion
+
+        #region Track Data
+        async Task<string> ISpotifyService.GetShareUrl(string spotifyId)
+        {
+            var result = string.Empty;
+            try
+            {
+                var endpoint = tracksEndpoint + $"/{spotifyId}";
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
+                httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                response.EnsureSuccessStatusCode();
+
+                var responseString = response.Content.ReadAsStringAsync().Result;
+                var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                var urls = JsonSerializer.Deserialize<Dictionary<string,object>>(responseDictionary?["external_urls"].ToString() ?? string.Empty); 
+                result = urls?["spotify"].ToString() ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                m_LogService.LogError($"Failed to get share url: {ex.Message}");
+            }
+            
+            return result;
+        }
         async Task<bool> ISpotifyService.CheckIfTrackIsSaved(string spotifyId)
         {
             var result = false;
@@ -328,132 +476,6 @@ namespace Mini_Spotify_Controller.service.implementation
             }
             return result;
 
-        }
-        async Task<PlaybackState> ISpotifyService.StartPlay(string deviceId)
-        {
-            var endpoint = playbackStartEndpoint + $"?device_id={deviceId}";
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode)
-            {
-                await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState();
-            }
-            else
-            {
-                return new PlaybackState
-                {
-                    IsPlaying = false,
-                    CurrentlyPlaying = "Error"
-
-                };
-            }
-        }
-
-        async Task<PlaybackState> ISpotifyService.PausePlay(string deviceId)
-        {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, playbackPauseEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-            var body = new Dictionary<string, string>
-            {
-                { "device_id", deviceId }
-            };
-            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-            httpRequestMessage.Content = content;
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode)
-            {
-                await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState();
-            }
-            else
-            {
-                return new PlaybackState
-                {
-                    IsPlaying = false,
-                    CurrentlyPlaying = "Error"
-                };
-            }
-        }
-
-        async Task<PlaybackState> ISpotifyService.NextTrack(string deviceId)
-        {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackNextEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-            var body = new Dictionary<string, string>
-            {
-                { "device_id", deviceId }
-            };
-            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-            httpRequestMessage.Content = content;
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode)
-            {
-                await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState();
-            }
-            else
-            {
-                return new PlaybackState
-                {
-                    IsPlaying = false,
-                    CurrentlyPlaying = "Error"
-                };
-            }
-        }
-
-        async Task<PlaybackState> ISpotifyService.PreviousTrack(string deviceId)
-        {
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackPreviousEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-            var body = new Dictionary<string, string>
-            {
-                { "device_id", deviceId }
-            };
-            var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-            httpRequestMessage.Content = content;
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode)
-            {
-                await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState();
-            }
-            else
-            {
-                return new PlaybackState
-                {
-                    IsPlaying = false,
-                    CurrentlyPlaying = "Error"
-                };
-            }
-        }
-
-        async Task<PlaybackState> ISpotifyService.Seek(string deviceId, int positionMs)
-        {
-            string endpoint = seekEndpoint + $"?device_id={deviceId}&position_ms={positionMs}";
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode)
-            {
-                await Task.Delay(delay);
-                return await ((ISpotifyService)this).GetPlaybackState();
-            }
-            else
-            {
-                return new PlaybackState
-                {
-                    IsPlaying = false,
-                    CurrentlyPlaying = "Error"
-                };
-            }
         }
         #endregion
 
@@ -516,6 +538,7 @@ namespace Mini_Spotify_Controller.service.implementation
         private const string devicesEndpoint = "https://api.spotify.com/v1/me/player/devices";
         private const string seekEndpoint = "https://api.spotify.com/v1/me/player/seek";
         private const string libraryCheckEndpoint = "https://api.spotify.com/v1/me/tracks/contains";
+        private const string tracksEndpoint = "https://api.spotify.com/v1/tracks";
         private const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
         private const int delay = 500; // ms - delay between consecutive requests
         private readonly HttpClient httpClient = new();

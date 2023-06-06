@@ -48,24 +48,31 @@
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
 
-        <Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="8,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Add to My Library" Command="{Binding ToggleLikedCommand}">
-            <Button.Content>
-                <iconPacks:PackIconMaterial Kind="Heart">
-                    <iconPacks:PackIconMaterial.Style>
-                        <Style TargetType="iconPacks:PackIconMaterial">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="True">
-                                    <Setter Property="Foreground" Value="Red" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="False">
-                                    <Setter Property="Foreground" Value="LightGray" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </iconPacks:PackIconMaterial.Style>
-                </iconPacks:PackIconMaterial>
-            </Button.Content>
-        </Button>
+        <UniformGrid Columns="2">
+            <Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="8,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Add to My Library" Command="{Binding ToggleLikedCommand}">
+                <Button.Content>
+                    <iconPacks:PackIconMaterial Kind="Heart">
+                        <iconPacks:PackIconMaterial.Style>
+                            <Style TargetType="iconPacks:PackIconMaterial">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="True">
+                                        <Setter Property="Foreground" Value="Red" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="False">
+                                        <Setter Property="Foreground" Value="LightGray" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </iconPacks:PackIconMaterial.Style>
+                    </iconPacks:PackIconMaterial>
+                </Button.Content>
+            </Button>
+            <Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="4" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Share" Command="{Binding GetShareUrlCommand}">
+                <Button.Content>
+                    <iconPacks:PackIconMaterial Kind="ShareVariant" />
+                </Button.Content>
+            </Button>
+        </UniformGrid>
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="8,4,8,4">
             <Button Command="{Binding Path=PreviousCommand}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="0,0,4,0">
                 <Button.Content>

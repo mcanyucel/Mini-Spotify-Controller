@@ -23,6 +23,7 @@ namespace Mini_Spotify_Controller.service
         internal Task<bool> CheckIfTrackIsSaved(string spotifyId);
         internal Task<bool> SaveTrack(string spotifyId);
         internal Task<bool> RemoveTrack(string spotifyId);
+        internal Task<string> GetShareUrl(string spotifyId);
         internal static string GenerateRandomString(int length)
         {
             Random random = new();

@@ -6,6 +6,7 @@
         internal void CloseClientIdWindowDialog();
         internal void ShowAuthorizationWindowDialog();
         internal void CloseAuthorizationWindowDialog();
+        internal void SetClipboardText(string text);
 
     }
 }

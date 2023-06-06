@@ -20,6 +20,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IRelayCommand SeekStartCommand { get => m_SeekStartCommand; }
         public IAsyncRelayCommand<double> SeekEndCommand { get => m_SeekEndCommand; }
         public IAsyncRelayCommand ToggleLikedCommand { get => m_ToggleLikedCommand; }
+        public IAsyncRelayCommand GetShareUrlCommand { get => m_GetShareUrlCommand; }
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public bool Topmost { get => m_Topmost; private set => SetProperty(ref m_Topmost, value); }
@@ -44,7 +45,8 @@ namespace Mini_Spotify_Controller.viewmodel
             m_SeekEndCommand = new AsyncRelayCommand<double>(SeekEnd);
             m_RefreshCommand = new AsyncRelayCommand(Refresh, RefreshCanExecute);
             m_ToggleLikedCommand = new AsyncRelayCommand(ToggleLiked, ToggleLikedCanExecute);
-            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand }.ToList();
+            m_GetShareUrlCommand = new AsyncRelayCommand(GetShareUrl, GetShareUrlCanExecute);
+            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
 
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
@@ -188,6 +190,20 @@ namespace Mini_Spotify_Controller.viewmodel
         }
         #endregion
 
+        #region Track Metadata & Sharing
+        private async Task GetShareUrl()
+        {
+            var url = await m_SpotifyService.GetShareUrl(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+            if (string.IsNullOrEmpty(url))
+                ShowError("Error", "Failed to get share url.");
+            else
+            {
+                m_WindowService.SetClipboardText(url);
+                m_ToastService.ShowTextToast("info", 0, "Share URL", "Copied to clipboard");
+            }
+        }
+        #endregion
+
         #region Internal Configuration
         private void SetTimers()
         {
@@ -210,6 +226,10 @@ namespace Mini_Spotify_Controller.viewmodel
                 m_AsyncCommandList.ForEach(x => x.NotifyCanExecuteChanged());
                 m_CommandList.ForEach(x => x.NotifyCanExecuteChanged());
             });
+        }
+        private bool GetShareUrlCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
         }
         private bool RefreshCanExecute()
         {
@@ -265,6 +285,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IAsyncRelayCommand<double> m_SeekEndCommand;
         private readonly IAsyncRelayCommand m_RefreshCommand;
         private readonly IAsyncRelayCommand m_ToggleLikedCommand;
+        private readonly IAsyncRelayCommand m_GetShareUrlCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_ProgressTimer;

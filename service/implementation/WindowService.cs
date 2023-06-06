@@ -1,4 +1,5 @@
 ﻿using Mini_Spotify_Controller.window;
+using System.Windows;
 
 namespace Mini_Spotify_Controller.service.implementation
 {
@@ -23,6 +24,11 @@ namespace Mini_Spotify_Controller.service.implementation
         {
             m_AuthWindow?.Close();
             m_AuthWindow = null;
+        }
+
+        void IWindowService.SetClipboardText(string text)
+        {
+            Clipboard.SetText(text);
         }
         #region Fields
         private AuthWindow? m_AuthWindow;
