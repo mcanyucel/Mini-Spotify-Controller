@@ -21,6 +21,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IAsyncRelayCommand<double> SeekEndCommand { get => m_SeekEndCommand; }
         public IAsyncRelayCommand ToggleLikedCommand { get => m_ToggleLikedCommand; }
         public IAsyncRelayCommand GetShareUrlCommand { get => m_GetShareUrlCommand; }
+        public IAsyncRelayCommand GetAudioMetricsCommand { get => m_GetAudioMetricsCommand;}
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public bool Topmost { get => m_Topmost; private set => SetProperty(ref m_Topmost, value); }
@@ -46,7 +47,8 @@ namespace Mini_Spotify_Controller.viewmodel
             m_RefreshCommand = new AsyncRelayCommand(Refresh, RefreshCanExecute);
             m_ToggleLikedCommand = new AsyncRelayCommand(ToggleLiked, ToggleLikedCanExecute);
             m_GetShareUrlCommand = new AsyncRelayCommand(GetShareUrl, GetShareUrlCanExecute);
-            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand }.ToList();
+            m_GetAudioMetricsCommand = new AsyncRelayCommand(GetAudioMetrics, GetAudioMetricsCanExecute);
+            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
 
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
@@ -191,6 +193,18 @@ namespace Mini_Spotify_Controller.viewmodel
         #endregion
 
         #region Track Metadata & Sharing
+        private async Task GetAudioMetrics()
+        {
+            AudioFeatures? audioFeatures = await m_SpotifyService.GetAudioFeatures(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+            AudioAnalysis? audioAnalysis = new(); //await m_SpotifyService.GetAudioAnalysis(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+
+            if (audioAnalysis != null && audioFeatures != null)
+            {
+                m_WindowService.ShowAudioMetricsWindow(audioFeatures, audioAnalysis);
+            }
+            else
+                ShowError("Error", "Failed to get audio metrics.")
+        }
         private async Task GetShareUrl()
         {
             var url = await m_SpotifyService.GetShareUrl(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
@@ -219,6 +233,10 @@ namespace Mini_Spotify_Controller.viewmodel
         #endregion
 
         #region Command States
+        private bool GetAudioMetricsCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
+        }
         private void UpdateCommandStates()
         {
             App.Current.Dispatcher.Invoke(() =>
@@ -286,6 +304,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IAsyncRelayCommand m_RefreshCommand;
         private readonly IAsyncRelayCommand m_ToggleLikedCommand;
         private readonly IAsyncRelayCommand m_GetShareUrlCommand;
+        private readonly IAsyncRelayCommand m_GetAudioMetricsCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_ProgressTimer;
