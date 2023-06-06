@@ -53,24 +53,24 @@
         public int TimeSignature { get; set; }
 
         #region Limits
-        public const double AcousticnessMin = 0.0;
-        public const double AcousticnessMax = 1.0;
-        public const double DanceabilityMin = 0.0;
-        public const double DanceabilityMax = 1.0;
-        public const double EnergyMin = 0.0;
-        public const double EnergyMax = 1.0;
-        public const double InstrumentalnessMin = 0.0;
-        public const double InstrumentalnessMax = 1.0;
-        public const double LivenessMin = 0.0;
-        public const double LivenessMax = 1.0;
-        public const double LoudnessMin = -60.0;
-        public const double LoudnessMax = 0.0;
-        public const double TempoMin = 0;
-        public const double TempoMax = 250;
-        public const double ValenceMin = 0.0;
-        public const double ValenceMax = 1.0;
-        public const double TimeSignatureMin = 3.0;
-        public const double TimeSignatureMax = 7.0;
+        public static double AcousticnessMin { get => 0.0; }
+        public static double AcousticnessMax { get => 1.0; }
+        public static double DanceabilityMin { get => 0.0; }
+        public static double DanceabilityMax { get => 1.0; }
+        public static double EnergyMin { get => 0.0; }
+        public static double EnergyMax { get => 1.0; }
+        public static double InstrumentalnessMin { get => 0.0; }
+        public static double InstrumentalnessMax { get => 1.0; }
+        public static double LivenessMin { get => 0.0; }
+        public static double LivenessMax { get => 1.0; }
+        public static double LoudnessMin { get => -60.0; }
+        public static double LoudnessMax { get => 0.0; }
+        public static double TempoMin { get => 0.0; }
+        public static double TempoMax { get => 300.0; }
+        public static double ValenceMin { get => 0.0; }
+        public static double ValenceMax { get => 1.0; }
+        public static double TimeSignatureMin { get => 3.0; }
+        public static double TimeSignatureMax { get => 7.0; }
         #endregion
     }
 }

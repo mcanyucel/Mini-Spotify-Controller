@@ -29,6 +29,9 @@
     </mah:MetroWindow.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
+            <Button Command="{Binding GetAudioMetricsCommand}" ToolTip="Stats for Nerds">
+                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="ChartBar" />
+            </Button>
             <Button Command="{Binding RefreshCommand}" ToolTip="Refresh Playback State">
                 <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Refresh" />
             </Button>

@@ -396,25 +396,26 @@ namespace Mini_Spotify_Controller.service.implementation
         #endregion
 
         #region Track Data
-        Task<AudioFeatures?> ISpotifyService.GetAudioFeatures(string spotifyId)
+        async Task<AudioFeatures?> ISpotifyService.GetAudioFeatures(string spotifyId)
         {
-
+            AudioFeatures? result = null;
             try
             {
                 var endpoint = audioFeaturesEndpoint + $"/{spotifyId}";
                 HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
                 httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-                var response = httpClient.SendAsync(httpRequestMessage).Result;
+                var response = await httpClient.SendAsync(httpRequestMessage);
                 response.EnsureSuccessStatusCode();
 
                 var responseString = response.Content.ReadAsStringAsync().Result;
                 var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-                result = ExtractAudioFeaturesData(responseDictionary);
+                result = ExtractAudioFeatures(responseDictionary);
             }
             catch (Exception ex)
             {
                 m_LogService.LogError($"Failed to get audio features: {ex.Message}");
             }
+            return result;
         }
         async Task<string> ISpotifyService.GetShareUrl(string spotifyId)
         {
@@ -543,7 +544,7 @@ namespace Mini_Spotify_Controller.service.implementation
             };
         }
 
-        private AudioFeatures? ExtractAudioFeatures(Dictionary<string, object?> audioFeaturesDictionary)
+        private AudioFeatures? ExtractAudioFeatures(Dictionary<string, object>? audioFeaturesDictionary)
         {
             if (audioFeaturesDictionary == null) return null;
 
@@ -552,17 +553,17 @@ namespace Mini_Spotify_Controller.service.implementation
             {
                 audioFeatures = new AudioFeatures
                 {
-                    Danceability = Convert.ToDouble(audioFeaturesDictionary["danceability"]),
-                    Energy = Convert.ToDouble(audioFeaturesDictionary["energy"]),
-                    KeyNumber = Convert.ToInt32(audioFeaturesDictionary["key"]),
-                    Loudness = Convert.ToDouble(audioFeaturesDictionary["loudness"]),
-                    ModeNumber = Convert.ToInt32(audioFeaturesDictionary["mode"]),
-                    Acousticness = Convert.ToDouble(audioFeaturesDictionary["acousticness"]),
-                    Instrumentalness = Convert.ToDouble(audioFeaturesDictionary["instrumentalness"]),
-                    Liveness = Convert.ToDouble(audioFeaturesDictionary["liveness"]),
-                    Valence = Convert.ToDouble(audioFeaturesDictionary["valence"]),
-                    Tempo = Convert.ToDouble(audioFeaturesDictionary["tempo"]),
-                    TimeSignature = Convert.ToInt32(audioFeaturesDictionary["time_signature"])
+                    Danceability = Convert.ToDouble(audioFeaturesDictionary["danceability"].ToString()),
+                    Energy = Convert.ToDouble(audioFeaturesDictionary["energy"].ToString()),
+                    KeyNumber = Convert.ToInt32(audioFeaturesDictionary["key"].ToString()),
+                    Loudness = Convert.ToDouble(audioFeaturesDictionary["loudness"].ToString()),
+                    ModeNumber = Convert.ToInt32(audioFeaturesDictionary["mode"].ToString()),
+                    Acousticness = Convert.ToDouble(audioFeaturesDictionary["acousticness"].ToString()),
+                    Instrumentalness = Convert.ToDouble(audioFeaturesDictionary["instrumentalness"].ToString()),
+                    Liveness = Convert.ToDouble(audioFeaturesDictionary["liveness"].ToString()),
+                    Valence = Convert.ToDouble(audioFeaturesDictionary["valence"].ToString()),
+                    Tempo = Convert.ToDouble(audioFeaturesDictionary["tempo"].ToString()),
+                    TimeSignature = Convert.ToInt32(audioFeaturesDictionary["time_signature"].ToString())
                 };
             }
             catch (Exception ex)
