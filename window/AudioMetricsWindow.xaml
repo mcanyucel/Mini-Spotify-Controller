@@ -32,10 +32,25 @@
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4" Text="{Binding AudioFeatures.Acousticness, StringFormat=Acousticness \= {0:N3}}" />
-        <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" />
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Acousticness, StringFormat=Acousticness \= {0:N3}}" />
+        <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
         <mah:MetroProgressBar Grid.Row="1" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.AcousticnessMin}" Maximum="{Binding AudioFeatures.AcousticnessMax}" Value="{Binding AudioFeatures.Acousticness}" />
-        <TextBlock Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" />
+        <TextBlock Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Danceability, StringFormat=Danceability \= {0:N3}}" />
+        <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
+        <mah:MetroProgressBar Grid.Row="3" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.DanceabilityMin}" Maximum="{Binding AudioFeatures.DanceabilityMax}" Value="{Binding AudioFeatures.Danceability}" />
+        <TextBlock Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Energy, StringFormat=Energy \= {0:N3}}" />
+        <TextBlock Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
+        <mah:MetroProgressBar Grid.Row="5" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.EnergyMin}" Maximum="{Binding AudioFeatures.EnergyMax}" Value="{Binding AudioFeatures.Energy}" />
+        <TextBlock Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
+
+        <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Instrumentalness, StringFormat=Instrumentalness \= {0:N3}}" />
+        <TextBlock Grid.Row="7" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
+        <mah:MetroProgressBar Grid.Row="7" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.InstrumentalnessMin}" Maximum="{Binding AudioFeatures.InstrumentalnessMax}" Value="{Binding AudioFeatures.Instrumentalness}" />
+        <TextBlock Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
 
 
     </Grid>

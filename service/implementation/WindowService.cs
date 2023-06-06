@@ -46,6 +46,10 @@ namespace Mini_Spotify_Controller.service.implementation
                 m_AudioMetricsWindow.Activate();
             }
         }
+
+        bool IWindowService.IsAudioMetricsWindowOpen() => m_AudioMetricsWindow != null;
+        
+        
         #region Fields
         private AuthWindow? m_AuthWindow;
         private ClientIdWindow? m_ClientIdWindow;

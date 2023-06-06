@@ -27,7 +27,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public bool Topmost { get => m_Topmost; private set => SetProperty(ref m_Topmost, value); }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User User { get => m_User; set => SetProperty(ref m_User, value); }
-        public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); } }
+        public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); UpdateMetrics(); } }
         #endregion
 
         #region Lifecycle
@@ -156,9 +156,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private void SeekStart()
         {
             if (m_PlaybackState.IsPlaying)
-            {
                 m_IsSeeking = true;
-            }
         }
 
         private async Task SeekEnd(double progressSec)
@@ -189,6 +187,11 @@ namespace Mini_Spotify_Controller.viewmodel
                 if (!m_IsSeeking)
                     OnPropertyChanged(nameof(PlaybackState));
             }
+        }
+        private void UpdateMetrics()
+        {
+            if (PlaybackState.IsPlaying && m_WindowService.IsAudioMetricsWindowOpen())
+                App.Current.Dispatcher.Invoke(()=> GetAudioMetricsCommand.Execute(null));
         }
         #endregion
 
