@@ -4,59 +4,33 @@
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:local="clr-namespace:Mini_Spotify_Controller.window" 
+                xmlns:model="clr-namespace:Mini_Spotify_Controller.model"
+                xmlns:converter="clr-namespace:Mini_Spotify_Controller.converter"
+                 SizeToContent="Height"
+                 Background="DarkCyan"
                 xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel" d:DataContext="{d:DesignInstance Type=viewmodel:AudioMetricsViewModel}"
         mc:Ignorable="d"
-        Title="{Binding SongTitle, StringFormat=AUDIO METRICS FOR {0}}" Height="720" Width="400">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="auto" />
-        </Grid.ColumnDefinitions>
-
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Acousticness, StringFormat=Acousticness \= {0:N3}}" />
-        <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
-        <mah:MetroProgressBar Grid.Row="1" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.AcousticnessMin}" Maximum="{Binding AudioFeatures.AcousticnessMax}" Value="{Binding AudioFeatures.Acousticness}" />
-        <TextBlock Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
-
-        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Danceability, StringFormat=Danceability \= {0:N3}}" />
-        <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
-        <mah:MetroProgressBar Grid.Row="3" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.DanceabilityMin}" Maximum="{Binding AudioFeatures.DanceabilityMax}" Value="{Binding AudioFeatures.Danceability}" />
-        <TextBlock Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
-
-        <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Energy, StringFormat=Energy \= {0:N3}}" />
-        <TextBlock Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
-        <mah:MetroProgressBar Grid.Row="5" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.EnergyMin}" Maximum="{Binding AudioFeatures.EnergyMax}" Value="{Binding AudioFeatures.Energy}" />
-        <TextBlock Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" />
-
-        <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" FontWeight="Bold" Margin="4,4,4,-4" Text="{Binding AudioFeatures.Instrumentalness, StringFormat=Instrumentalness \= {0:N3}}" />
-        <TextBlock Grid.Row="7" Grid.Column="0" HorizontalAlignment="Center" Margin="8,4,4,4" Text="Low" VerticalAlignment="Center" />
-        <mah:MetroProgressBar Grid.Row="7" Grid.Column="1" Margin="4" VerticalAlignment="Center" Minimum="{Binding AudioFeatures.InstrumentalnessMin}" Maximum="{Binding AudioFeatures.InstrumentalnessMax}" Value="{Binding AudioFeatures.Instrumentalness}" />
-        <TextBlock Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" Margin="4,4,8,4" Text="High" VerticalAlignment="Center" /
-
-
-
-
-
-
-
+        Title="{Binding AudioFeatures.TrackName, StringFormat=AUDIO METRICS FOR {0}}" Width="400">
+    <mah:MetroWindow.Resources>
+        <converter:AudioFeatureTitleConverter x:Key="AudioFeatureTitleConverter" />
+    </mah:MetroWindow.Resources>
+    <Grid Margin="0,8,0,8">
+        <ItemsControl ItemsSource="{Binding AudioFeatures.Features}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="model:AudioFeature">
+                    <DockPanel LastChildFill="True">
+                        
+                        <TextBlock Text="Low" DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="8,0,4,0" Foreground="DarkBlue" VerticalAlignment="Center" />
+                        <TextBlock Text="High" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,8,0" Foreground="DarkRed" VerticalAlignment="Center"/>
+                        <Grid >
+                            
+                            <mah:MetroProgressBar Value="{Binding FeatureValue, Mode=OneTime}" Minimum="{Binding FeatureMin}" Maximum="{Binding FeatureMax}" Foreground="DarkGreen" Margin="0,4,0,4" />
+                            <TextBlock Text="{Binding Converter={StaticResource AudioFeatureTitleConverter}}" TextAlignment="Center" FontWeight="Bold" Foreground="AliceBlue" Margin="0,4,0,4"/>
+                        </Grid>
+                        
+                    </DockPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </mah:MetroWindow>
