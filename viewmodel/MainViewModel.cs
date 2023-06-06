@@ -21,7 +21,8 @@ namespace Mini_Spotify_Controller.viewmodel
         public IAsyncRelayCommand<double> SeekEndCommand { get => m_SeekEndCommand; }
         public IAsyncRelayCommand ToggleLikedCommand { get => m_ToggleLikedCommand; }
         public IAsyncRelayCommand GetShareUrlCommand { get => m_GetShareUrlCommand; }
-        public IAsyncRelayCommand GetAudioMetricsCommand { get => m_GetAudioMetricsCommand;}
+        public IAsyncRelayCommand GetAudioMetricsCommand { get => m_GetAudioMetricsCommand; }
+        public IAsyncRelayCommand RandomizeCommand { get => m_RandomizeCommand; }
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public bool Topmost { get => m_Topmost; private set => SetProperty(ref m_Topmost, value); }
@@ -48,7 +49,8 @@ namespace Mini_Spotify_Controller.viewmodel
             m_ToggleLikedCommand = new AsyncRelayCommand(ToggleLiked, ToggleLikedCanExecute);
             m_GetShareUrlCommand = new AsyncRelayCommand(GetShareUrl, GetShareUrlCanExecute);
             m_GetAudioMetricsCommand = new AsyncRelayCommand(GetAudioMetrics, GetAudioMetricsCanExecute);
-            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand }.ToList();
+            m_RandomizeCommand = new AsyncRelayCommand(Randomize, RandomizeCanExecute);
+            m_AsyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand, m_RandomizeCommand }.ToList();
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
 
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
@@ -94,17 +96,11 @@ namespace Mini_Spotify_Controller.viewmodel
         #endregion
 
         #region Playback State
-        private async Task ToggleLiked()
+        private async Task Randomize()
         {
-            var oldValue = m_PlaybackState.IsLiked;
-            bool saved;
-            if (oldValue)
-                saved = await m_SpotifyService.RemoveTrack(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
-            else
-                saved = await m_SpotifyService.SaveTrack(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
-
-            if (saved)
-                m_PlaybackState.IsLiked = !oldValue;
+            var newPlaybackState = await m_SpotifyService.Randomize(m_PlaybackState.DeviceId!);
+            if (newPlaybackState != null)
+                PlaybackState = newPlaybackState;
         }
         private void TogglePlay()
         {
@@ -191,11 +187,23 @@ namespace Mini_Spotify_Controller.viewmodel
         private void UpdateMetrics()
         {
             if (PlaybackState.IsPlaying && m_WindowService.IsAudioMetricsWindowOpen())
-                App.Current.Dispatcher.Invoke(()=> GetAudioMetricsCommand.Execute(null));
+                App.Current.Dispatcher.Invoke(() => GetAudioMetricsCommand.Execute(null));
         }
         #endregion
 
         #region Track Metadata & Sharing
+        private async Task ToggleLiked()
+        {
+            var oldValue = m_PlaybackState.IsLiked;
+            bool saved;
+            if (oldValue)
+                saved = await m_SpotifyService.RemoveTrack(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+            else
+                saved = await m_SpotifyService.SaveTrack(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+
+            if (saved)
+                m_PlaybackState.IsLiked = !oldValue;
+        }
         private async Task GetAudioMetrics()
         {
             AudioFeatures? audioFeatures = await m_SpotifyService.GetAudioFeatures(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
@@ -237,6 +245,10 @@ namespace Mini_Spotify_Controller.viewmodel
         #endregion
 
         #region Command States
+        private bool RandomizeCanExecute()
+        {
+            return m_SpotifyService.IsAuthorized;
+        }
         private bool GetAudioMetricsCanExecute()
         {
             return m_SpotifyService.IsAuthorized && m_PlaybackState.IsPlaying;
@@ -309,6 +321,7 @@ namespace Mini_Spotify_Controller.viewmodel
         private readonly IAsyncRelayCommand m_ToggleLikedCommand;
         private readonly IAsyncRelayCommand m_GetShareUrlCommand;
         private readonly IAsyncRelayCommand m_GetAudioMetricsCommand;
+        private readonly IAsyncRelayCommand m_RandomizeCommand;
         private readonly List<IAsyncRelayCommand> m_AsyncCommandList;
         private readonly List<IRelayCommand> m_CommandList;
         private readonly Timer m_ProgressTimer;
