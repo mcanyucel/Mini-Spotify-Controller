@@ -49,6 +49,7 @@ namespace Mini_Spotify_Controller.service.implementation
             if (clientId == null)
             {
                 m_WindowService.ShowClientIdWindowDialog();
+                RefreshClientId();
             }
 
             m_AccessData = await RefreshAccessToken();
@@ -56,6 +57,8 @@ namespace Mini_Spotify_Controller.service.implementation
             if (m_AccessData == null)
                 ShowAccessTokenRequest();
         }
+
+        void RefreshClientId() => clientId = m_PreferenceService.GetClientId();
 
         async Task ISpotifyService.RequestAccessToken(string codeVerifier, string code)
         {
@@ -124,10 +127,7 @@ namespace Mini_Spotify_Controller.service.implementation
             return result;
         }
 
-        private void ShowAccessTokenRequest()
-        {
-            m_WindowService.ShowAuthorizationWindowDialog();
-        }
+        private void ShowAccessTokenRequest() => m_WindowService.ShowAuthorizationWindowDialog();
 
         private async Task<AccessData?> RefreshAccessToken(string refreshToken)
         {
@@ -658,7 +658,7 @@ namespace Mini_Spotify_Controller.service.implementation
         #endregion
 
         #region Fields
-        private readonly string? clientId;
+        private string? clientId;
         private const string redirectUri = "https://mustafacanyucel.com";
         private const string autorizationEndpoint = "https://accounts.spotify.com/authorize";
         private const string tokenEndpoint = "https://accounts.spotify.com/api/token";

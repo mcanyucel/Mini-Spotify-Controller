@@ -76,7 +76,6 @@ namespace Mini_Spotify_Controller.viewmodel
         {
             if (m_SpotifyService.IsAuthorized)
             {
-                Topmost = true;
                 await GetUser();
                 PlaybackState = await m_SpotifyService.GetPlaybackState();
                 UpdateCommandStates();
@@ -88,9 +87,8 @@ namespace Mini_Spotify_Controller.viewmodel
             {
                 User? user = await m_SpotifyService.GetUser();
                 if (user != null)
-                {
                     User = user;
-                }
+                Topmost = true;
             }
         }
         #endregion
