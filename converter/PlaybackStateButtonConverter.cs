@@ -11,19 +11,18 @@ namespace Mini_Spotify_Controller.converter
         {
             if (value is PlaybackState playbackState)
             {
-                if (playbackState.IsPlaying)
-                {
-                    return "pause";
-                }
+                if (playbackState.IsBusy)
+                    return "TimerSand";
                 else
                 {
-                    return "play";
+                    if (playbackState.IsPlaying)
+                        return "pause";
+                    else
+                        return "play";
                 }
             }
             else
-            {
                 return "alert";
-            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

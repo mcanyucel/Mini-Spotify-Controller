@@ -29,7 +29,6 @@ namespace Mini_Spotify_Controller.viewmodel
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User User { get => m_User; set => SetProperty(ref m_User, value); }
         public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); UpdateMetrics(); } }
-        public bool IsBusy { get => m_IsBusy; private set => SetProperty(ref m_IsBusy, value); }
         #endregion
 
         #region Lifecycle
@@ -99,11 +98,10 @@ namespace Mini_Spotify_Controller.viewmodel
         #region Playback State
         private async Task Randomize()
         {
-            IsBusy = true;
+            PlaybackState.IsBusy = true;
             var newPlaybackState = await m_SpotifyService.Randomize(m_PlaybackState.DeviceId!);
             if (newPlaybackState != null)
                 PlaybackState = newPlaybackState;
-            IsBusy = false;
         }
         private void TogglePlay()
         {
@@ -172,19 +170,12 @@ namespace Mini_Spotify_Controller.viewmodel
 
         private void UpdateProgress()
         {
-            PlaybackState.IncrementProgress(m_ProgressUpdateInterval);
+            PlaybackState.IncrementProgress(m_ProgressUpdateInterval, m_IsSeeking);
 
             if (PlaybackState.ProgressMs >= PlaybackState.DurationMs && m_SpotifyService.IsAuthorized)
             {
                 PlaybackState.ResetProgress();
                 _ = Task.Run(async () => PlaybackState = await m_SpotifyService.GetPlaybackState());
-            }
-            else
-            {
-                // For some reason the OnPropertyChanged is not called when the progress is updated
-                // we do not update the slider in the UI if we are in seek mode - The slider is updated when the seek is finished                
-                if (!m_IsSeeking)
-                    OnPropertyChanged(nameof(PlaybackState));
             }
         }
         private void UpdateMetrics()
@@ -332,7 +323,6 @@ namespace Mini_Spotify_Controller.viewmodel
         private PlaybackState m_PlaybackState = new();
         private bool m_IsSeeking;
         private bool m_Topmost = false;
-        private bool m_IsBusy = false;
 
         private const int m_ProgressUpdateInterval = 1000;
         private User m_User = new()

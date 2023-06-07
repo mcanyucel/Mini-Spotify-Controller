@@ -10,9 +10,9 @@ namespace Mini_Spotify_Controller.converter
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             int result = 0;
-            if (value is PlaybackState playbackState)
+            if (value is int progressMs)
             {
-                result = ((int)Math.Floor(playbackState.ProgressMs / 1000.0));
+                result = ((int)Math.Floor(progressMs / 1000.0));
             }
             return result;
         }
