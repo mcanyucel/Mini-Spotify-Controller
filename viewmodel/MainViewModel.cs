@@ -106,13 +106,9 @@ namespace Mini_Spotify_Controller.viewmodel
         private void TogglePlay()
         {
             if (m_PlaybackState.IsPlaying)
-            {
                 Pause();
-            }
             else
-            {
                 Play();
-            }
         }
 
         private void Play()

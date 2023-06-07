@@ -11,7 +11,21 @@ The application requires to have a Spotify Premium account to work. It will not 
 ## Features
 * Mini controller to start, pause, next, previous tracks.
 * Displays current track, artist and album name.
+* A randomizer! See below for details.
 * Requires a spotify device to be active. If there is no active device, it show a message to open a Spotify app in any of your devices.
+
+### Randomizer
+
+The randomization flow is as follows:
+1. User clicks the randomize button.
+3. Set the randomization limit k to 10000.
+2. The application gets the user's 50 (API upper limit) saved tracks from the API with a random offset between 0 and k.
+3. If the saved tracks return empty, the offset is greater than the number of user's saved tracks. In this case, halve the k and go to step 2.
+4. If k reaches zero and the saved tracks return empty, then there is no saved track. In this case, show a message to the user. Otherwise, go to step 5.
+5. If there are more than 5 tracks (API max seed track count) in the saved tracks, pick 5 random tracks from the saved tracks. Otherwise, pick all of the saved tracks.
+6. Send a recommendation request to the API for 100 tracks (API upper limit) with the picked tracks as seed tracks.
+7. If the recommendation tracks return empty, notify the user that there is no recommendation. Otherwise, go to step 8.
+8. Start grooving!
 
 ## How to build
 * Clone the repository.
@@ -35,6 +49,11 @@ The application requires to have a Spotify Premium account to work. It will not 
 * Microsoft.Xaml.Behaviors.Wpf: A great library for WPF behaviors (mainly used for binding commands to event handlers).
 
 ## New Features
+
+### 1.1.3
+
+* Added randomizer feature. See above for details.
+* Fixed a bug where the image cover art was updated every second (which was not necessary).
 
 ### 1.1.2
 

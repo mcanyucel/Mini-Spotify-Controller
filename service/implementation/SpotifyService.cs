@@ -286,7 +286,9 @@ namespace Mini_Spotify_Controller.service.implementation
                 playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
                 var playResponse = await httpClient.SendAsync(playRequestMessage);
                 playResponse.EnsureSuccessStatusCode();
-                return await ((ISpotifyService)this).GetPlaybackState();
+                await Task.Delay(m_LongDelay);
+                var newState =  await ((ISpotifyService)this).GetPlaybackState();
+                return newState;
             }
             catch (Exception ex)
             {
@@ -363,7 +365,7 @@ namespace Mini_Spotify_Controller.service.implementation
             var response = await httpClient.SendAsync(httpRequestMessage);
             if (response.IsSuccessStatusCode)
             {
-                await Task.Delay(delay);
+                await Task.Delay(m_ShortDelay);
                 return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
@@ -390,7 +392,7 @@ namespace Mini_Spotify_Controller.service.implementation
             var response = await httpClient.SendAsync(httpRequestMessage);
             if (response.IsSuccessStatusCode)
             {
-                await Task.Delay(delay);
+                await Task.Delay(m_ShortDelay);
                 return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
@@ -416,7 +418,7 @@ namespace Mini_Spotify_Controller.service.implementation
             var response = await httpClient.SendAsync(httpRequestMessage);
             if (response.IsSuccessStatusCode)
             {
-                await Task.Delay(delay);
+                await Task.Delay(m_ShortDelay);
                 return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
@@ -442,7 +444,7 @@ namespace Mini_Spotify_Controller.service.implementation
             var response = await httpClient.SendAsync(httpRequestMessage);
             if (response.IsSuccessStatusCode)
             {
-                await Task.Delay(delay);
+                await Task.Delay(m_ShortDelay);
                 return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
@@ -463,7 +465,7 @@ namespace Mini_Spotify_Controller.service.implementation
             var response = await httpClient.SendAsync(httpRequestMessage);
             if (response.IsSuccessStatusCode)
             {
-                await Task.Delay(delay);
+                await Task.Delay(m_ShortDelay);
                 return await ((ISpotifyService)this).GetPlaybackState();
             }
             else
@@ -673,7 +675,8 @@ namespace Mini_Spotify_Controller.service.implementation
         private const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
         private const string audioFeaturesEndpoint = "https://api.spotify.com/v1/audio-features";
         private const string recommendationsEndpoint = "https://api.spotify.com/v1/recommendations";
-        private const int delay = 500; // ms - delay between consecutive requests
+        private const int m_ShortDelay = 500; // ms - a short delay between consecutive requests
+        private const int m_LongDelay = 1500; // ms - a long delay between consecutive requests
         private readonly HttpClient httpClient = new();
         private readonly IPreferenceService m_PreferenceService;
         private readonly IWindowService m_WindowService;
