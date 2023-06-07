@@ -86,7 +86,14 @@
                 </Button.Content>
             </Button>
             <Button Command="{Binding Path=TogglePlayCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="48" Height="48">
-                <iconPacks:PackIconMaterial Kind="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateButtonConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <iconPacks:PackIconMaterial HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <iconPacks:PackIconMaterial.Kind>
+                        <MultiBinding Mode="OneWay" Converter="{StaticResource PlaybackStateButtonConverter}">
+                            <Binding Path="PlaybackState.IsBusy" />
+                            <Binding Path="PlaybackState.IsPlaying" />
+                        </MultiBinding>
+                    </iconPacks:PackIconMaterial.Kind>
+                </iconPacks:PackIconMaterial>
             </Button>
             <Button Command="{Binding Path=NextCommand}" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="4,0,0,0">
                 <Button.Content>

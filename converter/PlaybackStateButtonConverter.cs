@@ -1,33 +1,30 @@
-﻿using Mini_Spotify_Controller.model;
+﻿using MahApps.Metro.IconPacks;
 using System;
 using System.Globalization;
 using System.Windows.Data;
 
 namespace Mini_Spotify_Controller.converter
 {
-    internal class PlaybackStateButtonConverter : IValueConverter
+    internal class PlaybackStateButtonConverter : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is PlaybackState playbackState)
-            {
-                if (playbackState.IsBusy)
-                    return "TimerSand";
-                else
-                {
-                    if (playbackState.IsPlaying)
-                        return "pause";
-                    else
-                        return "play";
-                }
-            }
+            var isBusy = (bool)values[0];
+            var isPlaying = (bool)values[1];
+            if (isBusy)
+                return PackIconMaterialKind.TimerSand;
             else
-                return "alert";
+            {
+                if (isPlaying)
+                    return PackIconMaterialKind.Pause;
+                else
+                    return PackIconMaterialKind.Play;
+            }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException("PlaybackStateButtonConverter can only be used OneWay.");
         }
     }
 }
