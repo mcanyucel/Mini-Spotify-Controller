@@ -18,14 +18,15 @@ The application requires to have a Spotify Premium account to work. It will not 
 
 The randomization flow is as follows:
 1. User clicks the randomize button.
-3. Set the randomization limit k to 10000.
-2. The application gets the user's 50 (API upper limit) saved tracks from the API with a random offset between 0 and k.
-3. If the saved tracks return empty, the offset is greater than the number of user's saved tracks. In this case, halve the k and go to step 2.
-4. If k reaches zero and the saved tracks return empty, then there is no saved track. In this case, show a message to the user. Otherwise, go to step 5.
-5. If there are more than 5 tracks (API max seed track count) in the saved tracks, pick 5 random tracks from the saved tracks. Otherwise, pick all of the saved tracks.
-6. Send a recommendation request to the API for 100 tracks (API upper limit) with the picked tracks as seed tracks.
-7. If the recommendation tracks return empty, notify the user that there is no recommendation. Otherwise, go to step 8.
-8. Start grooving!
+2. Set the randomization limit k to 10000.
+3. Get the user's 50 (API upper limit) saved tracks from the API with a random offset between 0 and k.
+4. If the saved tracks return empty, the offset is greater than the number of user's saved tracks. In this case, halve the k and go to step 3. Otherwise, go to step 6. 
+5. If k reaches zero and the saved tracks return empty, then there is no saved track. In this case, show a message to the user and stop.
+6. If there are more than 5 tracks (API max seed track count) in the saved tracks, pick 5 random tracks from the saved tracks. Otherwise, pick all of the saved tracks.
+7. Send a recommendation request to the API for 100 tracks (API upper limit) with the picked tracks as seed tracks.
+8. If the recommendation request returns empty, notify the user that there is no recommendation and stop. Otherwise, go to step 9.
+9. Send a request to the API to play all the tracks in the recommendation response.
+10. Start groovin'!.
 
 ## How to build
 * Clone the repository.
