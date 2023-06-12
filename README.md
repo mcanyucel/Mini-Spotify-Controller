@@ -14,6 +14,32 @@ The application requires to have a Spotify Premium account to work. It will not 
 * A randomizer! See below for details.
 * Requires a spotify device to be active. If there is no active device, it show a message to open a Spotify app in any of your devices.
 
+## New Features
+
+### 1.1.4
+
+* Song radio feature is added. This is basically the randomize function with the currently playing song as the only starting seed.
+* Changed all one line functions from body block to expression block.
+* Changed settings button from text to icon.
+* Fixed a bug where if the randomization/song radio fails, the play button was stuck as hourglass icon.
+
+### 1.1.3
+
+* Added randomizer feature. See below for details.
+* Fixed a bug where the image cover art was updated every second (which was not necessary).
+
+### 1.1.2
+
+* Added a "Stats for Nerds" style "audio features" window. It can be accessed by the button on the app bar with a chart icon.
+
+### 1.1.1
+
+* Added a feature to share. Clicking the share button will copy the currently playing track's Spotify url to the clipboard.
+
+### 1.0.0
+
+* Added a feature to display if the current track is added to the library or not. User can click the heart icon to add or remove the track from the library. Added tracks will be displayed with a red heart icon, and removed tracks will be displayed with a light gray heart icon.
+
 ### Randomizer
 
 The randomization flow is as follows:
@@ -28,12 +54,8 @@ The randomization flow is as follows:
 9. Send a request to the API to play all the tracks in the recommendation response.
 10. Start groovin'!.
 
-## How to build
-* Clone the repository.
-* Open the solution in Visual Studio (preferably 2023).
-* Build the solution.
-
 ## Requirements
+
 * Windows 10.0.17763.0 or newer. This is because the application uses `Microsoft.Toolkit.Uwp.Notifications` library which requires Windows 10.0.17763.0 or newer.
 * .NET 7
 * Spotify Premium account
@@ -49,24 +71,7 @@ The randomization flow is as follows:
 * Microsoft.Web.WebView2: A great library for Chromium based webview. It is used to display the user authentication and authorization page.
 * Microsoft.Xaml.Behaviors.Wpf: A great library for WPF behaviors (mainly used for binding commands to event handlers).
 
-## New Features
-
-### 1.1.3
-
-* Added randomizer feature. See above for details.
-* Fixed a bug where the image cover art was updated every second (which was not necessary).
-
-### 1.1.2
-
-* Added a "Stats for Nerds" style "audio features" window. It can be accessed by the button on the app bar with a chart icon.
-
-### 1.1.1
-
-* Added a feature to share. Clicking the share button will copy the currently playing track's Spotify url to the clipboard.
-
-### 1.0.0
-
-* Added a feature to display if the current track is added to the library or not. User can click the heart icon to add or remove the track from the library. Added tracks will be displayed with a red heart icon, and removed tracks will be displayed with a light gray heart icon.
-
 ## TODO
-* Fix the issue where the client id is not registered on the first launch of the application.
+
+* (maybe) add a feature to display the current track's lyrics.
+* (maybe) add an invisible webview2 to play the track in the application itself.
