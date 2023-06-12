@@ -27,10 +27,7 @@ namespace Mini_Spotify_Controller.service.implementation
             m_AuthWindow = null;
         }
 
-        void IWindowService.SetClipboardText(string text)
-        {
-            Clipboard.SetText(text);
-        }
+        void IWindowService.SetClipboardText(string text) => Clipboard.SetText(text);
 
         void IWindowService.ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
         {

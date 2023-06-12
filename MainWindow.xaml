@@ -38,7 +38,12 @@
             <Button Command="{Binding RandomizeCommand}" ToolTip="Randomize">
                 <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Shuffle" />
             </Button>
-            <Button Content="Settings" Command="{Binding OpenSettingsCommand}" />
+            <Button Command="{Binding StartSongRadioCommand}" ToolTip="Start Song Radio">
+                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Radio" />
+            </Button>
+            <Button Command="{Binding OpenSettingsCommand}" ToolTip="Settings">
+                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="AccountCog" />
+            </Button>
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
 

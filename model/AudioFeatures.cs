@@ -12,9 +12,6 @@ namespace Mini_Spotify_Controller.model
         public string TrackName { get; set; } = string.Empty;
         public List<AudioFeature> Features { get; } = new();
 
-        public AudioFeatures(string trackId)
-        {
-            TrackId = trackId;
-        }
+        public AudioFeatures(string trackId) => TrackId = trackId;
     }
 }

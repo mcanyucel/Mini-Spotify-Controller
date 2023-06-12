@@ -214,6 +214,40 @@ namespace Mini_Spotify_Controller.service.implementation
 
         #region Playback State
 
+        async Task<PlaybackState?> ISpotifyService.StartSongRadio(string deviceId, string spotifyId)
+        {
+            try
+            {
+                var recommendationEndpoint = $"{recommendationsEndpoint}?limit={100}&seed_tracks={spotifyId}";
+                HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, recommendationEndpoint);
+                httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                var response = await httpClient.SendAsync(httpRequestMessage);
+                response.EnsureSuccessStatusCode();
+                var responseString = await response.Content.ReadAsStringAsync();
+                var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                var recommendationResponseTracks = JsonSerializer.Deserialize<List<object>>(responseDictionary?["tracks"].ToString() ?? "");
+                var recommendedUriList = recommendationResponseTracks?.Select(t => JsonSerializer.Deserialize<Dictionary<string, object>>(t.ToString() ?? "")?["uri"]).ToList();
+
+                if (recommendedUriList == null || !recommendedUriList.Any())
+                    throw new Exception("No recommendations found");
+
+                var playEndpoint = $"{playbackStartEndpoint}?device_id={deviceId}";
+                var body = JsonSerializer.Serialize(new { uris = recommendedUriList });
+                HttpRequestMessage playRequestMessage = new(HttpMethod.Put, playEndpoint);
+                playRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+                playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                var playResponse = await httpClient.SendAsync(playRequestMessage);
+                playResponse.EnsureSuccessStatusCode();
+                await Task.Delay(m_LongDelay);
+                var newState = await ((ISpotifyService)this).GetPlaybackState();
+                return newState;
+            }
+            catch (Exception ex)
+            {
+                m_LogService?.LogError($"Error randomizing: {ex.Message}");
+                return null;
+            }
+        }
         async Task<PlaybackState?> ISpotifyService.Randomize(string deviceId)
         {
             /**
@@ -231,7 +265,8 @@ namespace Mini_Spotify_Controller.service.implementation
                 var k = 10000;
                 List<object>? savedTracks = null;
 
-                do {
+                do
+                {
                     var offset = new Random().Next(0, 100);
                     var limit = 50;
                     var seedSongEndpoint = $"{savedTracksEndpoint}?offset={offset}&limit={limit}";
@@ -274,7 +309,7 @@ namespace Mini_Spotify_Controller.service.implementation
 
                 var recommendedUriList = recommendationResponseTracks?.Select(t => JsonSerializer.Deserialize<Dictionary<string, object>>(t.ToString() ?? "")?["uri"]).ToList();
 
-                
+
                 if (recommendedUriList == null || !recommendedUriList.Any())
                     throw new Exception("No recommended track ids found");
 
@@ -287,7 +322,7 @@ namespace Mini_Spotify_Controller.service.implementation
                 var playResponse = await httpClient.SendAsync(playRequestMessage);
                 playResponse.EnsureSuccessStatusCode();
                 await Task.Delay(m_LongDelay);
-                var newState =  await ((ISpotifyService)this).GetPlaybackState();
+                var newState = await ((ISpotifyService)this).GetPlaybackState();
                 return newState;
             }
             catch (Exception ex)

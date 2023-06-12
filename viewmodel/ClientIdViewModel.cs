@@ -22,10 +22,7 @@ namespace Mini_Spotify_Controller.viewmodel
 
         }
 
-        private bool SaveCanExecute()
-        {
-            return !string.IsNullOrWhiteSpace(ClientId);
-        }
+        private bool SaveCanExecute() => !string.IsNullOrWhiteSpace(ClientId);
 
 
         #region Fields

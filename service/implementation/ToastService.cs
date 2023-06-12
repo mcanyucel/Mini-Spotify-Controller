@@ -4,10 +4,7 @@ namespace Mini_Spotify_Controller.service.implementation
 {
     class ToastService : IToastService
     {
-        public static void Dispose()
-        {
-            ToastNotificationManagerCompat.Uninstall();
-        }
+        public static void Dispose() => ToastNotificationManagerCompat.Uninstall();
         void IToastService.ShowTextToast(string action, int conversationId, string header, string content)
         {
             new ToastContentBuilder()
