@@ -16,6 +16,10 @@ The application requires to have a Spotify Premium account to work. It will not 
 
 ## New Features
 
+### 1.1.5
+
+* Make always on top feature optional. It can be enabled/disabled from the top bar button with a pin icon.
+
 ### 1.1.4
 
 * Song radio feature is added. This is basically the randomize function with the currently playing song as the only starting seed.

@@ -44,6 +44,24 @@
             <Button Command="{Binding OpenSettingsCommand}" ToolTip="Settings">
                 <iconPacks:PackIconMaterial Width="16" Height="16" Kind="AccountCog" />
             </Button>
+            <ToggleButton IsChecked="{Binding Topmost}" ToolTip="Always On Top">
+                <ToggleButton.Content>
+                    <iconPacks:PackIconMaterial>
+                        <iconPacks:PackIconMaterial.Style>
+                            <Style TargetType="iconPacks:PackIconMaterial">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=Topmost}" Value="True">
+                                        <Setter Property="Kind" Value="Pin" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Topmost}" Value="False">
+                                        <Setter Property="Kind" Value="PinOff" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </iconPacks:PackIconMaterial.Style>
+                    </iconPacks:PackIconMaterial>
+                </ToggleButton.Content>
+            </ToggleButton>
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
 

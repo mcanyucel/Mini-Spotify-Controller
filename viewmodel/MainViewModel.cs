@@ -26,7 +26,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IAsyncRelayCommand StartSongRadioCommand { get => m_StartSongRadioCommand; }
         public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
-        public bool Topmost { get => m_Topmost; private set => SetProperty(ref m_Topmost, value); }
+        public bool Topmost { get => m_Topmost; set => SetProperty(ref m_Topmost, value); }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User User { get => m_User; set => SetProperty(ref m_User, value); }
         public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); UpdateMetrics(); } }
