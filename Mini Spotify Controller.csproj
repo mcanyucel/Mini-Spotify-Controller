@@ -11,8 +11,8 @@
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>AnyCPU;x64</Platforms>
     <Version>$(VersionPrefix)</Version>
-    <AssemblyVersion>1.1.4</AssemblyVersion>
-    <FileVersion>1.1.4</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion></FileVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>spotify.png</PackageIcon>
   </PropertyGroup>

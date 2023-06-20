@@ -1,0 +1,16 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+	<Fragment Id="fragmentShortcuts">
+		<Icon Id="icon" SourceFile="icon.ico"/>
+		<DirectoryRef Id="StartMenuDir">
+			<Component Id="StartMenuComponent" Guid="*">
+				<Shortcut Id="StartMenuShortcut"
+						  Name="!(bind.Property.ProductName)"
+						  Description="!(bind.Property.ProductName)"
+						  Icon="icon"
+						  Target="[INSTALLFOLDER]Mini Spotify Controller.exe" />
+				<RemoveFolder Id="RemoveStartMenuShortcut" On="uninstall" />
+				<RegistryValue Root="HKCU" Key="Software\!(bind.Property.ProductName)" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+</Wix>
