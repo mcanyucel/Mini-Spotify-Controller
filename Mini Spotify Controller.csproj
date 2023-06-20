@@ -11,18 +11,23 @@
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>AnyCPU;x64</Platforms>
     <Version>$(VersionPrefix)</Version>
-    <AssemblyVersion>1.1.4</AssemblyVersion>
-    <FileVersion>1.1.4</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion></FileVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIcon>icon.ico</PackageIcon>
+    <PackageIcon>spotify.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="assets\white.bmp" />
+    <None Remove="assets\spotify.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="assets\icon.ico" />
+    <Content Include="assets\spotify.png">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -36,17 +41,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="assets\white.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-
-  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -63,6 +74,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
 
 </Project>

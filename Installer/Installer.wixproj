@@ -1,0 +1,27 @@
+﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+	<ItemGroup>
+		<HarvestDirectory Include="..\bin\Release\net7.0-windows10.0.17763.0\publish\win-x64">
+			<ComponentGroupName>MainComponents</ComponentGroupName>
+			<DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+			<SuppressRootDirectory>true</SuppressRootDirectory>
+			<SuppressCom>true</SuppressCom>
+			<SuppressRegistry>true</SuppressRegistry>
+			<AutogenerateGuids>true</AutogenerateGuids>
+		</HarvestDirectory>
+		<BindPath Include="..\bin\Release\net7.0-windows10.0.17763.0\publish\win-x64" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="icon.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="license.rtf" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="WixToolset.Heat" Version="4.0.1" />
+		<PackageReference Include="WixToolset.Netfx.wixext" Version="4.0.1" />
+		<PackageReference Include="WixToolset.UI.wixext" Version="4.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Mini Spotify Controller.csproj" />
+	</ItemGroup>
+</Project>

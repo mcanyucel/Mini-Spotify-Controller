@@ -14,136 +14,136 @@
         d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
         Width="480" Height="100" ResizeMode="NoResize"
         mc:Ignorable="d">
-    <behaviors:Interaction.Triggers>
-        <behaviors:EventTrigger EventName="Loaded">
-            <behaviors:InvokeCommandAction Command="{Binding Path=AuthorizeCommand}" />
-        </behaviors:EventTrigger>
-    </behaviors:Interaction.Triggers>
-    <mah:MetroWindow.Resources>
-        <converters:PlaybackStateToNowPlayingConverter x:Key="PlaybackStateToNowPlayingConverter" />
-        <converters:PlaybackStateButtonConverter x:Key="PlaybackStateButtonConverter" />
-        <converters:PlaybackStateDurationConverter x:Key="PlaybackStateDurationConverter" />
-        <converters:PlaybackStateToProgressConverter x:Key="PlaybackStateToProgressConverter" />
-        <converters:PlaybackStateImageConverter x:Key="PlaybackStateImageConverter" />
-        <converters:PlaybackStateToLikedConverter x:Key="PlaybackStateToLikedConverter" />
-    </mah:MetroWindow.Resources>
-    <mah:MetroWindow.RightWindowCommands>
-        <mah:WindowCommands>
-            <Button Command="{Binding GetAudioMetricsCommand}" ToolTip="Stats for Nerds">
-                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="ChartBar" />
-            </Button>
-            <Button Command="{Binding RefreshCommand}" ToolTip="Refresh Playback State">
-                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Refresh" />
-            </Button>
-            <Button Command="{Binding RandomizeCommand}" ToolTip="Randomize">
-                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Shuffle" />
-            </Button>
-            <Button Command="{Binding StartSongRadioCommand}" ToolTip="Start Song Radio">
-                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Radio" />
-            </Button>
-            <Button Command="{Binding OpenSettingsCommand}" ToolTip="Settings">
-                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="AccountCog" />
-            </Button>
-            <ToggleButton IsChecked="{Binding Topmost}" ToolTip="Always On Top">
-                <ToggleButton.Content>
-                    <iconPacks:PackIconMaterial>
-                        <iconPacks:PackIconMaterial.Style>
-                            <Style TargetType="iconPacks:PackIconMaterial">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=Topmost}" Value="True">
-                                        <Setter Property="Kind" Value="Pin" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Path=Topmost}" Value="False">
-                                        <Setter Property="Kind" Value="PinOff" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </iconPacks:PackIconMaterial.Style>
-                    </iconPacks:PackIconMaterial>
-                </ToggleButton.Content>
-            </ToggleButton>
-        </mah:WindowCommands>
-    </mah:MetroWindow.RightWindowCommands>
+	<behaviors:Interaction.Triggers>
+		<behaviors:EventTrigger EventName="Loaded">
+			<behaviors:InvokeCommandAction Command="{Binding Path=AuthorizeCommand}" />
+		</behaviors:EventTrigger>
+	</behaviors:Interaction.Triggers>
+	<mah:MetroWindow.Resources>
+		<converters:PlaybackStateToNowPlayingConverter x:Key="PlaybackStateToNowPlayingConverter" />
+		<converters:PlaybackStateButtonConverter x:Key="PlaybackStateButtonConverter" />
+		<converters:PlaybackStateDurationConverter x:Key="PlaybackStateDurationConverter" />
+		<converters:PlaybackStateToProgressConverter x:Key="PlaybackStateToProgressConverter" />
+		<converters:PlaybackStateImageConverter x:Key="PlaybackStateImageConverter" />
+		<converters:PlaybackStateToLikedConverter x:Key="PlaybackStateToLikedConverter" />
+	</mah:MetroWindow.Resources>
+	<mah:MetroWindow.RightWindowCommands>
+		<mah:WindowCommands>
+			<Button Command="{Binding GetAudioMetricsCommand}" ToolTip="Stats for Nerds">
+				<iconPacks:PackIconMaterial Width="16" Height="16" Kind="ChartBar" />
+			</Button>
+			<Button Command="{Binding RefreshCommand}" ToolTip="Refresh Playback State">
+				<iconPacks:PackIconMaterial Width="16" Height="16" Kind="Refresh" />
+			</Button>
+			<Button Command="{Binding RandomizeCommand}" ToolTip="Randomize">
+				<iconPacks:PackIconMaterial Width="16" Height="16" Kind="Shuffle" />
+			</Button>
+			<Button Command="{Binding StartSongRadioCommand}" ToolTip="Start Song Radio">
+				<iconPacks:PackIconMaterial Width="16" Height="16" Kind="Radio" />
+			</Button>
+			<Button Command="{Binding OpenSettingsCommand}" ToolTip="Settings">
+				<iconPacks:PackIconMaterial Width="16" Height="16" Kind="AccountCog" />
+			</Button>
+			<ToggleButton IsChecked="{Binding Topmost}" ToolTip="Always On Top">
+				<ToggleButton.Content>
+					<iconPacks:PackIconMaterial>
+						<iconPacks:PackIconMaterial.Style>
+							<Style TargetType="iconPacks:PackIconMaterial">
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding Path=Topmost}" Value="True">
+										<Setter Property="Kind" Value="Pin" />
+									</DataTrigger>
+									<DataTrigger Binding="{Binding Path=Topmost}" Value="False">
+										<Setter Property="Kind" Value="PinOff" />
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</iconPacks:PackIconMaterial.Style>
+					</iconPacks:PackIconMaterial>
+				</ToggleButton.Content>
+			</ToggleButton>
+		</mah:WindowCommands>
+	</mah:MetroWindow.RightWindowCommands>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="auto" />
-        </Grid.ColumnDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="auto" />
+		</Grid.ColumnDefinitions>
 
-        <UniformGrid Columns="2">
-            <Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="8,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Add to My Library" Command="{Binding ToggleLikedCommand}">
-                <Button.Content>
-                    <iconPacks:PackIconMaterial Kind="Heart">
-                        <iconPacks:PackIconMaterial.Style>
-                            <Style TargetType="iconPacks:PackIconMaterial">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="True">
-                                        <Setter Property="Foreground" Value="Red" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="False">
-                                        <Setter Property="Foreground" Value="LightGray" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </iconPacks:PackIconMaterial.Style>
-                    </iconPacks:PackIconMaterial>
-                </Button.Content>
-            </Button>
-            <Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="4" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Share" Command="{Binding GetShareUrlCommand}">
-                <Button.Content>
-                    <iconPacks:PackIconMaterial Kind="ShareVariant" />
-                </Button.Content>
-            </Button>
-        </UniformGrid>
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="8,4,8,4">
-            <Button Command="{Binding Path=PreviousCommand}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="0,0,4,0">
-                <Button.Content>
-                    <iconPacks:PackIconMaterial Kind="SkipPrevious" />
-                </Button.Content>
-            </Button>
-            <Button Command="{Binding Path=TogglePlayCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="48" Height="48">
-                <iconPacks:PackIconMaterial HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <iconPacks:PackIconMaterial.Kind>
-                        <MultiBinding Mode="OneWay" Converter="{StaticResource PlaybackStateButtonConverter}">
-                            <Binding Path="PlaybackState.IsBusy" />
-                            <Binding Path="PlaybackState.IsPlaying" />
-                        </MultiBinding>
-                    </iconPacks:PackIconMaterial.Kind>
-                </iconPacks:PackIconMaterial>
-            </Button>
-            <Button Command="{Binding Path=NextCommand}" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="4,0,0,0">
-                <Button.Content>
-                    <iconPacks:PackIconMaterial Kind="SkipNext" />
-                </Button.Content>
-            </Button>
+		<UniformGrid Columns="2">
+			<Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="8,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Add to My Library" Command="{Binding ToggleLikedCommand}">
+				<Button.Content>
+					<iconPacks:PackIconMaterial Kind="Heart">
+						<iconPacks:PackIconMaterial.Style>
+							<Style TargetType="iconPacks:PackIconMaterial">
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="True">
+										<Setter Property="Foreground" Value="Red" />
+									</DataTrigger>
+									<DataTrigger Binding="{Binding Path=PlaybackState.IsLiked}" Value="False">
+										<Setter Property="Foreground" Value="LightGray" />
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</iconPacks:PackIconMaterial.Style>
+					</iconPacks:PackIconMaterial>
+				</Button.Content>
+			</Button>
+			<Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="4" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Share" Command="{Binding GetShareUrlCommand}">
+				<Button.Content>
+					<iconPacks:PackIconMaterial Kind="ShareVariant" />
+				</Button.Content>
+			</Button>
+		</UniformGrid>
+		<StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="8,4,8,4">
+			<Button Command="{Binding Path=PreviousCommand}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="0,0,4,0">
+				<Button.Content>
+					<iconPacks:PackIconMaterial Kind="SkipPrevious" />
+				</Button.Content>
+			</Button>
+			<Button Command="{Binding Path=TogglePlayCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="48" Height="48">
+				<iconPacks:PackIconMaterial HorizontalAlignment="Center" VerticalAlignment="Center">
+					<iconPacks:PackIconMaterial.Kind>
+						<MultiBinding Mode="OneWay" Converter="{StaticResource PlaybackStateButtonConverter}">
+							<Binding Path="PlaybackState.IsBusy" />
+							<Binding Path="PlaybackState.IsPlaying" />
+						</MultiBinding>
+					</iconPacks:PackIconMaterial.Kind>
+				</iconPacks:PackIconMaterial>
+			</Button>
+			<Button Command="{Binding Path=NextCommand}" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="4,0,0,0">
+				<Button.Content>
+					<iconPacks:PackIconMaterial Kind="SkipNext" />
+				</Button.Content>
+			</Button>
 
-        </StackPanel>
+		</StackPanel>
 
-        <TextBlock Grid.Row="0" Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap">
-            <TextBlock.ToolTip>
-                <ToolTip Content="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" />
-            </TextBlock.ToolTip>
-        </TextBlock>
+		<TextBlock Grid.Row="0" Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap">
+			<TextBlock.ToolTip>
+				<ToolTip Content="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" />
+			</TextBlock.ToolTip>
+		</TextBlock>
 
-        <Image Grid.Row="0" Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
+		<Image Grid.Row="0" Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
 
-        <Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,-4,0,0" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Value="{Binding Path=PlaybackState.ProgressMs, Converter={StaticResource PlaybackStateToProgressConverter}, Mode=OneWay}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}, Mode=OneWay}" SmallChange="30" LargeChange="60">
-            <behaviors:Interaction.Triggers>
-                <behaviors:EventTrigger EventName="PreviewMouseDown">
-                    <behaviors:InvokeCommandAction Command="{Binding Path=SeekStartCommand}" />
-                </behaviors:EventTrigger>
-                <behaviors:EventTrigger EventName="PreviewMouseUp">
-                    <behaviors:InvokeCommandAction Command="{Binding Path=SeekEndCommand}" CommandParameter="{Binding Path=Value, RelativeSource={RelativeSource AncestorType=Slider}}" />
-                </behaviors:EventTrigger>
-            </behaviors:Interaction.Triggers>
-        </Slider>
+		<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,-4,0,0" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Value="{Binding Path=PlaybackState.ProgressMs, Converter={StaticResource PlaybackStateToProgressConverter}, Mode=OneWay}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}, Mode=OneWay}" SmallChange="30" LargeChange="60">
+			<behaviors:Interaction.Triggers>
+				<behaviors:EventTrigger EventName="PreviewMouseDown">
+					<behaviors:InvokeCommandAction Command="{Binding Path=SeekStartCommand}" />
+				</behaviors:EventTrigger>
+				<behaviors:EventTrigger EventName="PreviewMouseUp">
+					<behaviors:InvokeCommandAction Command="{Binding Path=SeekEndCommand}" CommandParameter="{Binding Path=Value, RelativeSource={RelativeSource AncestorType=Slider}}" />
+				</behaviors:EventTrigger>
+			</behaviors:Interaction.Triggers>
+		</Slider>
 
-    </Grid>
+	</Grid>
 </mah:MetroWindow>

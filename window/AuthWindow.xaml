@@ -12,7 +12,7 @@
         mc:Ignorable="d"
         Title="" Height="450" Width="800">
     <DockPanel LastChildFill="True">
-        <wv2:WebView2 Name="webView" Source="{Binding Path=RequestUrl}">
+        <wv2:WebView2 Name="webView" Source="">
             <behaviors:Interaction.Triggers>
                 <behaviors:EventTrigger EventName="NavigationCompleted">
                     <behaviors:InvokeCommandAction Command="{Binding Path=NavigationCompletedCommand}" CommandParameter="{Binding ElementName=webView, Path=Source}" />

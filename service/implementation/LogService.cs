@@ -7,8 +7,6 @@ namespace Mini_Spotify_Controller.service.implementation
 {
     internal class LogService : ILogService
     {
-        private const string LOG_FILE_NAME = "logs/log.txt";
-        private static readonly SemaphoreSlim m_Semaphore = new(1, 1);
         public void LogError(string message)
         {
             _ = Task.Run(() =>
@@ -20,7 +18,7 @@ namespace Mini_Spotify_Controller.service.implementation
                     {
                         Directory.CreateDirectory("logs");
                     }
-                    File.AppendAllText(LOG_FILE_NAME, $"[{DateTime.Now}] [ERROR] {message}\n");
+                    File.AppendAllText(m_LogFilePath, $"[{DateTime.Now}] [ERROR] {message}\n");
                 }
                 finally
                 {
@@ -28,5 +26,8 @@ namespace Mini_Spotify_Controller.service.implementation
                 }
             });
         }
+
+        private readonly string m_LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MiniSpotifyController", "application.log");
+        private static readonly SemaphoreSlim m_Semaphore = new(1, 1);
     }
 }
