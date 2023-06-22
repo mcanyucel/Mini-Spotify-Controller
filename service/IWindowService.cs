@@ -11,6 +11,7 @@ namespace Mini_Spotify_Controller.service
         internal void SetClipboardText(string text);
         internal void ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis);
         internal bool IsAudioMetricsWindowOpen();
+        internal bool ShowUpdateWindowDialog();
 
     }
 }

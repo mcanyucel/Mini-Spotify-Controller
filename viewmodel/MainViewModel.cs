@@ -1,12 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AutoUpdater;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mini_Spotify_Controller.model;
 using Mini_Spotify_Controller.service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Mini_Spotify_Controller.viewmodel
 {
@@ -56,6 +59,9 @@ namespace Mini_Spotify_Controller.viewmodel
             m_CommandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
 
             m_ProgressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, m_ProgressUpdateInterval);
+
+            var executingAssemblyName = Assembly.GetExecutingAssembly().GetName();
+            m_UpdateEngine = new(executingAssemblyName.Name!, executingAssemblyName.Version!.ToString(), "https://software.mustafacanyucel.com/update");
         }
         public void Dispose() => m_ProgressTimer.Dispose();
         #endregion
@@ -78,6 +84,20 @@ namespace Mini_Spotify_Controller.viewmodel
                 await GetUser();
                 PlaybackState = await m_SpotifyService.GetPlaybackState();
                 UpdateCommandStates();
+            }
+
+            bool hasUpdates = await m_UpdateEngine.CheckForUpdateAsync();
+            if (hasUpdates)
+            {
+                var update = m_WindowService.ShowUpdateWindowDialog();
+                if (update == true)
+                {
+                    var downloaded = await m_UpdateEngine.DownloadAndRunUpdate();
+                    if (!downloaded)
+                        m_ToastService.ShowTextToast("error", 0, "Error", "Failed to download update!");
+                    else
+                        Application.Current.Shutdown();
+                }
             }
         }
         private async Task GetUser()
@@ -318,6 +338,8 @@ namespace Mini_Spotify_Controller.viewmodel
             DisplayName = "Guest",
             Email = ""
         };
+
+        private readonly UpdateEngine m_UpdateEngine;
         #endregion
     }
 }

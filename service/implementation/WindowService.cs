@@ -9,7 +9,7 @@ namespace Mini_Spotify_Controller.service.implementation
         void IWindowService.ShowClientIdWindowDialog()
         {
             m_ClientIdWindow = new ClientIdWindow();
-            m_ClientIdWindow.ShowDialog();            
+            m_ClientIdWindow.ShowDialog();
         }
         void IWindowService.CloseClientIdWindowDialog()
         {
@@ -45,8 +45,9 @@ namespace Mini_Spotify_Controller.service.implementation
         }
 
         bool IWindowService.IsAudioMetricsWindowOpen() => m_AudioMetricsWindow != null;
-        
-        
+
+        bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
         #region Fields
         private AuthWindow? m_AuthWindow;
         private ClientIdWindow? m_ClientIdWindow;
