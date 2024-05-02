@@ -340,7 +340,7 @@ namespace Mini_Spotify_Controller.service.implementation
             httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
-            var result = new PlaybackState() { IsPlaying = false, CurrentlyPlaying = string.Empty, CurrentlyPlayingAlbum = new(), CurrentlyPlayingArtist = string.Empty };
+            var result = new PlaybackState() { IsPlaying = false, CurrentlyPlaying = string.Empty, CurrentlyPlayingArtist = string.Empty };
             if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
             {
                 // No active devices, get the device
@@ -354,7 +354,7 @@ namespace Mini_Spotify_Controller.service.implementation
                 if (responseDictionary != null)
                 {
                     result.IsPlaying = responseDictionary["is_playing"]?.ToString() == "True";
-                    result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0"));
+                    result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0", CultureInfo.InvariantCulture));
 
                     var device = JsonSerializer.Deserialize<Dictionary<string, object>>(responseDictionary["device"]?.ToString() ?? "");
                     result.DeviceId = device?["id"]?.ToString() ?? string.Empty;
@@ -365,21 +365,18 @@ namespace Mini_Spotify_Controller.service.implementation
                             var item = JsonSerializer.Deserialize<Dictionary<string, object>>(responseDictionary["item"]?.ToString() ?? "");
                             result.CurrentlyPlayingId = item?["id"]?.ToString() ?? string.Empty;
                             result.CurrentlyPlaying = item?["name"]?.ToString() ?? string.Empty;
-                            result.DurationMs = int.Parse(item?["duration_ms"]?.ToString() ?? "0");
+                            result.DurationMs = int.Parse(item?["duration_ms"]?.ToString() ?? "0", CultureInfo.InvariantCulture);
 
                             var albumDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(item?["album"]?.ToString() ?? "");
-                            result.CurrentlyPlayingAlbum = new Album
-                            {
-                                Name = albumDictionary?["name"]?.ToString() ?? string.Empty,
-                                ImageUrl = JsonSerializer.Deserialize<List<object>>(albumDictionary?["images"]?.ToString() ?? "")?.FirstOrDefault()?.ToString() ?? string.Empty
-                            };
+                            result.CurrentlyPlayingAlbum = new Album(albumDictionary?["id"]?.ToString() ?? string.Empty, albumDictionary?["name"]?.ToString() ?? string.Empty, JsonSerializer.Deserialize<List<object>>(albumDictionary?["images"]?.ToString() ?? "")?.FirstOrDefault()?.ToString() ?? string.Empty);
+                            
                             result.CurrentlyPlayingAlbum = ExtractAlbumData(albumDictionary);
 
 
                             var artist = JsonSerializer.Deserialize<List<object>>(item?["artists"].ToString() ?? "")?.First();
                             result.CurrentlyPlayingArtist = (JsonSerializer.Deserialize<Dictionary<string, object>>(artist?.ToString() ?? ""))?["name"]?.ToString() ?? string.Empty;
 
-                            result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0"));
+                            result.SetProgress(int.Parse(responseDictionary["progress_ms"]?.ToString() ?? "0", CultureInfo.InvariantCulture));
 
                             result.IsLiked = await ((ISpotifyService)this).CheckIfTrackIsSaved(result.CurrentlyPlayingId);
                         }
@@ -653,16 +650,12 @@ namespace Mini_Spotify_Controller.service.implementation
 
         private static Album ExtractAlbumData(Dictionary<string, object>? albumDictionary)
         {
-            if (albumDictionary == null) return new();
+            if (albumDictionary == null) return Album.Empty;
 
             var images = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(albumDictionary["images"]?.ToString() ?? string.Empty);
             var imageUrl = images?[0]["url"].ToString() ?? string.Empty;
-            return new Album
-            {
-                Id = albumDictionary["id"]?.ToString() ?? string.Empty,
-                Name = albumDictionary["name"]?.ToString() ?? string.Empty,
-                ImageUrl = imageUrl
-            };
+            return new Album(albumDictionary["id"]?.ToString() ?? string.Empty, albumDictionary["name"]?.ToString() ?? string.Empty, imageUrl);
+            
         }
 
         private AudioFeatures? ExtractAudioFeatures(string spotifyId, Dictionary<string, object>? audioFeaturesDictionary)
@@ -673,17 +666,17 @@ namespace Mini_Spotify_Controller.service.implementation
             try
             {
                 audioFeatures = new AudioFeatures(spotifyId);
-                audioFeatures.Features.Add(new AudioFeature("Mode", Convert.ToDouble(audioFeaturesDictionary["mode"].ToString()), 0d, 1d, FeatureType.Text));
-                audioFeatures.Features.Add(new AudioFeature("Key", Convert.ToDouble(audioFeaturesDictionary["key"].ToString()), 0d, 11d, FeatureType.Text));
-                audioFeatures.Features.Add(new AudioFeature("Tempo", Convert.ToDouble(audioFeaturesDictionary["tempo"].ToString()), 0d, 250d));
-                audioFeatures.Features.Add(new AudioFeature("TimeSignature", Convert.ToDouble(audioFeaturesDictionary["time_signature"].ToString()), 3d, 7d));
-                audioFeatures.Features.Add(new AudioFeature("Danceability", Convert.ToDouble(audioFeaturesDictionary["danceability"].ToString()), 0d, 1d));
-                audioFeatures.Features.Add(new AudioFeature("Energy", Convert.ToDouble(audioFeaturesDictionary["energy"].ToString()), 0d, 1d));
-                audioFeatures.Features.Add(new AudioFeature("Loudness", Convert.ToDouble(audioFeaturesDictionary["loudness"].ToString()), -60d, 0d));
-                audioFeatures.Features.Add(new AudioFeature("Acousticness", Convert.ToDouble(audioFeaturesDictionary["acousticness"].ToString()), 0d, 1d));
-                audioFeatures.Features.Add(new AudioFeature("Instrumentalness", Convert.ToDouble(audioFeaturesDictionary["instrumentalness"].ToString()), 0d, 1d));
-                audioFeatures.Features.Add(new AudioFeature("Liveness", Convert.ToDouble(audioFeaturesDictionary["liveness"].ToString()), 0d, 1d));
-                audioFeatures.Features.Add(new AudioFeature("Valence", Convert.ToDouble(audioFeaturesDictionary["valence"].ToString()), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Mode", Convert.ToDouble(audioFeaturesDictionary["mode"].ToString(), CultureInfo.InvariantCulture), 0d, 1d, FeatureType.Text));
+                audioFeatures.Features.Add(new AudioFeature("Key", Convert.ToDouble(audioFeaturesDictionary["key"].ToString(), CultureInfo.InvariantCulture), 0d, 11d, FeatureType.Text));
+                audioFeatures.Features.Add(new AudioFeature("Tempo", Convert.ToDouble(audioFeaturesDictionary["tempo"].ToString(), CultureInfo.InvariantCulture), 0d, 250d));
+                audioFeatures.Features.Add(new AudioFeature("TimeSignature", Convert.ToDouble(audioFeaturesDictionary["time_signature"].ToString(), CultureInfo.InvariantCulture), 3d, 7d));
+                audioFeatures.Features.Add(new AudioFeature("Danceability", Convert.ToDouble(audioFeaturesDictionary["danceability"].ToString(), CultureInfo.InvariantCulture), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Energy", Convert.ToDouble(audioFeaturesDictionary["energy"].ToString(), CultureInfo.InvariantCulture), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Loudness", Convert.ToDouble(audioFeaturesDictionary["loudness"].ToString(), CultureInfo.InvariantCulture), -60d, 0d));
+                audioFeatures.Features.Add(new AudioFeature("Acousticness", Convert.ToDouble(audioFeaturesDictionary["acousticness"].ToString(), CultureInfo.InvariantCulture), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Instrumentalness", Convert.ToDouble(audioFeaturesDictionary["instrumentalness"].ToString(), CultureInfo.InvariantCulture), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Liveness", Convert.ToDouble(audioFeaturesDictionary["liveness"].ToString(), CultureInfo.InvariantCulture), 0d, 1d));
+                audioFeatures.Features.Add(new AudioFeature("Valence", Convert.ToDouble(audioFeaturesDictionary["valence"].ToString(), CultureInfo.InvariantCulture), 0d, 1d));
 
             }
             catch (Exception ex)
