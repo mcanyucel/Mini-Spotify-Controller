@@ -124,9 +124,18 @@ namespace MiniSpotifyController.viewmodel
             IsBusy = true;
             var devices = await m_SpotifyService.GetDevices();
             if (devices != null)
-                m_WindowService.ShowDevicesContextMenu(devices.ToArray());
+                m_WindowService.ShowDevicesContextMenu(devices.ToArray(), TransferPlayback);
             else
                 ShowError("Error", "Failed to get devices.");
+            IsBusy = false;
+        }
+
+        private async Task TransferPlayback(string deviceId)
+        {
+            IsBusy = true;
+            var result = await m_SpotifyService.TransferPlayback(deviceId);
+            if (!result)
+                ShowError("Error", "Failed to transfer playback!");
             IsBusy = false;
         }
 

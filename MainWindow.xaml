@@ -70,18 +70,18 @@
 	</mah:MetroWindow.RightWindowCommands>
 
 	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="auto" />
-			<ColumnDefinition Width="auto" />
-			<ColumnDefinition Width="*" />
-			<ColumnDefinition Width="auto" />
-		</Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
 
-		<UniformGrid Columns="2">
+        <UniformGrid Columns="2">
 			<Button VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Margin="8,0,0,0" Style="{DynamicResource MahApps.Styles.Button.Circle}" ToolTip="Add to My Library" Command="{Binding ToggleLikedCommand}">
 				<Button.Content>
 					<iconPacks:PackIconMaterial Kind="Heart">
@@ -106,7 +106,8 @@
 				</Button.Content>
 			</Button>
 		</UniformGrid>
-		<StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="8,4,8,4">
+        
+		<StackPanel Orientation="Horizontal" Grid.Column="1" Margin="8,4,8,4">
 			<Button Command="{Binding Path=PreviousCommand}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="0,0,4,0">
 				<Button.Content>
 					<iconPacks:PackIconMaterial Kind="SkipPrevious" />
@@ -130,13 +131,13 @@
 
 		</StackPanel>
 
-		<TextBlock Grid.Row="0" Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap">
+		<TextBlock Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap">
 			<TextBlock.ToolTip>
 				<ToolTip Content="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" />
 			</TextBlock.ToolTip>
 		</TextBlock>
 
-		<Image Grid.Row="0" Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
+		<Image Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
 
 		<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,-4,0,0" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Value="{Binding Path=PlaybackState.ProgressMs, Converter={StaticResource PlaybackStateToProgressConverter}, Mode=OneWay}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}, Mode=OneWay}" SmallChange="30" LargeChange="60">
 			<behaviors:Interaction.Triggers>
@@ -149,5 +150,14 @@
 			</behaviors:Interaction.Triggers>
 		</Slider>
 
-	</Grid>
+        <ProgressBar 
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="4"
+            Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+            Margin="0 -4 0 0"
+            IsIndeterminate="True"
+            IsEnabled="True" />
+
+    </Grid>
 </mah:MetroWindow>

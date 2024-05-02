@@ -32,6 +32,7 @@ internal interface ISpotifyService
     #region Devices
     internal Task<IEnumerable<Device>> GetDevices();
     internal Task<Device?> GetLastListenedDevice(string accessToken);
+    internal Task<bool> TransferPlayback(string deviceId);
     #endregion
 
     #region Track
