@@ -11,6 +11,5 @@ public record AudioFeatures
     public string TrackId { get; private set; }
     public string TrackName { get; set; } = string.Empty;
     public List<AudioFeature> Features { get; } = [];
-
     public AudioFeatures(string trackId) => TrackId = trackId;
 }
