@@ -1,6 +1,7 @@
 ﻿using MiniSpotifyController.model;
 using MiniSpotifyController.window;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace MiniSpotifyController.service.implementation
 {
@@ -47,6 +48,25 @@ namespace MiniSpotifyController.service.implementation
         bool IWindowService.IsAudioMetricsWindowOpen() => m_AudioMetricsWindow != null;
 
         bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+        void IWindowService.ShowDevicesContextMenu(Device[] devices)
+        {
+            ContextMenu contextMenu = new();
+
+            foreach (Device device in devices)
+            {
+                MenuItem menuItem = new()
+                {
+                    Header = device.Name,
+                    Tag = device.Id,
+                    IsCheckable = true,
+                    IsChecked = device.IsActive 
+                };
+                contextMenu.Items.Add(menuItem);
+            }
+
+            contextMenu.IsOpen = true;
+        }
 
         #region Fields
         private AuthWindow? m_AuthWindow;

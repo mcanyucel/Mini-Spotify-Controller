@@ -13,7 +13,7 @@ using System.Windows;
 
 namespace MiniSpotifyController.viewmodel
 {
-    internal sealed class MainViewModel : ObservableObject, IDisposable
+    internal sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         #region Properties
         public IAsyncRelayCommand AuthorizeCommand { get => m_AutorizeCommand; }
@@ -33,6 +33,10 @@ namespace MiniSpotifyController.viewmodel
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
         public User? User { get => m_User; set => SetProperty(ref m_User, value); }
         public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); UpdateMetrics(); } }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(ShowDevicesCommand))]
+        bool isBusy;
         #endregion
 
         #region Lifecycle
@@ -110,6 +114,22 @@ namespace MiniSpotifyController.viewmodel
                 Topmost = true;
             }
         }
+        #endregion
+
+        #region Devices
+
+        [RelayCommand(CanExecute = nameof(IsBusyCanExecute))]
+        async Task ShowDevices()
+        {
+            IsBusy = true;
+            var devices = await m_SpotifyService.GetDevices();
+            if (devices != null)
+                m_WindowService.ShowDevicesContextMenu(devices.ToArray());
+            else
+                ShowError("Error", "Failed to get devices.");
+            IsBusy = false;
+        }
+
         #endregion
 
         #region Playback State
@@ -270,6 +290,8 @@ namespace MiniSpotifyController.viewmodel
         #endregion
 
         #region Command States
+
+        private bool IsBusyCanExecute() => !IsBusy;
 
         private bool StartSongRadioCanExecute() => m_SpotifyService.IsAuthorized && m_PlaybackState.CurrentlyPlayingId != null;
         private bool RandomizeCanExecute() => m_SpotifyService.IsAuthorized;

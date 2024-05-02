@@ -41,6 +41,10 @@
 			<Button Command="{Binding StartSongRadioCommand}" ToolTip="Start Song Radio">
 				<iconPacks:PackIconMaterial Width="16" Height="16" Kind="Radio" />
 			</Button>
+            <Button Command="{Binding ShowDevicesCommand}" ToolTip="Devices">
+                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Devices" />
+            </Button>
+            
 			<Button Command="{Binding OpenSettingsCommand}" ToolTip="Settings">
 				<iconPacks:PackIconMaterial Width="16" Height="16" Kind="AccountCog" />
 			</Button>

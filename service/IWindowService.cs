@@ -12,5 +12,5 @@ internal interface IWindowService
     internal void ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis);
     internal bool IsAudioMetricsWindowOpen();
     internal bool ShowUpdateWindowDialog();
-
+    internal void ShowDevicesContextMenu(Device[] devices);
 }
