@@ -261,7 +261,7 @@ namespace MiniSpotifyController.viewmodel
         private async Task GetAudioMetrics()
         {
             AudioFeatures? audioFeatures = await m_SpotifyService.GetAudioFeatures(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
-            AudioAnalysis? audioAnalysis = new(); //await m_SpotifyService.GetAudioAnalysis(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
+            AudioAnalysis? audioAnalysis = new(); //await spotifyService.GetAudioAnalysis(m_PlaybackState.CurrentlyPlayingId ?? string.Empty);
 
             if (audioAnalysis != null && audioFeatures != null)
             {
