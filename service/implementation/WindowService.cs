@@ -1,6 +1,9 @@
 ﻿using MiniSpotifyController.model;
 using MiniSpotifyController.window;
+using System;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace MiniSpotifyController.service.implementation
 {
@@ -47,6 +50,32 @@ namespace MiniSpotifyController.service.implementation
         bool IWindowService.IsAudioMetricsWindowOpen() => m_AudioMetricsWindow != null;
 
         bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+        void IWindowService.ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback)
+        {
+            ContextMenu contextMenu = new();
+
+            foreach (Device device in devices)
+            {
+                MenuItem menuItem = new()
+                {
+                    Header = device.Name,
+                    Tag = device.Id,
+                    IsCheckable = true,
+                    IsChecked = device.IsActive,
+                };
+                menuItem.Click += async (sender, args) =>
+                {
+                    if (sender is MenuItem menuItem)
+                    {
+                        await transferPlayback(menuItem.Tag as string ?? string.Empty);
+                    }
+                };
+                contextMenu.Items.Add(menuItem);
+            }
+
+            contextMenu.IsOpen = true;
+        }
 
         #region Fields
         private AuthWindow? m_AuthWindow;
