@@ -176,9 +176,18 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     #region Devices
     async Task<Device?> ISpotifyService.GetLastListenedDevice(string accessToken)
     {
+        var devices = await ((ISpotifyService)this).GetDevices();
+        // if there is an active device, return it
+        var activeDevice = devices.FirstOrDefault(d => d.IsActive);
+        // if there is no active device, return the first device or null if there arae no devices
+        return activeDevice ?? devices.FirstOrDefault();
+    }
+
+    async Task<IEnumerable<Device>> ISpotifyService.GetDevices()
+    {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, devicesEndpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-        Device? result = null;
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+        List<Device> result = [];
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
@@ -189,13 +198,12 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
                 var devices = responseDictionary["devices"];
                 if (devices != null)
                 {
-                    var device = devices.FirstOrDefault();
-                    if (device != null)
+                    foreach (var device in devices)
                     {
                         var deviceDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(device.ToString() ?? "");
                         if (deviceDictionary != null)
                         {
-                            result = new Device(
+                            result.Add(new Device(
                                 deviceDictionary["id"].ToString() ?? "Unknown",
                                 deviceDictionary["is_active"].ToString() == "True",
                                 deviceDictionary["is_private_session"].ToString() == "True",
@@ -203,13 +211,14 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
                                 deviceDictionary["name"].ToString() ?? "Unnamed",
                                 deviceDictionary["type"].ToString() ?? "No Type",
                                 int.Parse(deviceDictionary["volume_percent"].ToString() ?? "0", CultureInfo.InvariantCulture),
-                                deviceDictionary["volume_percent"].ToString() == "True"
-                                );
+                                deviceDictionary["supports_volume"].ToString() == "True"
+                                ));
                         }
                     }
                 }
             }
         }
+
         return result;
     }
     #endregion
