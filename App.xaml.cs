@@ -5,38 +5,37 @@ using Mini_Spotify_Controller.viewmodel;
 using System;
 using System.Windows;
 
-namespace Mini_Spotify_Controller
+namespace Mini_Spotify_Controller;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    public App()
     {
-        public App()
-        {
-            Services = ConfigureServices();
+        Services = ConfigureServices();
 
-            this.InitializeComponent();
-        }
+        this.InitializeComponent();
+    }
 
-        public new static App Current => (App)Application.Current;
+    public new static App Current => (App)Application.Current;
 
-        public IServiceProvider Services { get; }
+    public IServiceProvider Services { get; }
 
-        private static IServiceProvider ConfigureServices()
-        {
-            var services = new ServiceCollection();
+    private static IServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
 
-            services.AddSingleton<ISpotifyService, SpotifyService>();
-            services.AddSingleton<IToastService, ToastService>();
-            services.AddSingleton<IPreferenceService, PreferenceService>();
-            services.AddSingleton<IWindowService, WindowService>();
-            services.AddSingleton<ILogService, LogService>();
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<AuthViewModel>();
-            services.AddTransient<ClientIdViewModel>();
-            services.AddTransient<AudioMetricsViewModel>();
-            return services.BuildServiceProvider();
-        }
+        services.AddSingleton<ISpotifyService, SpotifyService>();
+        services.AddSingleton<IToastService, ToastService>();
+        services.AddSingleton<IPreferenceService, PreferenceService>();
+        services.AddSingleton<IWindowService, WindowService>();
+        services.AddSingleton<ILogService, LogService>();
+        services.AddTransient<MainViewModel>();
+        services.AddTransient<AuthViewModel>();
+        services.AddTransient<ClientIdViewModel>();
+        services.AddTransient<AudioMetricsViewModel>();
+        return services.BuildServiceProvider();
     }
 }

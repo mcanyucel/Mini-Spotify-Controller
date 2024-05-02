@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Mini_Spotify_Controller.service.implementation
@@ -87,7 +88,7 @@ namespace Mini_Spotify_Controller.service.implementation
                     {
                         AccessToken = responseDictionary["access_token"].ToString(),
                         RefreshToken = responseDictionary["refresh_token"].ToString(),
-                        ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0"),
+                        ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0", CultureInfo.InvariantCulture),
                         TokenType = responseDictionary["token_type"].ToString()
                     };
                 if (m_AccessData != null && m_AccessData.RefreshToken != null)
@@ -194,15 +195,16 @@ namespace Mini_Spotify_Controller.service.implementation
                             var deviceDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(device.ToString() ?? "");
                             if (deviceDictionary != null)
                             {
-                                result = new Device
-                                {
-                                    Id = deviceDictionary["id"].ToString(),
-                                    Name = deviceDictionary["name"].ToString() ?? string.Empty,
-                                    Type = deviceDictionary["type"].ToString() ?? string.Empty,
-                                    IsActive = deviceDictionary["is_active"].ToString() == "True",
-                                    IsRestricted = deviceDictionary["is_restricted"].ToString() == "True",
-                                    VolumePercent = int.Parse(deviceDictionary["volume_percent"].ToString() ?? "0"),
-                                };
+                                result = new Device(
+                                    deviceDictionary["id"].ToString() ?? "Unknown",
+                                    deviceDictionary["is_active"].ToString() == "True",
+                                    deviceDictionary["is_private_session"].ToString() == "True",
+                                    deviceDictionary["is_restricted"].ToString() == "True",
+                                    deviceDictionary["name"].ToString() ?? "Unnamed",
+                                    deviceDictionary["type"].ToString() ?? "No Type",
+                                    int.Parse(deviceDictionary["volume_percent"].ToString() ?? "0", CultureInfo.InvariantCulture),
+                                    deviceDictionary["volume_percent"].ToString() == "True"
+                                    );
                             }
                         }
                     }
