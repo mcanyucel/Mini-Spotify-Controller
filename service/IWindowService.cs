@@ -1,6 +1,6 @@
-﻿using Mini_Spotify_Controller.model;
+﻿using MiniSpotifyController.model;
 
-namespace Mini_Spotify_Controller.service
+namespace MiniSpotifyController.service
 {
     interface IWindowService
     {

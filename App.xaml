@@ -1,7 +1,7 @@
-﻿<Application x:Class="Mini_Spotify_Controller.App"
+﻿<Application x:Class="MiniSpotifyController.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Mini_Spotify_Controller"
+             xmlns:local="clr-namespace:MiniSpotifyController"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>

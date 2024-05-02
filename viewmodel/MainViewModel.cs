@@ -1,8 +1,8 @@
 ﻿using AutoUpdater;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mini_Spotify_Controller.model;
-using Mini_Spotify_Controller.service;
+using MiniSpotifyController.model;
+using MiniSpotifyController.service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +11,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Mini_Spotify_Controller.viewmodel
+namespace MiniSpotifyController.viewmodel
 {
-    class MainViewModel : ObservableObject, IDisposable
+    internal sealed class MainViewModel : ObservableObject, IDisposable
     {
         #region Properties
         public IAsyncRelayCommand AuthorizeCommand { get => m_AutorizeCommand; }
@@ -31,7 +31,7 @@ namespace Mini_Spotify_Controller.viewmodel
         public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public bool Topmost { get => m_Topmost; set => SetProperty(ref m_Topmost, value); }
         public string? AuthorizationCallbackUrl { get => m_AuthorizationCallbackUrl; set => SetProperty(ref m_AuthorizationCallbackUrl, value); }
-        public User User { get => m_User; set => SetProperty(ref m_User, value); }
+        public User? User { get => m_User; set => SetProperty(ref m_User, value); }
         public PlaybackState PlaybackState { get => m_PlaybackState; set { SetProperty(ref m_PlaybackState, value); UpdateCommandStates(); SetTimers(); UpdateMetrics(); } }
         #endregion
 
@@ -329,15 +329,10 @@ namespace Mini_Spotify_Controller.viewmodel
         private string? m_AuthorizationCallbackUrl;
         private PlaybackState m_PlaybackState = new();
         private bool m_IsSeeking;
-        private bool m_Topmost = false;
+        private bool m_Topmost;
 
         private const int m_ProgressUpdateInterval = 1000;
-        private User m_User = new()
-        {
-            Id = "",
-            DisplayName = "Guest",
-            Email = ""
-        };
+        private User? m_User;
 
         private readonly UpdateEngine m_UpdateEngine;
         #endregion

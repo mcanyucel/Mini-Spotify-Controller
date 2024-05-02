@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Mini_Spotify_Controller.converter
+namespace MiniSpotifyController.converter
 {
-    internal class PlaybackStateToNowPlayingConverter : IValueConverter
+    internal sealed class PlaybackStateToNowPlayingConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

@@ -1,8 +1,7 @@
-﻿namespace Mini_Spotify_Controller.model
+﻿namespace MiniSpotifyController.model;
+
+public enum FeatureType
 {
-    public enum FeatureType
-    {
-        Number,
-        Text
-    }
+    Number,
+    Text
 }

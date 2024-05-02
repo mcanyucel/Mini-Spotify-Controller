@@ -3,9 +3,9 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Mini_Spotify_Controller.converter
+namespace MiniSpotifyController.converter
 {
-    class PlaybackStateToLikedConverter : IValueConverter
+    internal sealed class PlaybackStateToLikedConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
