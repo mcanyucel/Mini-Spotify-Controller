@@ -1,3 +1,3 @@
-﻿namespace Mini_Spotify_Controller.model;
+﻿namespace MiniSpotifyController.model;
 
 public record AudioAnalysis;

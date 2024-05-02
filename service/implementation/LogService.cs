@@ -3,9 +3,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mini_Spotify_Controller.service.implementation
+namespace MiniSpotifyController.service.implementation
 {
-    internal class LogService : ILogService
+    internal sealed class LogService : ILogService
     {
         public void LogError(string message)
         {

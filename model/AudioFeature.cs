@@ -1,4 +1,4 @@
-﻿namespace Mini_Spotify_Controller.model;
+﻿namespace MiniSpotifyController.model;
 
 public record AudioFeature(string FeatureName, double FeatureValue, double FeatureMin, double FeatureMax, FeatureType FeatureType = FeatureType.Number)
 {

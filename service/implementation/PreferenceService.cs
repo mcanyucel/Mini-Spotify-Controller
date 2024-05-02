@@ -1,6 +1,6 @@
-﻿namespace Mini_Spotify_Controller.service.implementation
+﻿namespace MiniSpotifyController.service.implementation
 {
-    class PreferenceService : IPreferenceService
+    internal sealed class PreferenceService : IPreferenceService
     {
         void IPreferenceService.SetClientId(string clientId)
         {

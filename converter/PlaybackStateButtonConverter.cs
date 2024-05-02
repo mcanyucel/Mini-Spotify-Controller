@@ -3,9 +3,9 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Mini_Spotify_Controller.converter
+namespace MiniSpotifyController.converter
 {
-    internal class PlaybackStateButtonConverter : IMultiValueConverter
+    internal sealed class PlaybackStateButtonConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {

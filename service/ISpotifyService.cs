@@ -1,9 +1,9 @@
-﻿using Mini_Spotify_Controller.model;
+﻿using MiniSpotifyController.model;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Mini_Spotify_Controller.service
+namespace MiniSpotifyController.service
 {
     interface ISpotifyService
     {

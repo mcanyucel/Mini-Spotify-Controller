@@ -1,10 +1,10 @@
-﻿using Mini_Spotify_Controller.model;
-using Mini_Spotify_Controller.window;
+﻿using MiniSpotifyController.model;
+using MiniSpotifyController.window;
 using System.Windows;
 
-namespace Mini_Spotify_Controller.service.implementation
+namespace MiniSpotifyController.service.implementation
 {
-    class WindowService : IWindowService
+    internal sealed class WindowService : IWindowService
     {
         void IWindowService.ShowClientIdWindowDialog()
         {

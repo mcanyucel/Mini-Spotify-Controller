@@ -1,13 +1,13 @@
-﻿using Mini_Spotify_Controller.model;
+﻿using MiniSpotifyController.model;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows.Data;
 
-namespace Mini_Spotify_Controller.converter
+namespace MiniSpotifyController.converter
 {
-    internal class PlaybackStateImageConverter : IValueConverter
+    internal sealed class PlaybackStateImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

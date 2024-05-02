@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Mini_Spotify_Controller.service;
-using Mini_Spotify_Controller.service.implementation;
-using Mini_Spotify_Controller.viewmodel;
+using MiniSpotifyController.service;
+using MiniSpotifyController.service.implementation;
+using MiniSpotifyController.viewmodel;
 using System;
 using System.Windows;
 
-namespace Mini_Spotify_Controller;
+namespace MiniSpotifyController;
 
 /// <summary>
 /// Interaction logic for App.xaml
@@ -23,7 +23,7 @@ public partial class App : Application
 
     public IServiceProvider Services { get; }
 
-    private static IServiceProvider ConfigureServices()
+    private static ServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
 

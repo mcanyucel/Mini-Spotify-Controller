@@ -1,6 +1,6 @@
-﻿using Mini_Spotify_Controller.viewmodel;
+﻿using MiniSpotifyController.viewmodel;
 
-namespace Mini_Spotify_Controller
+namespace MiniSpotifyController
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

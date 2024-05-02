@@ -1,10 +1,10 @@
-﻿<mah:MetroWindow x:Class="Mini_Spotify_Controller.window.ClientIdWindow"
+﻿<mah:MetroWindow x:Class="MiniSpotifyController.window.ClientIdWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
-        xmlns:viewmodel="clr-namespace:Mini_Spotify_Controller.viewmodel" 
+        xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel" 
         d:DataContext="{d:DesignInstance Type=viewmodel:ClientIdViewModel}"
         mc:Ignorable="d"
         Title="ENTER CLIENT ID" SizeToContent="WidthAndHeight">

@@ -1,11 +1,11 @@
-﻿using Mini_Spotify_Controller.model;
+﻿using MiniSpotifyController.model;
 using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Mini_Spotify_Controller.converter
+namespace MiniSpotifyController.converter
 {
-    internal class PlaybackStateDurationConverter : IValueConverter
+    internal sealed class PlaybackStateDurationConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

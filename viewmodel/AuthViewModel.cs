@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mini_Spotify_Controller.service;
+using MiniSpotifyController.service;
 using System;
 using System.Threading.Tasks;
 
-namespace Mini_Spotify_Controller.viewmodel
+namespace MiniSpotifyController.viewmodel
 {
-    class AuthViewModel : ObservableObject
+    internal sealed class AuthViewModel : ObservableObject
     {
         public IAsyncRelayCommand<Uri?> NavigationCompletedCommand { get => m_NavigationCompletedCommand; }
         public string RequestUrl { get => m_RequestUrl; }
@@ -25,7 +25,7 @@ namespace Mini_Spotify_Controller.viewmodel
             if (uri != null && m_CodeVerifier != null)
             {
                 string url = uri?.ToString() ?? string.Empty;
-                if (url.StartsWith("https://mustafacanyucel.com"))
+                if (url.StartsWith("https://mustafacanyucel.com", StringComparison.InvariantCulture))
                 {
                     string accessCode = url.Split("code=")[1].Split("&")[0];
                     await m_SpotifyService.RequestAccessToken(m_CodeVerifier, accessCode);

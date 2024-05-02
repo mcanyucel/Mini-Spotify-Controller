@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Mini_Spotify_Controller.service;
+using MiniSpotifyController.service;
 
-namespace Mini_Spotify_Controller.viewmodel
+namespace MiniSpotifyController.viewmodel
 {
-    class ClientIdViewModel : ObservableObject
+    internal sealed class ClientIdViewModel : ObservableObject
     {
         public string ClientId { get => m_ClientId; set { SetProperty(ref m_ClientId, value); m_SaveCommand.NotifyCanExecuteChanged(); } }
         public IRelayCommand SaveCommand { get => m_SaveCommand; }
@@ -27,7 +27,7 @@ namespace Mini_Spotify_Controller.viewmodel
 
         #region Fields
         private string m_ClientId = "";
-        private readonly IRelayCommand m_SaveCommand;
+        private readonly RelayCommand m_SaveCommand;
         private readonly IPreferenceService m_PreferenceService;
         private readonly IWindowService m_WindowService;
         #endregion
