@@ -2,11 +2,15 @@
 
 I am not a big fan of the original Spotify App that does not have a mini player. I just want a tiny window that displays current track, and play/pause, next, previous track feeatures. So I have written this small applicatin which uses Spotify Web API to control the streaming. Note that this application does not stream; it just works as a mini controller to the actual device that is streaming the track. It gets the active device from the API, so you can control any source (phone, PC...etc.). It only displays the current track name, artist name and album name to be minimal; but you can always open your streaming app for more information.
 
+**The application requires to have a Spotify Premium account to work. It will not work with free accounts, since free accounts does not support Web API.**
+
 When you run the application, it will open a small window that you need to enter the client id for the Spotify API . You can get the client id from https://developer.spotify.com/dashboard/applications. You need to create an application and get the client id. Then you need to enter the client id to the application. After that, it will open a browser window to authenticate and authorize the application. After you authorize the application, it will close the browser window and start working.
 
 ![Sample](./assets/mini-spotify-controller.png "All that the app does")
 
-The application requires to have a Spotify Premium account to work. It will not work with free accounts, since free accounts does not support Web API.
+## TODO
+[] Add a feature to display the current track's lyrics.
+[] Add an invisible webview2 to play the track in the application itself.
 
 ## Features
 * Mini controller to start, pause, next, previous tracks.
@@ -15,6 +19,13 @@ The application requires to have a Spotify Premium account to work. It will not 
 * Requires a spotify device to be active. If there is no active device, it show a message to open a Spotify app in any of your devices.
 
 ## New Features
+
+### 1.3.3.0
+
+* Update the .NET version from 7.0 to 8.0.
+* Update third party libraries to the latest versions.
+* Add a feature to display the available devices. User can select a device to play the track on that device.
+* Updated many `ObservableObject` classes to use attribute-based MVVM features. This makes the code cleaner and more readable. `MainViewModel` is an exception because it is a bit complex and I did not want to break it. Also due to its complexity, attribute-based approach may not result in a cleaner code.
 
 ### 1.1.5
 
