@@ -6,41 +6,39 @@ using System.Threading.Tasks;
 
 namespace MiniSpotifyController.viewmodel
 {
-    internal sealed class AuthViewModel : ObservableObject
+    internal sealed partial class AuthViewModel : ObservableObject
     {
-        public IAsyncRelayCommand<Uri?> NavigationCompletedCommand { get => m_NavigationCompletedCommand; }
-        public string RequestUrl { get => m_RequestUrl; }
+        public string RequestUrl { get => requestUrl; }
         public AuthViewModel(ISpotifyService spotifyService, IWindowService windowService, ILogService logService)
         {
-            m_SpotifyService = spotifyService;
-            m_WindowService = windowService;
-            m_LogService = logService;
-            m_NavigationCompletedCommand = new AsyncRelayCommand<Uri?>(NavigationCompleted);
-            m_CodeVerifier = ISpotifyService.GenerateRandomString(128);
-            m_RequestUrl = m_SpotifyService.GetRequestUrl(m_CodeVerifier);
+            this.spotifyService = spotifyService;
+            this.windowService = windowService;
+            this.logService = logService;
+            codeVerifier = ISpotifyService.GenerateRandomString(128);
+            requestUrl = this.spotifyService.GetRequestUrl(codeVerifier);
         }
 
-        private async Task NavigationCompleted(Uri? uri)
+        [RelayCommand]
+        async Task NavigationCompleted(Uri? uri)
         {
-            if (uri != null && m_CodeVerifier != null)
+            if (uri != null && codeVerifier != null)
             {
                 string url = uri?.ToString() ?? string.Empty;
                 if (url.StartsWith("https://mustafacanyucel.com", StringComparison.InvariantCulture))
                 {
                     string accessCode = url.Split("code=")[1].Split("&")[0];
-                    await m_SpotifyService.RequestAccessToken(m_CodeVerifier, accessCode);
-                    m_WindowService.CloseAuthorizationWindowDialog();
+                    await spotifyService.RequestAccessToken(codeVerifier, accessCode);
+                    windowService.CloseAuthorizationWindowDialog();
                 }
             }
         }
 
         //region Fields
-        private readonly ISpotifyService m_SpotifyService;
-        private readonly string m_CodeVerifier;
-        private readonly string m_RequestUrl;
-        private readonly IAsyncRelayCommand<Uri?> m_NavigationCompletedCommand;
-        private readonly IWindowService m_WindowService;
-        private readonly ILogService m_LogService;
+        readonly ISpotifyService spotifyService;
+        readonly string codeVerifier;
+        readonly string requestUrl;
+        readonly IWindowService windowService;
+        readonly ILogService logService;
         //endregion
     }
 }
