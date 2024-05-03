@@ -37,14 +37,18 @@ namespace MiniSpotifyController.viewmodel
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(ShowDevicesCommand))]
         bool isBusy;
+
+        [ObservableProperty]
+        string? internalPlayerHTML;
         #endregion
 
         #region Lifecycle
-        public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IWindowService windowService)
+        public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IWindowService windowService, IResourceService resourceService)
         {
             m_SpotifyService = spotifyService;
             m_ToastService = toastService;
             m_WindowService = windowService;
+            m_ResourceService = resourceService;
 
             m_AutorizeCommand = new AsyncRelayCommand(Authorize, AuthorizeCanExecute);
             m_TogglePlayCommand = new RelayCommand(TogglePlay, TogglePlayCanExecute);
@@ -59,8 +63,8 @@ namespace MiniSpotifyController.viewmodel
             m_GetAudioMetricsCommand = new AsyncRelayCommand(GetAudioMetrics, GetAudioMetricsCanExecute);
             m_RandomizeCommand = new AsyncRelayCommand(Randomize, RandomizeCanExecute);
             m_StartSongRadioCommand = new AsyncRelayCommand(StartSongRadio, StartSongRadioCanExecute);
-            asyncCommandList = new IAsyncRelayCommand[] { m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand, m_RandomizeCommand, m_StartSongRadioCommand }.ToList();
-            commandList = new IRelayCommand[] { m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand }.ToList();
+            asyncCommandList = [m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand, m_RandomizeCommand, m_StartSongRadioCommand];
+            commandList = [m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand];
 
             progressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, PROGRESS_UPDATE_INTERVAL_MS);
 
@@ -130,13 +134,61 @@ namespace MiniSpotifyController.viewmodel
             IsBusy = false;
         }
 
-        private async Task TransferPlayback(string deviceId)
+
+        // The method that is transferred to the context menu to transfer playback to the selected device.
+        internal async Task TransferPlayback(string deviceId)
         {
             IsBusy = true;
-            var result = await m_SpotifyService.TransferPlayback(deviceId);
-            if (!result)
-                ShowError("Error", "Failed to transfer playback!");
+            // If the deviceId is empty, the user has selected internal player and the internal player is not initialized yet
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                // read the player html from the resource service if it is not already read
+                if (string.IsNullOrEmpty(InternalPlayerHTML))
+                {
+                    InternalPlayerHTML = m_ResourceService.GetWebPlayerPath(m_SpotifyService.AccessData?.AccessToken ?? string.Empty);
+                }
+                // if the player html cannot be read, show an error
+                if (string.IsNullOrEmpty(InternalPlayerHTML))
+                {
+                    ShowError("Error", "Failed to initialize internal player.");
+                }
+                // otherwise open the internal player window
+                else
+                {
+                    m_WindowService.OpenInternalPlayer(InternalPlayerHTML);
+                    // once the webview is initialized, it will call the transfer playback method with the deviceId of the internal player
+                }
+            }
+            // otherwise transfer playback to the selected device
+            else
+            {
+                var result = await m_SpotifyService.TransferPlayback(deviceId);
+                if (!result)
+                    ShowError("Error", "Failed to transfer playback!");
+            }
             IsBusy = false;
+        }
+
+        [RelayCommand]
+        async Task InternalPlayerLoaded()
+        {
+            try
+            {
+                if (internalPlayerId == null)
+                {
+                    var devices = await m_SpotifyService.GetDevices();
+                    var internalPlayer = devices.FirstOrDefault(x => x.Name == ISpotifyService.INTERNAL_PLAYER_NAME);
+                    if (internalPlayer != null)
+                        internalPlayerId = internalPlayer.Id;
+                }
+                var result = await m_SpotifyService.TransferPlayback(internalPlayerId ?? string.Empty);
+                if (!result)
+                    ShowError("Error", "Failed to transfer playback!");
+            }
+            catch (Exception ex)
+            {
+                ShowError("Error", ex.Message);
+            }
         }
 
         #endregion
@@ -323,7 +375,7 @@ namespace MiniSpotifyController.viewmodel
         #endregion
 
         #region UI Helpers
-        private void ShowError(string title, string message)
+        internal void ShowError(string title, string message)
         {
             m_ToastService.ShowTextToast("error", 0, title, message);
         }
@@ -341,6 +393,7 @@ namespace MiniSpotifyController.viewmodel
         readonly ISpotifyService m_SpotifyService;
         readonly IToastService m_ToastService;
         readonly IWindowService m_WindowService;
+        readonly IResourceService m_ResourceService;
         readonly IAsyncRelayCommand m_AutorizeCommand;
         readonly IRelayCommand m_TogglePlayCommand;
         readonly IRelayCommand m_NextCommand;
@@ -364,6 +417,7 @@ namespace MiniSpotifyController.viewmodel
 
         const int PROGRESS_UPDATE_INTERVAL_MS = 1000;
         User? m_User;
+        string? internalPlayerId;
 
         readonly UpdateEngine m_UpdateEngine;
         #endregion

@@ -104,7 +104,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     {
         string codeChallenge = HashString(codeVerifier);
         string state = ISpotifyService.GenerateRandomString(16);
-        string scope = "user-read-private user-read-email user-library-read user-library-modify user-read-playback-state user-modify-playback-state";
+        string scope = "user-read-private user-read-email user-library-read user-library-modify user-read-playback-state user-modify-playback-state app-remote-control streaming";
         string responseType = "code";
         string url = $"{autorizationEndpoint}?client_id={clientId}&response_type={responseType}&redirect_uri={redirectUri}&code_challenge_method=S256&code_challenge={codeChallenge}&state={state}&scope={scope}";
 
@@ -179,7 +179,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var devices = await ((ISpotifyService)this).GetDevices();
         // if there is an active device, return it
         var activeDevice = devices.FirstOrDefault(d => d.IsActive);
-        // if there is no active device, return the first device or null if there arae no devices
+        // if there is no active device, return the first device or null if there are no devices
         return activeDevice ?? devices.FirstOrDefault();
     }
 
@@ -217,6 +217,12 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
                     }
                 }
             }
+        }
+
+        // If the result does not include the internal player (which means the internal player is not initialized), add it manually with empty id to the end of the list
+        if (!result.Any(d => d.Name == ISpotifyService.INTERNAL_PLAYER_NAME))
+        {
+            result.Add(new Device(string.Empty, false, false, false, ISpotifyService.INTERNAL_PLAYER_NAME, "Web", 50, false));
         }
 
         return result;
