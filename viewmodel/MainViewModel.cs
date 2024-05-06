@@ -181,6 +181,8 @@ namespace MiniSpotifyController.viewmodel
                     if (internalPlayer != null)
                         internalPlayerId = internalPlayer.Id;
                 }
+                // wait for the player to settle before transferring playback
+                await Task.Delay(ISpotifyService.DELAY_SHORT);
                 var result = await m_SpotifyService.TransferPlayback(internalPlayerId ?? string.Empty);
                 if (!result)
                     ShowError("Error", "Failed to transfer playback!");

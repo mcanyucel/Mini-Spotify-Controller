@@ -58,5 +58,8 @@ internal interface ISpotifyService
         return new string(Enumerable.Repeat(chars, length)
                          .Select(s => s[random.Next(s.Length)]).ToArray());
     }
+
+    internal static int DELAY_SHORT;
+    internal static int DELAY_LONG;
     #endregion
 }

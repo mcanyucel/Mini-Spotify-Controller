@@ -15,6 +15,9 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     #region Properties
     AccessData? ISpotifyService.AccessData => m_AccessData;
     bool ISpotifyService.IsAuthorized => m_AccessData != null && m_AccessData.AccessToken != null;
+
+    internal static int DELAY_SHORT => 500;
+    internal static int DELAY_LONG => 1500;
     #endregion
 
     #region Lifecycle
@@ -279,7 +282,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
-            await Task.Delay(m_LongDelay);
+            await Task.Delay(DELAY_SHORT);
             var newState = await ((ISpotifyService)this).GetPlaybackState();
             return newState;
         }
@@ -362,7 +365,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
-            await Task.Delay(m_LongDelay);
+            await Task.Delay(DELAY_LONG);
             var newState = await ((ISpotifyService)this).GetPlaybackState();
             return newState;
         }
@@ -438,7 +441,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -465,7 +468,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -491,7 +494,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -517,7 +520,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -538,7 +541,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -744,8 +747,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
     const string audioFeaturesEndpoint = "https://api.spotify.com/v1/audio-features";
     const string recommendationsEndpoint = "https://api.spotify.com/v1/recommendations";
-    const int m_ShortDelay = 500; // ms - a short delay between consecutive requests
-    const int m_LongDelay = 1500; // ms - a long delay between consecutive requests
+    
     readonly HttpClient httpClient = new();
     readonly IPreferenceService m_PreferenceService;
     readonly IWindowService m_WindowService;
