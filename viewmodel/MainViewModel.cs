@@ -39,7 +39,14 @@ namespace MiniSpotifyController.viewmodel
         bool isBusy;
 
         [ObservableProperty]
-        string? internalPlayerHTML;
+        string? internalPlayerHTMLPath;
+
+        /// <summary>
+        /// The internal player ID that is used to transfer playback to the internal player. If null, the internal player is not available.
+        /// </summary>
+        [ObservableProperty]
+        string? internalPlayerId;
+
         #endregion
 
         #region Lifecycle
@@ -85,12 +92,13 @@ namespace MiniSpotifyController.viewmodel
             else
                 await OnAuthorizeSuccess();
         }
-        private async Task OnAuthorizeSuccess()
+        async Task OnAuthorizeSuccess()
         {
             if (m_SpotifyService.IsAuthorized)
             {
                 await GetUser();
                 PlaybackState = await m_SpotifyService.GetPlaybackState();
+                SetInternalPlayerHTMLPath();
                 UpdateCommandStates();
             }
 
@@ -108,7 +116,8 @@ namespace MiniSpotifyController.viewmodel
                 }
             }
         }
-        private async Task GetUser()
+
+        async Task GetUser()
         {
             if (m_SpotifyService.IsAuthorized)
             {
@@ -128,69 +137,44 @@ namespace MiniSpotifyController.viewmodel
             IsBusy = true;
             var devices = await m_SpotifyService.GetDevices();
             if (devices != null)
-                m_WindowService.ShowDevicesContextMenu(devices.ToArray(), TransferPlayback);
+                if (devices.Any())
+                    m_WindowService.ShowDevicesContextMenu(devices.ToArray(), TransferPlayback);
+                else
+                    ShowError("Error", "No devices found.");
             else
                 ShowError("Error", "Failed to get devices.");
             IsBusy = false;
         }
 
+        /// <summary>
+        /// Creates the internal player HTML path and sets it to the internalPlayerHTMLPath property in the background.
+        /// </summary>
+        void SetInternalPlayerHTMLPath()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    InternalPlayerHTMLPath = m_ResourceService.GetWebPlayerPath(m_SpotifyService.AccessData?.AccessToken ?? string.Empty);
+                    if (string.IsNullOrEmpty(InternalPlayerHTMLPath))
+                        ShowError("Error", "Failed to create internal player.");
+                }
+                catch (Exception)
+                {
+                    ShowError("Error", "Failed to create internal player.");
+                }
+            });
+
+        }
 
         // The method that is transferred to the context menu to transfer playback to the selected device.
         internal async Task TransferPlayback(string deviceId)
         {
             IsBusy = true;
-            // If the deviceId is empty, the user has selected internal player and the internal player is not initialized yet
-            if (string.IsNullOrEmpty(deviceId))
-            {
-                // read the player html from the resource service if it is not already read
-                if (string.IsNullOrEmpty(InternalPlayerHTML))
-                {
-                    InternalPlayerHTML = m_ResourceService.GetWebPlayerPath(m_SpotifyService.AccessData?.AccessToken ?? string.Empty);
-                }
-                // if the player html cannot be read, show an error
-                if (string.IsNullOrEmpty(InternalPlayerHTML))
-                {
-                    ShowError("Error", "Failed to initialize internal player.");
-                }
-                // otherwise open the internal player window
-                else
-                {
-                    m_WindowService.OpenInternalPlayer(InternalPlayerHTML);
-                    // once the webview is initialized, it will call the transfer playback method with the deviceId of the internal player
-                }
-            }
-            // otherwise transfer playback to the selected device
-            else
-            {
-                var result = await m_SpotifyService.TransferPlayback(deviceId);
-                if (!result)
-                    ShowError("Error", "Failed to transfer playback!");
-            }
+            var result = await m_SpotifyService.TransferPlayback(deviceId);
+            if (!result)
+                ShowError("Error", "Failed to transfer playback!");
             IsBusy = false;
-        }
-
-        [RelayCommand]
-        async Task InternalPlayerLoaded()
-        {
-            try
-            {
-                if (internalPlayerId == null)
-                {
-                    var devices = await m_SpotifyService.GetDevices();
-                    var internalPlayer = devices.FirstOrDefault(x => x.Name == ISpotifyService.INTERNAL_PLAYER_NAME);
-                    if (internalPlayer != null)
-                        internalPlayerId = internalPlayer.Id;
-                }
-                // wait for the player to settle before transferring playback
-                await Task.Delay(ISpotifyService.DELAY_SHORT);
-                var result = await m_SpotifyService.TransferPlayback(internalPlayerId ?? string.Empty);
-                if (!result)
-                    ShowError("Error", "Failed to transfer playback!");
-            }
-            catch (Exception ex)
-            {
-                ShowError("Error", ex.Message);
-            }
         }
 
         #endregion
@@ -419,7 +403,6 @@ namespace MiniSpotifyController.viewmodel
 
         const int PROGRESS_UPDATE_INTERVAL_MS = 1000;
         User? m_User;
-        string? internalPlayerId;
 
         readonly UpdateEngine m_UpdateEngine;
         #endregion

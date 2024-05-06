@@ -34,7 +34,7 @@ internal interface ISpotifyService
     internal Task<Device?> GetLastListenedDevice(string accessToken);
     internal Task<bool> TransferPlayback(string deviceId);
 
-    internal const string INTERNAL_PLAYER_NAME = "Internal Player";
+    internal const string INTERNAL_PLAYER_NAME = "Mini Spotify Controller";
     #endregion
 
     #region Track
@@ -58,8 +58,5 @@ internal interface ISpotifyService
         return new string(Enumerable.Repeat(chars, length)
                          .Select(s => s[random.Next(s.Length)]).ToArray());
     }
-
-    internal static int DELAY_SHORT;
-    internal static int DELAY_LONG;
     #endregion
 }

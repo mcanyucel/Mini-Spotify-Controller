@@ -5,6 +5,7 @@
 </head>
 <body>
     <h1>Spotify Web Playback</h1>
+    <button id="play">Toggle Play</button>
   
 
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
@@ -41,6 +42,12 @@
             player.addListener('account_error', ({ message }) => {
                 console.error(message);
             });
+
+            document.getElementById('play').addEventListener('click', () => {
+				player.togglePlay().then(() => {
+					console.log('Toggled playback!');
+				});
+			});
 
             player.connect();
         }

@@ -191,6 +191,8 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, devicesEndpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
         List<Device> result = [];
+
+        // get the list of devices from the Spotify API
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
@@ -220,12 +222,6 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
                     }
                 }
             }
-        }
-
-        // If the result does not include the internal player (which means the internal player is not initialized), add it manually with empty id to the end of the list
-        if (!result.Any(d => d.Name == ISpotifyService.INTERNAL_PLAYER_NAME))
-        {
-            result.Add(new Device(string.Empty, false, false, false, ISpotifyService.INTERNAL_PLAYER_NAME, "Web", 50, false));
         }
 
         return result;

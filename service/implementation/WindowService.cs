@@ -9,17 +9,6 @@ namespace MiniSpotifyController.service.implementation
 {
     internal sealed class WindowService : IWindowService
     {
-        void IWindowService.OpenInternalPlayer(string playerHTML)
-        {
-            playerWindow = new PlayerWindow(playerHTML);
-            playerWindow.Show();
-        }
-        void IWindowService.CloseInternalPlayer()
-        {
-            playerWindow?.Close();
-            playerWindow = null;
-        }
-
         void IWindowService.ShowClientIdWindowDialog()
         {
             clientIdWindow = new ClientIdWindow();
@@ -92,7 +81,6 @@ namespace MiniSpotifyController.service.implementation
         private AuthWindow? authWindow;
         private ClientIdWindow? clientIdWindow;
         private AudioMetricsWindow? audioMetricsWindow;
-        private PlayerWindow? playerWindow;
         #endregion
     }
 }
