@@ -33,6 +33,8 @@ internal interface ISpotifyService
     internal Task<IEnumerable<Device>> GetDevices();
     internal Task<Device?> GetLastListenedDevice(string accessToken);
     internal Task<bool> TransferPlayback(string deviceId);
+
+    internal const string INTERNAL_PLAYER_NAME = "Mini Spotify Controller";
     #endregion
 
     #region Track

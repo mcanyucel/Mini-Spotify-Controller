@@ -15,6 +15,9 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     #region Properties
     AccessData? ISpotifyService.AccessData => m_AccessData;
     bool ISpotifyService.IsAuthorized => m_AccessData != null && m_AccessData.AccessToken != null;
+
+    internal static int DELAY_SHORT => 500;
+    internal static int DELAY_LONG => 1500;
     #endregion
 
     #region Lifecycle
@@ -104,7 +107,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     {
         string codeChallenge = HashString(codeVerifier);
         string state = ISpotifyService.GenerateRandomString(16);
-        string scope = "user-read-private user-read-email user-library-read user-library-modify user-read-playback-state user-modify-playback-state";
+        string scope = "user-read-private user-read-email user-library-read user-library-modify user-read-playback-state user-modify-playback-state app-remote-control streaming";
         string responseType = "code";
         string url = $"{autorizationEndpoint}?client_id={clientId}&response_type={responseType}&redirect_uri={redirectUri}&code_challenge_method=S256&code_challenge={codeChallenge}&state={state}&scope={scope}";
 
@@ -179,7 +182,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var devices = await ((ISpotifyService)this).GetDevices();
         // if there is an active device, return it
         var activeDevice = devices.FirstOrDefault(d => d.IsActive);
-        // if there is no active device, return the first device or null if there arae no devices
+        // if there is no active device, return the first device or null if there are no devices
         return activeDevice ?? devices.FirstOrDefault();
     }
 
@@ -188,6 +191,8 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, devicesEndpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
         List<Device> result = [];
+
+        // get the list of devices from the Spotify API
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
@@ -273,7 +278,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
-            await Task.Delay(m_LongDelay);
+            await Task.Delay(DELAY_SHORT);
             var newState = await ((ISpotifyService)this).GetPlaybackState();
             return newState;
         }
@@ -356,7 +361,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
-            await Task.Delay(m_LongDelay);
+            await Task.Delay(DELAY_LONG);
             var newState = await ((ISpotifyService)this).GetPlaybackState();
             return newState;
         }
@@ -432,7 +437,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -459,7 +464,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -485,7 +490,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -511,7 +516,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -532,7 +537,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(m_ShortDelay);
+            await Task.Delay(DELAY_SHORT);
             return await ((ISpotifyService)this).GetPlaybackState();
         }
         else
@@ -738,8 +743,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
     const string audioFeaturesEndpoint = "https://api.spotify.com/v1/audio-features";
     const string recommendationsEndpoint = "https://api.spotify.com/v1/recommendations";
-    const int m_ShortDelay = 500; // ms - a short delay between consecutive requests
-    const int m_LongDelay = 1500; // ms - a long delay between consecutive requests
+    
     readonly HttpClient httpClient = new();
     readonly IPreferenceService m_PreferenceService;
     readonly IWindowService m_WindowService;

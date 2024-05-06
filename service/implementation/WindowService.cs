@@ -11,43 +11,43 @@ namespace MiniSpotifyController.service.implementation
     {
         void IWindowService.ShowClientIdWindowDialog()
         {
-            m_ClientIdWindow = new ClientIdWindow();
-            m_ClientIdWindow.ShowDialog();
+            clientIdWindow = new ClientIdWindow();
+            clientIdWindow.ShowDialog();
         }
         void IWindowService.CloseClientIdWindowDialog()
         {
-            m_ClientIdWindow?.Close();
-            m_ClientIdWindow = null;
+            clientIdWindow?.Close();
+            clientIdWindow = null;
         }
         void IWindowService.ShowAuthorizationWindowDialog()
         {
-            m_AuthWindow = new AuthWindow();
-            m_AuthWindow.ShowDialog();
+            authWindow = new AuthWindow();
+            authWindow.ShowDialog();
         }
         void IWindowService.CloseAuthorizationWindowDialog()
         {
-            m_AuthWindow?.Close();
-            m_AuthWindow = null;
+            authWindow?.Close();
+            authWindow = null;
         }
 
         void IWindowService.SetClipboardText(string text) => Clipboard.SetText(text);
 
         void IWindowService.ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
         {
-            if (m_AudioMetricsWindow == null)
+            if (audioMetricsWindow == null)
             {
-                m_AudioMetricsWindow = new AudioMetricsWindow(audioFeatures, audioAnalysis);
-                m_AudioMetricsWindow.Show();
-                m_AudioMetricsWindow.Closed += (sender, args) => m_AudioMetricsWindow = null;
+                audioMetricsWindow = new AudioMetricsWindow(audioFeatures, audioAnalysis);
+                audioMetricsWindow.Show();
+                audioMetricsWindow.Closed += (sender, args) => audioMetricsWindow = null;
             }
             else
             {
-                m_AudioMetricsWindow.UpdateData(audioFeatures, audioAnalysis);
-                m_AudioMetricsWindow.Activate();
+                audioMetricsWindow.UpdateData(audioFeatures, audioAnalysis);
+                audioMetricsWindow.Activate();
             }
         }
 
-        bool IWindowService.IsAudioMetricsWindowOpen() => m_AudioMetricsWindow != null;
+        bool IWindowService.IsAudioMetricsWindowOpen() => audioMetricsWindow != null;
 
         bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
@@ -78,9 +78,9 @@ namespace MiniSpotifyController.service.implementation
         }
 
         #region Fields
-        private AuthWindow? m_AuthWindow;
-        private ClientIdWindow? m_ClientIdWindow;
-        private AudioMetricsWindow? m_AudioMetricsWindow;
+        private AuthWindow? authWindow;
+        private ClientIdWindow? clientIdWindow;
+        private AudioMetricsWindow? audioMetricsWindow;
         #endregion
     }
 }

@@ -32,10 +32,13 @@ public partial class App : Application
         services.AddSingleton<IPreferenceService, PreferenceService>();
         services.AddSingleton<IWindowService, WindowService>();
         services.AddSingleton<ILogService, LogService>();
-        services.AddTransient<MainViewModel>();
+        services.AddSingleton<IResourceService, ResourceService>();
+        services.AddSingleton<MainViewModel>();
+
         services.AddTransient<AuthViewModel>();
         services.AddTransient<ClientIdViewModel>();
         services.AddTransient<AudioMetricsViewModel>();
+        
         return services.BuildServiceProvider();
     }
 }
