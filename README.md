@@ -36,10 +36,10 @@ The internal player uses Spotify Web Playback API. This API needs HTTPS connecti
 
 1a. Once the `MainViewModel` is initialized and the user authorizes the application, `MainViewModel` calls `IResourceService.GetWebPlayerPath(string accessToken)` method (note that `AccessToken` will be available here), which:
 
-    * Gets the HTML content template as string from the `assets.Resources.WebPlayer.txt` resource file,
-    * Replaces the `{{accessToken}}` placeholder with the actual access token and `{{internalPlayerName}}` placeholder,
-    * Writes this source to a temporary file in the user's temp directory as "webplayer.html",
-    * Returns the path of the temporary file.
+* Gets the HTML content template as string from the `assets.Resources.WebPlayer.txt` resource file,
+* Replaces the `{{accessToken}}` placeholder with the actual access token and `{{internalPlayerName}}` placeholder,
+* Writes this source to a temporary file in the user's temp directory as "webplayer.html",
+* Returns the path of the temporary file.
 
 2a. If the returned internal player path string is not empty, `MainViewModel` sets this value to the `InternalPlayerPath` property.
 
@@ -47,12 +47,12 @@ The internal player uses Spotify Web Playback API. This API needs HTTPS connecti
 
 2b. Once the `MainWindow` content is rendered;
 
-    * It defines the environment for webview2 control as *User/LocalApplicationData/MiniSpotifyController*, and wait until the webview2 control is initialized. 
-    * Once the webview2 control is initialized, `MainWindow` attaches a hook to the `WebMessageReceived` event of the webview2 control. This is necessary to get the player id of the internal player as this id cannot be assigned manually and it is required to transfer playback to the internal player. This hook updates `MainViewModel.InternalPlayerId` property. Note that the *Webplayer.txt* source file contains a script that sends the player id to the host application as a web message (TODO: This id is possibly no longer needed as we treat the local player as any other player).
-    * It listens to the `MainViewModel.InternalPlayerHTMLPath` property changes (it will start as null); once the internal player HTML source path is set, it calls `InitializeInternalPlayer` method which does the following:
-        * It sets up a virtual host for webview2 because spotify web playback API uses EME (Encrypted Media Extensions) which requires HTTPS connection. It is not possible to create a HTTPS connection while loading a string or a local file, so we create a virtual host (with name `VIRTUAL_HOST_NAME` to load the internal player source. The CORS of this virtual host is set to `CoreWebView2HostResourceAccessKind.Deny` for security. Note that the virtual host needs to be a directory, so we get the directory of the internal player source file and set it as the virtual host.
-        * It navigates to the virtual host with the internal player source file using HTTPS connection.
-        * The player is ready to play once the navigation is completed. 
+* It defines the environment for webview2 control as *User/LocalApplicationData/MiniSpotifyController*, and wait until the webview2 control is initialized. 
+* Once the webview2 control is initialized, `MainWindow` attaches a hook to the `WebMessageReceived` event of the webview2 control. This is necessary to get the player id of the internal player as this id cannot be assigned manually and it is required to transfer playback to the internal player. This hook updates `MainViewModel.InternalPlayerId` property. Note that the *Webplayer.txt* source file contains a script that sends the player id to the host application as a web message (TODO: This id is possibly no longer needed as we treat the local player as any other player).
+* It listens to the `MainViewModel.InternalPlayerHTMLPath` property changes (it will start as null); once the internal player HTML source path is set, it calls `InitializeInternalPlayer` method which does the following:
+    * It sets up a virtual host for webview2 because spotify web playback API uses EME (Encrypted Media Extensions) which requires HTTPS connection. It is not possible to create a HTTPS connection while loading a string or a local file, so we create a virtual host (with name `VIRTUAL_HOST_NAME` to load the internal player source. The CORS of this virtual host is set to `CoreWebView2HostResourceAccessKind.Deny` for security. Note that the virtual host needs to be a directory, so we get the directory of the internal player source file and set it as the virtual host.
+    * It navigates to the virtual host with the internal player source file using HTTPS connection.
+    * The player is ready to play once the navigation is completed. 
 
 ## TODO
 * [] Add a feature to display the current track's lyrics.
