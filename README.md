@@ -35,13 +35,18 @@ The internal player is a WebView2 control that uses Spotify Web Playback API. It
 The internal player uses Spotify Web Playback API. This API needs HTTPS connection to work, so we cannot simply load an HTML string to web view. Instead, the app trails the following sequence of events to play the track internally (The events with the same ordinal number such as 1a and 1b are not synchronous; they may or may not be concurrent):
 
 1a. Once the `MainViewModel` is initialized and the user authorizes the application, `MainViewModel` calls `IResourceService.GetWebPlayerPath(string accessToken)` method (note that `AccessToken` will be available here), which:
+
     * Gets the HTML content template as string from the `assets.Resources.WebPlayer.txt` resource file,
     * Replaces the `{{accessToken}}` placeholder with the actual access token and `{{internalPlayerName}}` placeholder,
     * Writes this source to a temporary file in the user's temp directory as "webplayer.html",
     * Returns the path of the temporary file.
+
 2a. If the returned internal player path string is not empty, `MainViewModel` sets this value to the `InternalPlayerPath` property.
+
 1b. `MainWindow` sets the environment variable `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS` as `--autoplay-policy=no-user-gesture-required` so that the internal player can play the track without user interaction.
+
 2b. Once the `MainWindow` content is rendered;
+
     * It defines the environment for webview2 control as *User/LocalApplicationData/MiniSpotifyController*, and wait until the webview2 control is initialized. 
     * Once the webview2 control is initialized, `MainWindow` attaches a hook to the `WebMessageReceived` event of the webview2 control. This is necessary to get the player id of the internal player as this id cannot be assigned manually and it is required to transfer playback to the internal player. This hook updates `MainViewModel.InternalPlayerId` property. Note that the *Webplayer.txt* source file contains a script that sends the player id to the host application as a web message (TODO: This id is possibly no longer needed as we treat the local player as any other player).
     * It listens to the `MainViewModel.InternalPlayerHTMLPath` property changes (it will start as null); once the internal player HTML source path is set, it calls `InitializeInternalPlayer` method which does the following:
