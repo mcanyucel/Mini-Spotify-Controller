@@ -1,5 +1,8 @@
-﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"  xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-	<Package Name="Mini Spotify Controller" Manufacturer="MCY Software" Version="1.3.1.0" UpgradeCode="21f88d73-a2b7-4da4-b791-6807e7d47f1c">
+﻿<Wix 
+	xmlns="http://wixtoolset.org/schemas/v4/wxs"  
+	xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx"
+	xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+	<Package Name="Mini Spotify Controller" Manufacturer="MCY Software" Version="2.0.0.1" UpgradeCode="21f88d73-a2b7-4da4-b791-6807e7d47f1c">
 		<MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
 		<MediaTemplate EmbedCab="yes" />
 		<ui:WixUI
@@ -10,10 +13,12 @@
 			Id="WixUILicenseRtf"
 			Value="license.rtf" />
 
-		<PropertyRef Id="WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED" />
-		<Launch
-			  Message="!(loc.DotNetError)"
-			  Condition="Installed OR WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED" />
+		<netfx:DotNetCompatibilityCheck
+			Property="DOTNETRUNTIMECHECK"
+			RollForward="major"
+			RuntimeType="desktop"
+			Platform="x64"
+			Version="8.0.0" />
 
 		<Feature Id="Main">
 			<ComponentGroupRef Id="MainComponents" />
