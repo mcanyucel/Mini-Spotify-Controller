@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using Microsoft.Extensions.DependencyInjection;
+using MiniSpotifyController.model.AudioAnalysis;
+using MiniSpotifyController.viewmodel;
 
 namespace MiniSpotifyController.window
 {
     /// <summary>
     /// Interaction logic for AudioAnalysisWindow.xaml
     /// </summary>
-    public partial class AudioAnalysisWindow : Window
+    public partial class AudioAnalysisWindow
     {
-        public AudioAnalysisWindow()
+        internal AudioAnalysisWindow(AudioAnalysisResult audioAnalysisResult)
         {
+            viewModel = App.Current.Services.GetRequiredService<AudioAnalysisViewModel>();
+            viewModel.UpdateData(audioAnalysisResult);
+            DataContext = viewModel;
             InitializeComponent();
         }
+
+        internal void UpdateData(AudioAnalysisResult audioAnalysisResult) => viewModel.UpdateData(audioAnalysisResult);
+
+        readonly AudioAnalysisViewModel viewModel;
     }
 }

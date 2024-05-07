@@ -48,6 +48,21 @@ namespace MiniSpotifyController.service.implementation
             }
         }
 
+        void IWindowService.ShowAudioAnalysisWindow(AudioAnalysisResult audioAnalysisResult)
+        {
+            if (audioAnalysisWindow == null)
+            {
+                audioAnalysisWindow = new AudioAnalysisWindow(audioAnalysisResult);
+                audioAnalysisWindow.Show();
+                audioAnalysisWindow.Closed += (sender, args) => audioAnalysisWindow = null;
+            }
+            else
+            {
+                audioAnalysisWindow.UpdateData(audioAnalysisResult);
+                audioAnalysisWindow.Activate();
+            }
+        }
+
         bool IWindowService.IsAudioMetricsWindowOpen() => audioMetricsWindow != null;
 
         bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
@@ -79,9 +94,10 @@ namespace MiniSpotifyController.service.implementation
         }
 
         #region Fields
-        private AuthWindow? authWindow;
-        private ClientIdWindow? clientIdWindow;
-        private AudioMetricsWindow? audioMetricsWindow;
+        AuthWindow? authWindow;
+        ClientIdWindow? clientIdWindow;
+        AudioMetricsWindow? audioMetricsWindow;
+        AudioAnalysisWindow? audioAnalysisWindow;
         #endregion
     }
 }
