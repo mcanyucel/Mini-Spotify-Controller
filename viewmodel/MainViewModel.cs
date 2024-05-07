@@ -2,9 +2,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MiniSpotifyController.model;
+using MiniSpotifyController.model.AudioAnalysis;
 using MiniSpotifyController.service;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -67,10 +69,10 @@ namespace MiniSpotifyController.viewmodel
             m_RefreshCommand = new AsyncRelayCommand(Refresh, RefreshCanExecute);
             m_ToggleLikedCommand = new AsyncRelayCommand(ToggleLiked, ToggleLikedCanExecute);
             m_GetShareUrlCommand = new AsyncRelayCommand(GetShareUrl, GetShareUrlCanExecute);
-            m_GetAudioMetricsCommand = new AsyncRelayCommand(GetAudioMetrics, GetAudioMetricsCanExecute);
+            m_GetAudioMetricsCommand = new AsyncRelayCommand(GetAudioFeatures, GetAudioMetricsCanExecute);
             m_RandomizeCommand = new AsyncRelayCommand(Randomize, RandomizeCanExecute);
             m_StartSongRadioCommand = new AsyncRelayCommand(StartSongRadio, StartSongRadioCanExecute);
-            asyncCommandList = [m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand, m_RandomizeCommand, m_StartSongRadioCommand];
+            asyncCommandList = [m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand, m_RandomizeCommand, m_StartSongRadioCommand, GetAudioAnalysisCommand];
             commandList = [m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand];
 
             progressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, PROGRESS_UPDATE_INTERVAL_MS);
@@ -296,19 +298,35 @@ namespace MiniSpotifyController.viewmodel
             if (saved)
                 playbackState.IsLiked = !oldValue;
         }
-        private async Task GetAudioMetrics()
+        private async Task GetAudioFeatures()
         {
-            AudioFeatures? audioFeatures = await m_SpotifyService.GetAudioFeatures(playbackState.CurrentlyPlayingId ?? string.Empty);
-            AudioAnalysis? audioAnalysis = new(); //await spotifyService.GetAudioAnalysis(playbackState.CurrentlyPlayingId ?? string.Empty);
+            if (playbackState.CurrentlyPlayingId == null) return;
 
-            if (audioAnalysis != null && audioFeatures != null)
+            AudioFeatures? audioFeatures = await m_SpotifyService.GetAudioFeatures(playbackState.CurrentlyPlayingId);
+            if (audioFeatures != null)
             {
                 audioFeatures.TrackName = PlaybackState.CurrentlyPlaying ?? string.Empty;
-                m_WindowService.ShowAudioMetricsWindow(audioFeatures, audioAnalysis);
+                m_WindowService.ShowAudioFeaturesWindow(audioFeatures);
             }
             else
                 ShowError("Error", "Failed to get audio metrics.");
         }
+
+        [RelayCommand(CanExecute = nameof(GetAudioMetricsCanExecute))]
+        async Task GetAudioAnalysis()
+        {
+            if (playbackState.CurrentlyPlayingId == null) return;
+
+            AudioAnalysisResult? audioAnalysis = await m_SpotifyService.GetAudioAnalysis(playbackState.CurrentlyPlayingId);
+            if (audioAnalysis != null)
+            {
+                Debug.Write(audioAnalysis);
+            }
+            else
+                ShowError("Error", "Failed to get audio analysis.");
+        }
+
+
         private async Task GetShareUrl()
         {
             var url = await m_SpotifyService.GetShareUrl(playbackState.CurrentlyPlayingId ?? string.Empty);

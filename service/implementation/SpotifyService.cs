@@ -1,4 +1,5 @@
 ﻿using MiniSpotifyController.model;
+using MiniSpotifyController.model.AudioAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -563,13 +564,33 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             var response = await httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
 
-            var responseString = response.Content.ReadAsStringAsync().Result;
+            var responseString = await response.Content.ReadAsStringAsync();
             var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
             result = ExtractAudioFeatures(spotifyId, responseDictionary);
         }
         catch (Exception ex)
         {
             m_LogService.LogError($"Failed to get audio features: {ex.Message}");
+        }
+        return result;
+    }
+
+    async Task<AudioAnalysisResult?> ISpotifyService.GetAudioAnalysis(string spotifyId)
+    {
+        AudioAnalysisResult? result = null;
+        try
+        {
+            var endpoint = audioAnalysisEndpoint + $"/{spotifyId}";
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            response.EnsureSuccessStatusCode();
+            var responseString = await response.Content.ReadAsStringAsync();
+            result = await Task.Run(() => JsonSerializer.Deserialize<AudioAnalysisResult>(responseString));
+        }
+        catch (Exception ex)
+        {
+            m_LogService.LogError($"Failed to get audio analysis result: {ex.Message}");
         }
         return result;
     }
@@ -722,6 +743,8 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         }
         return audioFeatures;
     }
+
+
     #endregion
 
     #region Fields
@@ -743,7 +766,7 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
     const string savedTracksEndpoint = "https://api.spotify.com/v1/me/tracks";
     const string audioFeaturesEndpoint = "https://api.spotify.com/v1/audio-features";
     const string recommendationsEndpoint = "https://api.spotify.com/v1/recommendations";
-    
+    const string audioAnalysisEndpoint = "https://api.spotify.com/v1/audio-analysis";
     readonly HttpClient httpClient = new();
     readonly IPreferenceService m_PreferenceService;
     readonly IWindowService m_WindowService;

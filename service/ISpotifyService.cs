@@ -1,4 +1,5 @@
 ﻿using MiniSpotifyController.model;
+using MiniSpotifyController.model.AudioAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,7 @@ internal interface ISpotifyService
     internal Task<bool> RemoveTrack(string spotifyId);
     internal Task<string> GetShareUrl(string spotifyId);
     internal Task<AudioFeatures?> GetAudioFeatures(string spotifyId);
+    internal Task<AudioAnalysisResult?> GetAudioAnalysis(string spotifyId);
     #endregion
 
     #region Radio & Randomization

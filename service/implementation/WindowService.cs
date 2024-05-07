@@ -1,4 +1,5 @@
 ﻿using MiniSpotifyController.model;
+using MiniSpotifyController.model.AudioAnalysis;
 using MiniSpotifyController.window;
 using System;
 using System.Threading.Tasks;
@@ -32,17 +33,17 @@ namespace MiniSpotifyController.service.implementation
 
         void IWindowService.SetClipboardText(string text) => Clipboard.SetText(text);
 
-        void IWindowService.ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
+        void IWindowService.ShowAudioFeaturesWindow(AudioFeatures audioFeatures)
         {
             if (audioMetricsWindow == null)
             {
-                audioMetricsWindow = new AudioMetricsWindow(audioFeatures, audioAnalysis);
+                audioMetricsWindow = new AudioMetricsWindow(audioFeatures);
                 audioMetricsWindow.Show();
                 audioMetricsWindow.Closed += (sender, args) => audioMetricsWindow = null;
             }
             else
             {
-                audioMetricsWindow.UpdateData(audioFeatures, audioAnalysis);
+                audioMetricsWindow.UpdateData(audioFeatures);
                 audioMetricsWindow.Activate();
             }
         }
