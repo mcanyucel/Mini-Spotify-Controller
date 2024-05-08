@@ -316,7 +316,7 @@ namespace MiniSpotifyController.viewmodel
         async Task GetAudioAnalysis()
         {
             if (playbackState.CurrentlyPlayingId == null) return;
-
+            IsBusy = true;
             AudioAnalysisResult? audioAnalysis = await m_SpotifyService.GetAudioAnalysis(playbackState.CurrentlyPlayingId);
             if (audioAnalysis != null)
             {
@@ -324,6 +324,7 @@ namespace MiniSpotifyController.viewmodel
             }
             else
                 ShowError("Error", "Failed to get audio analysis.");
+            IsBusy = false;
         }
 
 
