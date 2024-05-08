@@ -9,15 +9,15 @@ namespace MiniSpotifyController.window
     /// </summary>
     public partial class AudioAnalysisWindow
     {
-        internal AudioAnalysisWindow(AudioAnalysisResult audioAnalysisResult)
+        internal AudioAnalysisWindow(AudioAnalysisResult audioAnalysisResult, string trackName)
         {
             viewModel = App.Current.Services.GetRequiredService<AudioAnalysisViewModel>();
-            viewModel.UpdateData(audioAnalysisResult);
+            viewModel.UpdateData(audioAnalysisResult, trackName);
             DataContext = viewModel;
             InitializeComponent();
         }
 
-        internal void UpdateData(AudioAnalysisResult audioAnalysisResult) => viewModel.UpdateData(audioAnalysisResult);
+        internal void UpdateData(AudioAnalysisResult audioAnalysisResult, string trackName) => viewModel.UpdateData(audioAnalysisResult, trackName);
 
         readonly AudioAnalysisViewModel viewModel;
     }

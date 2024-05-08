@@ -8,6 +8,13 @@ namespace MiniSpotifyController.viewmodel
         [ObservableProperty]
         AudioAnalysisResult? audioAnalysisResult;
 
-        public void UpdateData(AudioAnalysisResult audioAnalysisResult) => AudioAnalysisResult = audioAnalysisResult;
+        [ObservableProperty]
+        string? trackName;
+
+        public void UpdateData(AudioAnalysisResult p_AudioAnalysisResult, string p_TrackName)
+        {
+            AudioAnalysisResult = p_AudioAnalysisResult;
+            TrackName = p_TrackName;
+        }
     }
 }

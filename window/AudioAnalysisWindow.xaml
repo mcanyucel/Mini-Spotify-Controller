@@ -10,7 +10,7 @@
                  mc:Ignorable="d"
                  WindowState="Maximized"
                  d:DataContext="{d:DesignInstance Type=viewmodel:AudioAnalysisViewModel}"
-                 Title="Audio Analysis Results" Height="768" Width="1024">
+                 Title="{Binding TrackName}" Height="768" Width="1024">
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
