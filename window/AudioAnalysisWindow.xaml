@@ -9,6 +9,7 @@
                  xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel"
                  mc:Ignorable="d"
                  WindowState="Maximized"
+                 ContentRendered="MetroWindow_ContentRendered"
                  d:DataContext="{d:DesignInstance Type=viewmodel:AudioAnalysisViewModel}"
                  Title="{Binding TrackName}" Height="768" Width="1024">
     <mah:MetroWindow.Resources>
@@ -33,49 +34,228 @@
                 Grid.Row="0"
                 Grid.Column="0">
                 <GroupBox
-                
-                Header="Track Information"
-                Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
-                Margin="10">
-                    <ItemsControl
+                    Header="Metadata"
+                    x:Name="MetadataGroup"
+                    mah:HeaderedControlHelper.HeaderFontSize="20"
+                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                    Margin="10 4 4 4">
+                    <DockPanel LastChildFill="True">
+                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=MetadataGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
+                        <ItemsControl
+                            ItemsSource="{Binding 
+                                DataContext.AudioAnalysisResult.Meta, 
+                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, 
+                                Converter={StaticResource AudioAnalysisDisplayConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:AudioAnalysisItem DisplayItem="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </GroupBox>
+
+
+
+                <GroupBox
+                    Header="Bars"
+                    mah:HeaderedControlHelper.HeaderFontSize="20"
+                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                    x:Name="BarsGroup"
+                    MaxHeight="300"
+                    Margin="10 4 4 4">
+                    <DockPanel LastChildFill="True">
+                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BarsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
+                        <ListView
+                        ItemsSource="{Binding 
+                            DataContext.AudioAnalysisResult.Bars, 
+                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
+                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
+                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </GroupBox>
+
+                <GroupBox
+                    Header="Beats"
+                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                    x:Name="BeatsGroup"
+                    mah:HeaderedControlHelper.HeaderFontSize="20"
+                    MaxHeight="300"
+                    Margin="10 4 4 4">
+                    <DockPanel LastChildFill="True">
+                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BeatsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
+                        <ListView
+                        ItemsSource="{Binding 
+                            DataContext.AudioAnalysisResult.Beats, 
+                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
+                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
+                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </GroupBox>
+
+                <GroupBox
+                    Header="Segments"
+                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                    x:Name="SegmentsGroup"
+                    mah:HeaderedControlHelper.HeaderFontSize="20"
+                    MaxHeight="300"
+                    Margin="10 4 4 4">
+                    <DockPanel LastChildFill="True">
+                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=SegmentsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
+                        <ListView
+                            ItemsSource="{Binding
+                            DataContext.AudioAnalysisResult.Segments,
+                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
+                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
+                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
+                                    <GridViewColumn Header="Loudness Start" DisplayMemberBinding="{Binding LoudnessStart}" />
+                                    <GridViewColumn Header="Loudness Max" DisplayMemberBinding="{Binding LoudnessMax}" />
+                                    <GridViewColumn Header="Loudness Max Time" DisplayMemberBinding="{Binding LoudnessMaxTime}" />
+                                    <GridViewColumn Header="Loudness End" DisplayMemberBinding="{Binding LoudnessEnd}" />
+                                    <GridViewColumn Header="Pitches" DisplayMemberBinding="{Binding Pitches}" />
+                                    <GridViewColumn Header="Timbre" DisplayMemberBinding="{Binding Timbre}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                    
+                </GroupBox>
+            </StackPanel>
+
+            <StackPanel
+                Grid.Row="0"
+                Grid.Column="1">
+                <GroupBox
+                    Header="Track Information"
+                    x:Name="TrackInformationGroup"
+                    mah:HeaderedControlHelper.HeaderFontSize="20"
+                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                    Margin="10 4 4 4">
+                    <DockPanel LastChildFill="True">
+                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=TrackInformationGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
+                        <ItemsControl
                         ItemsSource="{Binding 
                             Path=DataContext.AudioAnalysisResult.Track, 
                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, 
                             Converter={StaticResource AudioAnalysisDisplayConverter}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:AudioAnalysisItem 
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:AudioAnalysisItem 
                                     DisplayItem="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
                 </GroupBox>
-            </StackPanel>
-            <StackPanel
-                Grid.Row="0"
-                Grid.Column="1">
-            <GroupBox
-                Header="Metadata"
-                Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
-                Margin="10">
 
-                <ItemsControl
-                    ItemsSource="{Binding 
-                        DataContext.AudioAnalysisResult.Meta, 
-                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, 
-                        Converter={StaticResource AudioAnalysisDisplayConverter}}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <controls:AudioAnalysisItem DisplayItem="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <GroupBox
+                    Header="Tatums"
+                    x:Name="TatumsGroup"
+                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                    mah:HeaderedControlHelper.HeaderFontSize="20"
+                    MaxHeight="300"
+                    Margin="10 4 4 4">
+                    <DockPanel LastChildFill="True">
+                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=TatumsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom" />
+                        <ListView
+                        ItemsSource="{Binding 
+                            DataContext.AudioAnalysisResult.Tatums, 
+                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
+                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
+                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </GroupBox>
 
-
-
-
-
-            </GroupBox>
+                <GroupBox
+                    Header="Sections"
+                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                    x:Name="SectionsGroup"
+                    mah:HeaderedControlHelper.HeaderFontSize="20"
+                    MaxHeight="300"
+                    Margin="10 4 4 4">
+                    <DockPanel LastChildFill="True">
+                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=SectionsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom" />
+                        <ListView ItemsSource="{Binding DataContext.AudioAnalysisResult.Sections, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
+                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
+                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
+                                    <GridViewColumn Header="Loudness" DisplayMemberBinding="{Binding Loudness}" />
+                                    <GridViewColumn Header="Tempo (Confidence)">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <Run Text="{Binding Tempo}" />
+                                                    <Run Text=" (" />
+                                                    <Run Text="{Binding TempoConfidence}" />
+                                                    <Run Text=")" />
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Key (Confidence)">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <Run Text="{Binding Key}" />
+                                                    <Run Text=" (" />
+                                                    <Run Text="{Binding KeyConfidence}" />
+                                                    <Run Text=")" />
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Mode (Confidence)">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <Run Text="{Binding Mode}" />
+                                                    <Run Text=" (" />
+                                                    <Run Text="{Binding ModeConfidence}" />
+                                                    <Run Text=")" />
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Time Signature (Confidence)">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <Run Text="{Binding TimeSignature}" />
+                                                    <Run Text=" (" />
+                                                    <Run Text="{Binding TimeSignatureConfidence}" />
+                                                    <Run Text=")" />
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </GroupBox>
             </StackPanel>
         </Grid>
     </ScrollViewer>

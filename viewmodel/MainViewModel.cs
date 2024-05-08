@@ -6,12 +6,12 @@ using MiniSpotifyController.model.AudioAnalysis;
 using MiniSpotifyController.service;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace MiniSpotifyController.viewmodel
 {

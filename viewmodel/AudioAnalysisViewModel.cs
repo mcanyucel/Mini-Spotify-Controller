@@ -11,6 +11,9 @@ namespace MiniSpotifyController.viewmodel
         [ObservableProperty]
         string? trackName;
 
+        [ObservableProperty]
+        bool isBusy;
+
         public void UpdateData(AudioAnalysisResult p_AudioAnalysisResult, string p_TrackName)
         {
             AudioAnalysisResult = p_AudioAnalysisResult;
