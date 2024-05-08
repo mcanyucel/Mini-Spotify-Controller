@@ -71,6 +71,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="assets\InfoStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>InfoStrings.resx</DependentUpon>
+    </Compile>
     <Compile Update="assets\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -89,6 +94,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="assets\InfoStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>InfoStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="assets\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

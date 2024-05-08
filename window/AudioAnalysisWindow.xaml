@@ -1,17 +1,16 @@
 ﻿<mah:MetroWindow x:Class="MiniSpotifyController.window.AudioAnalysisWindow"
-                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:local="clr-namespace:MiniSpotifyController"
-                xmlns:assets="clr-namespace:MiniSpotifyController.assets"
-                xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-                xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel" 
-                d:DataContext="{d:DesignInstance Type=viewmodel:AudioAnalysisViewModel}" 
-                xmlns:controls="clr-namespace:MiniSpotifyController.control"
-                mc:Ignorable="d"
-                WindowState="Maximized"
-        Title="AudioAnalysisWindow" Height="450" Width="800">
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:controls="clr-namespace:MiniSpotifyController.control"
+                 xmlns:converter="clr-namespace:MiniSpotifyController.converter"
+                 xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel"
+                 mc:Ignorable="d"
+                 WindowState="Maximized"
+                 d:DataContext="{d:DesignInstance Type=viewmodel:AudioAnalysisViewModel}"
+                 Title="AudioAnalysisWindow" Height="450" Width="800">
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -20,13 +19,12 @@
             <Style TargetType="TextBlock">
                 <Setter Property="Margin" Value="8,4" />
             </Style>
+            <converter:AudioAnalysisDisplayConverter x:Key="AudioAnalysisDisplayConverter" />
         </ResourceDictionary>
-        
     </mah:MetroWindow.Resources>
     <ScrollViewer>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -42,55 +40,51 @@
                 Header="Track Information"
                 Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
                 Margin="10">
-                    <StackPanel>
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.NumSamples, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource NumSamples}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.Duration, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Duration}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.SampleMD5, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource SampleMD5}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.OffsetSeconds, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource OffsetSeconds}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.WindowSeconds, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource WindowSeconds}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.AnalysisSampleRate, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource AnalysisSampleRate}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.AnalysisChannels, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource AnalysisChannels}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.EndOfFadeIn, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource EndOfFadeIn}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.StartOfFadeOut, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource StartOfFadeOut}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.Loudness, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Loudness}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.Tempo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Tempo}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.TempoConfidence, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource TempoConfidence}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.TimeSignature, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource TimeSignature}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.TimeSignatureConfidence, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource TimeSignatureConfidence}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.Key, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Key}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.KeyConfidence, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource KeyConfidence}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.Mode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Mode}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.ModeConfidence, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource ModeConfidence}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.Codestring, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Codestring}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.CodeVersion, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource CodeVersion}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.EchoprintString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Echoprintstring}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.EchoprintVersion, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource EchoprintVersion}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.SynchString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Synchstring}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.SynchVersion, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource SynchVersion}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.RhythmString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Rhythmstring}}" />
-                        <controls:AudioAnalysisItem Title="Number of Samples" Value="{Binding Path=DataContext.AudioAnalysisResult.Track.RhythmVersion, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource RhythmVersion}}" />
-
-                    </StackPanel>
-
+                    <ItemsControl
+                        ItemsSource="{Binding 
+                            Path=DataContext.AudioAnalysisResult.Track, 
+                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, 
+                            Converter={StaticResource AudioAnalysisDisplayConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:AudioAnalysisItem 
+                                    Title="{Binding DataContext.Title, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
+                                    Value="{Binding DataContext.Value, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
+                                    Information="{Binding DataContext.Information, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </GroupBox>
             </StackPanel>
-            <GroupBox
+            <StackPanel
                 Grid.Row="0"
-                Grid.Column="1"
+                Grid.Column="1">
+            <GroupBox
                 Header="Metadata"
                 Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
                 Margin="10">
-                <StackPanel>
-                    <controls:AudioAnalysisItem Title="Analyzer Version" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.AnalyzerVersion, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource AnalyzerVersion}}" />
-                    <controls:AudioAnalysisItem Title="Platform" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.Platform, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Platform}}" />
-                    <controls:AudioAnalysisItem Title="Detailed Status" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.DetailedStatus, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Detailed Status}}" />
-                    <controls:AudioAnalysisItem Title="Status Code" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.StatusCode, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource StatusCode}}" />
-                    <controls:AudioAnalysisItem Title="Timestamp" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.Timestamp, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Timestamp}}" />
-                    <controls:AudioAnalysisItem Title="Analysis Time" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.AnalysisTime, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource AnalysisTime}}" />
-                    <controls:AudioAnalysisItem Title="Input Process" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.InputProcess, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource InputProcess}}" />
 
-                </StackPanel>
+                <ItemsControl
+                    ItemsSource="{Binding 
+                        DataContext.AudioAnalysisResult.Meta, 
+                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, 
+                        Converter={StaticResource AudioAnalysisDisplayConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:AudioAnalysisItem 
+                                Title="{Binding DataContext.Title, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
+                                Value="{Binding DataContext.Value, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
+                                Information="{Binding DataContext.Information, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+
+
+
+
             </GroupBox>
+            </StackPanel>
         </Grid>
     </ScrollViewer>
 </mah:MetroWindow>
