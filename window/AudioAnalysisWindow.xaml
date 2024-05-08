@@ -3,53 +3,55 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:local="clr-namespace:MiniSpotifyController.window"
+                xmlns:local="clr-namespace:MiniSpotifyController"
+                xmlns:assets="clr-namespace:MiniSpotifyController.assets"
                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-                xmlns:iconpacks="http://metro.mahapps.com/winfx/xaml/iconpacks" 
                 xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel" 
                 d:DataContext="{d:DesignInstance Type=viewmodel:AudioAnalysisViewModel}" 
+                xmlns:controls="clr-namespace:MiniSpotifyController.control"
                 mc:Ignorable="d"
                 WindowState="Maximized"
         Title="AudioAnalysisWindow" Height="450" Width="800">
     <mah:MetroWindow.Resources>
-        <Style TargetType="TextBlock">
-            <Setter Property="Margin" Value="8,4" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../assets/InfoStrings.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="TextBlock">
+                <Setter Property="Margin" Value="8,4" />
+            </Style>
+        </ResourceDictionary>
+        
     </mah:MetroWindow.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <ScrollViewer>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <GroupBox
-            Grid.Row="0"
-            Grid.Column="0"
-            Header="Metadata"
-            Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
-            Margin="10">
-            <UniformGrid
-                Rows="7"
-                Columns="2">
-                <TextBlock Text="Analyzer Version" />
-                <TextBlock Text="{Binding AudioAnalysisResult.Meta.AnalyzerVersion}" />
-                <TextBlock Text="Platform" />
-                <TextBlock Text="{Binding AudioAnalysisResult.Meta.Platform}" />
-                <TextBlock Text="Detailed Status" />
-                <TextBlock Text="{Binding AudioAnalysisResult.Meta.DetailedStatus}" />
-                <TextBlock Text="Status Code" />
-                <TextBlock Text="{Binding AudioAnalysisResult.Meta.StatusCode}" />
-                <TextBlock Text="Timestamp" />
-                <TextBlock Text="{Binding AudioAnalysisResult.Meta.Timestamp}" />
-                <TextBlock Text="Analysis Time" />
-                <TextBlock Text="{Binding AudioAnalysisResult.Meta.AnalysisTime}" />
-                <TextBlock Text="Input Process" />
-                <TextBlock Text="{Binding AudioAnalysisResult.Meta.InputProcess}" />
-            </UniformGrid>
-        </GroupBox>
-    </Grid>
+            <GroupBox
+                Grid.Row="0"
+                Grid.Column="0"
+                Header="Metadata"
+                Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                Margin="10">
+                <UniformGrid
+                    Rows="7">
+                    <controls:AudioAnalysisItem Title="Analyzer Version" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.AnalyzerVersion, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource AnalyzerVersion}}" />
+                    <controls:AudioAnalysisItem Title="Platform" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.Platform, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Platform}}" />
+                    <controls:AudioAnalysisItem Title="Detailed Status" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.DetailedStatus, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Detailed Status}}" />
+                    <controls:AudioAnalysisItem Title="Status Code" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.StatusCode, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource StatusCode}}" />
+                    <controls:AudioAnalysisItem Title="Timestamp" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.Timestamp, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource Timestamp}}" />
+                    <controls:AudioAnalysisItem Title="Analysis Time" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.AnalysisTime, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource AnalysisTime}}" />
+                    <controls:AudioAnalysisItem Title="Input Process" Value="{Binding Path=DataContext.AudioAnalysisResult.Meta.InputProcess, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}" Information="{Binding Source={StaticResource InputProcess}}" />
+
+                </UniformGrid>
+            </GroupBox>
+        </Grid>
+    </ScrollViewer>
 </mah:MetroWindow>
