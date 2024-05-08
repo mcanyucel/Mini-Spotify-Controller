@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using MiniSpotifyController.window.helper;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace MiniSpotifyController.control;
 
@@ -13,40 +15,25 @@ public partial class AudioAnalysisItem : UserControl
         InitializeComponent();
     }
 
-    public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(
-        "Title",
-        typeof(string),
-        typeof(AudioAnalysisItem),
-        new PropertyMetadata("Title"));
+    public static readonly DependencyProperty DisplayItemProperty = DependencyProperty.Register(
+               "DisplayItem",
+                typeof(AudioDataDisplayItem),
+                typeof(AudioAnalysisItem),
+                new PropertyMetadata(new AudioDataDisplayItem("Title", "Value", "Information")));
 
-    public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
-        "Value",
-        typeof(object),
-        typeof(AudioAnalysisItem),
-        new PropertyMetadata("Value"));
-
-    public static readonly DependencyProperty InformationProperty = DependencyProperty.Register(
-        "Information",
-        typeof(string),
-        typeof(AudioAnalysisItem),
-        new PropertyMetadata("Information")
-        );
-
-    internal string Title
+    public AudioDataDisplayItem DisplayItem
     {
-        get => GetValue(TitleProperty).ToString() ?? "Title";
-        set => SetValue(TitleProperty, value);
+        get => (AudioDataDisplayItem)GetValue(DisplayItemProperty);
+        set => SetValue(DisplayItemProperty, value);
     }
 
-    internal string Value
+    private void Label_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        get => GetValue(ValueProperty).ToString() ?? "Value";
-        set => SetValue(ValueProperty, value);
-    }
-
-    internal string Information
-    {
-        get => GetValue(InformationProperty).ToString() ?? "Information";
-        set => SetValue(InformationProperty, value);
+        Clipboard.SetText(DisplayItem.Value);
+        if (sender is Label label)
+        {
+            label.Foreground = Brushes.Green;
+            label.Content = "Copied!";
+        }
     }
 }

@@ -40,13 +40,13 @@ internal static class UIHelpers
         result.Add(new AudioDataDisplayItem("Key Confidence", track.KeyConfidence.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.KeyConfidence));
         result.Add(new AudioDataDisplayItem("Mode", track.Mode.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.Mode));
         result.Add(new AudioDataDisplayItem("Mode Confidence", track.ModeConfidence.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.ModeConfidence));
-        result.Add(new AudioDataDisplayItem("Code String", track.Codestring, assets.InfoStrings.Codestring));
+        result.Add(new AudioDataDisplayItem("Code String", track.Codestring, assets.InfoStrings.Codestring, true));
         result.Add(new AudioDataDisplayItem("Code Version", track.CodeVersion.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.CodeVersion));
-        result.Add(new AudioDataDisplayItem("Echoprint String", track.EchoPrintString, assets.InfoStrings.Echoprintstring));
+        result.Add(new AudioDataDisplayItem("Echoprint String", track.EchoPrintString, assets.InfoStrings.Echoprintstring, true));
         result.Add(new AudioDataDisplayItem("Echoprint Version", track.EchoPrintVersion.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.EchoprintVersion));
-        result.Add(new AudioDataDisplayItem("Synchstring", track.SynchString, assets.InfoStrings.Synchstring));
+        result.Add(new AudioDataDisplayItem("Synchstring", track.SynchString, assets.InfoStrings.Synchstring, true));
         result.Add(new AudioDataDisplayItem("Synch Version", track.SynchVersion.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.SynchVersion));
-        result.Add(new AudioDataDisplayItem("Rhythmstring", track.RhythmString, assets.InfoStrings.Rhythmstring));
+        result.Add(new AudioDataDisplayItem("Rhythmstring", track.RhythmString, assets.InfoStrings.Rhythmstring, true));
         result.Add(new AudioDataDisplayItem("Rhythm Version", track.RhythmVersion.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.RhythmVersion));
         return result;
     }

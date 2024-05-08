@@ -10,15 +10,12 @@
                  mc:Ignorable="d"
                  WindowState="Maximized"
                  d:DataContext="{d:DesignInstance Type=viewmodel:AudioAnalysisViewModel}"
-                 Title="AudioAnalysisWindow" Height="450" Width="800">
+                 Title="Audio Analysis Results" Height="768" Width="1024">
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../assets/InfoStrings.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="TextBlock">
-                <Setter Property="Margin" Value="8,4" />
-            </Style>
             <converter:AudioAnalysisDisplayConverter x:Key="AudioAnalysisDisplayConverter" />
         </ResourceDictionary>
     </mah:MetroWindow.Resources>
@@ -48,9 +45,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <controls:AudioAnalysisItem 
-                                    Title="{Binding DataContext.Title, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
-                                    Value="{Binding DataContext.Value, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
-                                    Information="{Binding DataContext.Information, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                    DisplayItem="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -71,10 +66,7 @@
                         Converter={StaticResource AudioAnalysisDisplayConverter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <controls:AudioAnalysisItem 
-                                Title="{Binding DataContext.Title, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
-                                Value="{Binding DataContext.Value, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
-                                Information="{Binding DataContext.Information, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                            <controls:AudioAnalysisItem DisplayItem="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

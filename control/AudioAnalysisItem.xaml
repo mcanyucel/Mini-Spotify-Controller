@@ -1,17 +1,43 @@
 ﻿<UserControl x:Class="MiniSpotifyController.control.AudioAnalysisItem"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             xmlns:helper="clr-namespace:MiniSpotifyController.window.helper"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="2*" />
-        </Grid.ColumnDefinitions>
-        <TextBlock Grid.Column="0" Text="{Binding Title}" VerticalAlignment="Center" ToolTip="{Binding Information}" />
-        <TextBlock Grid.Column="1" Text="{Binding Value}" VerticalAlignment="Center" ToolTip="{Binding Information}"/>
-    </Grid>
+    <UserControl.Resources>
+        <DataTemplate x:Key="AudioDataTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Title}" VerticalAlignment="Center" ToolTip="{Binding Information}" Margin="8 2 2 2" />
+                <TextBlock Grid.Column="1" Text="{Binding Value}" VerticalAlignment="Center" ToolTip="{Binding Information}" Margin="0 2"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="FingerprintDataTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Title}" VerticalAlignment="Center" ToolTip="{Binding Information}" Margin="8 2 2 2" />
+                <Label Grid.Column="1" Content="Double click to copy to clipboard" FontStyle="Italic" VerticalAlignment="Center" ToolTip="{Binding Information}" Margin="-8 2" MouseDoubleClick="Label_MouseDoubleClick" />
+                
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ContentControl Content="{Binding DisplayItem}">
+        <ContentControl.ContentTemplateSelector>
+            <helper:AudioDataTemplateSelector />
+        </ContentControl.ContentTemplateSelector>
+    </ContentControl>
+
+
+
+
 </UserControl>
