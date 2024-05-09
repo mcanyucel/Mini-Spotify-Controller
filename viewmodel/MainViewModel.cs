@@ -11,26 +11,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace MiniSpotifyController.viewmodel
 {
     internal sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         #region Properties
-        public IAsyncRelayCommand AuthorizeCommand { get => m_AutorizeCommand; }
-        public IAsyncRelayCommand RefreshCommand { get => m_RefreshCommand; }
-        public IRelayCommand TogglePlayCommand { get => m_TogglePlayCommand; }
-        public IRelayCommand NextCommand { get => m_NextCommand; }
-        public IRelayCommand SeekStartCommand { get => m_SeekStartCommand; }
-        public IAsyncRelayCommand<double> SeekEndCommand { get => m_SeekEndCommand; }
-        public IAsyncRelayCommand ToggleLikedCommand { get => m_ToggleLikedCommand; }
-        public IAsyncRelayCommand GetShareUrlCommand { get => m_GetShareUrlCommand; }
-        public IAsyncRelayCommand GetAudioMetricsCommand { get => m_GetAudioMetricsCommand; }
-        public IAsyncRelayCommand RandomizeCommand { get => m_RandomizeCommand; }
-        public IAsyncRelayCommand StartSongRadioCommand { get => m_StartSongRadioCommand; }
-        public IRelayCommand OpenSettingsCommand { get => m_OpenSettingsCommand; }
-        public IRelayCommand PreviousCommand { get => m_PreviousCommand; }
         public bool Topmost { get => topmost; set => SetProperty(ref topmost, value); }
         public string? AuthorizationCallbackUrl { get => authorizationCallbackUrl; set => SetProperty(ref authorizationCallbackUrl, value); }
         public User? User { get => m_User; set => SetProperty(ref m_User, value); }
@@ -59,32 +45,23 @@ namespace MiniSpotifyController.viewmodel
             m_WindowService = windowService;
             m_ResourceService = resourceService;
 
-            m_AutorizeCommand = new AsyncRelayCommand(Authorize, AuthorizeCanExecute);
-            m_TogglePlayCommand = new RelayCommand(TogglePlay, TogglePlayCanExecute);
-            m_NextCommand = new RelayCommand(Next, NextCanExecute);
-            m_PreviousCommand = new RelayCommand(Previous, PreviousCanExecute);
-            m_OpenSettingsCommand = new RelayCommand(OpenSettings);
-            m_SeekStartCommand = new RelayCommand(SeekStart);
-            m_SeekEndCommand = new AsyncRelayCommand<double>(SeekEnd);
-            m_RefreshCommand = new AsyncRelayCommand(Refresh, RefreshCanExecute);
-            m_ToggleLikedCommand = new AsyncRelayCommand(ToggleLiked, ToggleLikedCanExecute);
-            m_GetShareUrlCommand = new AsyncRelayCommand(GetShareUrl, GetShareUrlCanExecute);
-            m_GetAudioMetricsCommand = new AsyncRelayCommand(GetAudioFeatures, GetAudioMetricsCanExecute);
-            m_RandomizeCommand = new AsyncRelayCommand(Randomize, RandomizeCanExecute);
-            m_StartSongRadioCommand = new AsyncRelayCommand(StartSongRadio, StartSongRadioCanExecute);
-            asyncCommandList = [m_AutorizeCommand, m_SeekEndCommand, m_RefreshCommand, m_ToggleLikedCommand, m_GetShareUrlCommand, m_GetAudioMetricsCommand, m_RandomizeCommand, m_StartSongRadioCommand, GetAudioAnalysisCommand];
-            commandList = [m_TogglePlayCommand, m_NextCommand, m_PreviousCommand, m_SeekStartCommand, m_OpenSettingsCommand];
+            asyncCommandList = [TogglePlayCommand, NextCommand, PreviousCommand, ToggleLikedCommand, RandomizeCommand, GetShareUrlCommand, RefreshCommand, StartSongRadioCommand, 
+                GetAudioFeaturesCommand, AuthorizeCommand, SeekEndCommand, GetAudioAnalysisCommand];
+            commandList = [SeekStartCommand, OpenSettingsCommand, UpdateMetricsCommand, SeekStartCommand];
 
             progressTimer = new Timer((object? _) => UpdateProgress(), null, Timeout.Infinite, PROGRESS_UPDATE_INTERVAL_MS);
 
             var executingAssemblyName = Assembly.GetExecutingAssembly().GetName();
             m_UpdateEngine = new(executingAssemblyName.Name!, executingAssemblyName.Version!.ToString(), "https://software.mustafacanyucel.com/update");
+
+            m_SpotifyService.PlaybackStateChanged += (object? sender, PlaybackState state) => PlaybackState = state;
         }
         public void Dispose() => progressTimer.Dispose();
         #endregion
 
         #region Authorization Flow
-        private async Task Authorize()
+        [RelayCommand(CanExecute = nameof(AuthorizeCanExecute))]
+        async Task Authorize()
         {
             ShowStatus("Status", "Authorizing...");
             await m_SpotifyService.Authorize();
@@ -183,7 +160,8 @@ namespace MiniSpotifyController.viewmodel
 
         #region Playback State
 
-        private async Task StartSongRadio()
+        [RelayCommand(CanExecute = nameof(StartSongRadioCanExecute))]
+        async Task StartSongRadio()
         {
             PlaybackState.IsBusy = true;
             var newPlaybackState = await m_SpotifyService.StartSongRadio(playbackState.DeviceId!, playbackState.CurrentlyPlayingId!);
@@ -195,7 +173,8 @@ namespace MiniSpotifyController.viewmodel
                 PlaybackState.IsBusy = false;
             }
         }
-        private async Task Randomize()
+        [RelayCommand(CanExecute = nameof(RandomizeCanExecute))]
+        async Task Randomize()
         {
             PlaybackState.IsBusy = true;
             var newPlaybackState = await m_SpotifyService.Randomize(playbackState.DeviceId!);
@@ -207,41 +186,46 @@ namespace MiniSpotifyController.viewmodel
                 PlaybackState.IsBusy = false;
             }
         }
-        private void TogglePlay()
+
+        [RelayCommand(CanExecute = nameof(TogglePlayCanExecute))]
+        async Task TogglePlay()
         {
             if (playbackState.IsPlaying)
-                Pause();
+                await Pause();
             else
-                Play();
+                await Play();
         }
 
-        private void Play()
+        async Task Play()
         {
             if (m_SpotifyService.IsAuthorized && playbackState.DeviceId != null)
-                _ = Task.Run(async () => PlaybackState = await m_SpotifyService.StartPlay(playbackState.DeviceId));
+                await m_SpotifyService.StartPlay(playbackState.DeviceId);
             else if (playbackState.DeviceId == null)
                 ShowError("Error", "No active devices, you should start at least one device manually.");
         }
 
-        private void Pause()
+        async Task Pause()
         {
             if (m_SpotifyService.IsAuthorized && playbackState.DeviceId != null)
-                _ = Task.Run(async () => PlaybackState = await m_SpotifyService.PausePlay(playbackState.DeviceId));
+                await m_SpotifyService.PausePlay(playbackState.DeviceId);
         }
 
-        private void Next()
+        [RelayCommand(CanExecute = nameof(NextCanExecute))]
+        async Task Next()
         {
             if (m_SpotifyService.IsAuthorized && playbackState.DeviceId != null)
-                _ = Task.Run(async () => PlaybackState = await m_SpotifyService.NextTrack(playbackState.DeviceId));
+                await m_SpotifyService.NextTrack(playbackState.DeviceId);
         }
 
-        private void Previous()
+        [RelayCommand(CanExecute = nameof(PreviousCanExecute))]
+        async Task Previous()
         {
             if (m_SpotifyService.IsAuthorized && playbackState.DeviceId != null)
-                _ = Task.Run(async () => PlaybackState = await m_SpotifyService.PreviousTrack(playbackState.DeviceId));
+                await m_SpotifyService.PreviousTrack(playbackState.DeviceId);
         }
 
-        private async Task Refresh()
+        [RelayCommand(CanExecute = nameof(RefreshCanExecute))]
+        async Task Refresh()
         {
             if (m_SpotifyService.IsAuthorized)
             {
@@ -249,20 +233,21 @@ namespace MiniSpotifyController.viewmodel
                 UpdateCommandStates();
             }
         }
-
-        private void SeekStart()
+        [RelayCommand]
+        void SeekStart()
         {
             if (playbackState.IsPlaying)
                 isSeeking = true;
         }
 
-        private async Task SeekEnd(double progressSec)
+        [RelayCommand]
+        async Task SeekEnd(double progressSec)
         {
             if (playbackState.IsPlaying && isSeeking)
             {
                 int progressMs = (int)(progressSec * 1000);
                 if (m_SpotifyService.IsAuthorized && playbackState.DeviceId != null)
-                    PlaybackState = await m_SpotifyService.Seek(playbackState.DeviceId, progressMs);
+                    await m_SpotifyService.Seek(playbackState.DeviceId, progressMs);
 
                 isSeeking = false;
             }
@@ -278,15 +263,17 @@ namespace MiniSpotifyController.viewmodel
                 _ = Task.Run(async () => PlaybackState = await m_SpotifyService.GetPlaybackState());
             }
         }
-        private void UpdateMetrics()
+        [RelayCommand(CanExecute = nameof(GetAudioMetricsCanExecute))]
+        void UpdateMetrics()
         {
             if (PlaybackState.IsPlaying && m_WindowService.IsAudioMetricsWindowOpen())
-                App.Current.Dispatcher.Invoke(() => GetAudioMetricsCommand.Execute(null));
+                Task.Run(GetAudioFeatures);
         }
         #endregion
 
         #region Track Metadata & Sharing
-        private async Task ToggleLiked()
+        [RelayCommand(CanExecute = nameof(ToggleLikedCanExecute))]
+        async Task ToggleLiked()
         {
             var oldValue = playbackState.IsLiked;
             bool saved;
@@ -298,7 +285,9 @@ namespace MiniSpotifyController.viewmodel
             if (saved)
                 playbackState.IsLiked = !oldValue;
         }
-        private async Task GetAudioFeatures()
+
+        [RelayCommand(CanExecute = nameof(GetAudioMetricsCanExecute))]
+        async Task GetAudioFeatures()
         {
             if (playbackState.CurrentlyPlayingId == null) return;
 
@@ -327,8 +316,8 @@ namespace MiniSpotifyController.viewmodel
             IsBusy = false;
         }
 
-
-        private async Task GetShareUrl()
+        [RelayCommand(CanExecute = nameof(GetShareUrlCanExecute))]
+        async Task GetShareUrl()
         {
             var url = await m_SpotifyService.GetShareUrl(playbackState.CurrentlyPlayingId ?? string.Empty);
             if (string.IsNullOrEmpty(url))
@@ -388,10 +377,9 @@ namespace MiniSpotifyController.viewmodel
         {
             m_ToastService.ShowTextToast("status", 0, title, message);
         }
-        private void OpenSettings()
-        {
-            m_WindowService.ShowClientIdWindowDialog();
-        }
+        [RelayCommand]
+        void OpenSettings() => m_WindowService.ShowClientIdWindowDialog();
+
         #endregion
 
         #region Fields
@@ -399,19 +387,6 @@ namespace MiniSpotifyController.viewmodel
         readonly IToastService m_ToastService;
         readonly IWindowService m_WindowService;
         readonly IResourceService m_ResourceService;
-        readonly IAsyncRelayCommand m_AutorizeCommand;
-        readonly IRelayCommand m_TogglePlayCommand;
-        readonly IRelayCommand m_NextCommand;
-        readonly IRelayCommand m_PreviousCommand;
-        readonly IRelayCommand m_OpenSettingsCommand;
-        readonly IRelayCommand m_SeekStartCommand;
-        readonly IAsyncRelayCommand<double> m_SeekEndCommand;
-        readonly IAsyncRelayCommand m_RefreshCommand;
-        readonly IAsyncRelayCommand m_ToggleLikedCommand;
-        readonly IAsyncRelayCommand m_GetShareUrlCommand;
-        readonly IAsyncRelayCommand m_GetAudioMetricsCommand;
-        readonly IAsyncRelayCommand m_RandomizeCommand;
-        readonly IAsyncRelayCommand m_StartSongRadioCommand;
         readonly List<IAsyncRelayCommand> asyncCommandList;
         readonly List<IRelayCommand> commandList;
         readonly Timer progressTimer;
