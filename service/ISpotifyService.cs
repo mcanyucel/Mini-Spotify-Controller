@@ -49,8 +49,8 @@ internal interface ISpotifyService
     #endregion
 
     #region Radio & Randomization
-    internal Task<PlaybackState?> Randomize(string deviceId);
-    internal Task<PlaybackState?> StartSongRadio(string deviceId, string spotifyId);
+    internal Task<bool> Randomize(string deviceId);
+    internal Task<bool> StartSongRadio(string deviceId, string spotifyId);
     #endregion
 
     #region Helpers

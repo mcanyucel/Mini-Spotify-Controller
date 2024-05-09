@@ -45,7 +45,7 @@ namespace MiniSpotifyController.viewmodel
             m_WindowService = windowService;
             m_ResourceService = resourceService;
 
-            asyncCommandList = [TogglePlayCommand, NextCommand, PreviousCommand, ToggleLikedCommand, RandomizeCommand, GetShareUrlCommand, RefreshCommand, StartSongRadioCommand, 
+            asyncCommandList = [TogglePlayCommand, NextCommand, PreviousCommand, ToggleLikedCommand, RandomizeCommand, GetShareUrlCommand, RefreshCommand, StartSongRadioCommand,
                 GetAudioFeaturesCommand, AuthorizeCommand, SeekEndCommand, GetAudioAnalysisCommand];
             commandList = [SeekStartCommand, OpenSettingsCommand, UpdateMetricsCommand, SeekStartCommand];
 
@@ -164,27 +164,21 @@ namespace MiniSpotifyController.viewmodel
         async Task StartSongRadio()
         {
             PlaybackState.IsBusy = true;
-            var newPlaybackState = await m_SpotifyService.StartSongRadio(playbackState.DeviceId!, playbackState.CurrentlyPlayingId!);
-            if (newPlaybackState != null)
-                PlaybackState = newPlaybackState;
-            else
-            {
+            var success = await m_SpotifyService.StartSongRadio(playbackState.DeviceId!, playbackState.CurrentlyPlayingId!);
+            if (!success)
                 ShowError("Error", "Failed to start song radio.");
-                PlaybackState.IsBusy = false;
-            }
+
+            PlaybackState.IsBusy = false;
         }
         [RelayCommand(CanExecute = nameof(RandomizeCanExecute))]
         async Task Randomize()
         {
             PlaybackState.IsBusy = true;
-            var newPlaybackState = await m_SpotifyService.Randomize(playbackState.DeviceId!);
-            if (newPlaybackState != null)
-                PlaybackState = newPlaybackState;
-            else
-            {
+            var success = await m_SpotifyService.Randomize(playbackState.DeviceId!);
+            if (!success)
                 ShowError("Error", "Failed to randomize.");
-                PlaybackState.IsBusy = false;
-            }
+
+            PlaybackState.IsBusy = false;
         }
 
         [RelayCommand(CanExecute = nameof(TogglePlayCanExecute))]
@@ -353,7 +347,7 @@ namespace MiniSpotifyController.viewmodel
         private bool GetAudioMetricsCanExecute() => m_SpotifyService.IsAuthorized && playbackState.IsPlaying;
         private bool GetShareUrlCanExecute() => m_SpotifyService.IsAuthorized && playbackState.IsPlaying;
         private bool RefreshCanExecute() => m_SpotifyService.IsAuthorized;
-        private bool AuthorizeCanExecute() => true;
+        private static bool AuthorizeCanExecute() => true;
         private bool TogglePlayCanExecute() => m_SpotifyService.IsAuthorized;
         private bool NextCanExecute() => m_SpotifyService.IsAuthorized && playbackState.IsPlaying;
         private bool PreviousCanExecute() => m_SpotifyService.IsAuthorized && playbackState.IsPlaying;

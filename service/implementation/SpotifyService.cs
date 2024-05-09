@@ -256,8 +256,10 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
 
     #region Playback State
 
-    async Task<PlaybackState?> ISpotifyService.StartSongRadio(string deviceId, string spotifyId)
+    async Task<bool> ISpotifyService.StartSongRadio(string deviceId, string spotifyId)
     {
+        PlaybackState newState;
+        var result = false;
         try
         {
             var recommendationEndpoint = $"{recommendationsEndpoint}?limit={100}&seed_tracks={spotifyId}";
@@ -281,16 +283,22 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
             await Task.Delay(DELAY_SHORT);
-            var newState = await ((ISpotifyService)this).GetPlaybackState();
-            return newState;
+            newState = await ((ISpotifyService)this).GetPlaybackState();
+            result = true;
         }
         catch (Exception ex)
         {
             m_LogService?.LogError($"Error randomizing: {ex.Message}");
-            return null;
+            newState = new PlaybackState
+            {
+                IsPlaying = false,
+                CurrentlyPlaying = "Error"
+            };
         }
+        PlaybackStateChangedEvent?.Invoke(this, newState);
+        return result;
     }
-    async Task<PlaybackState?> ISpotifyService.Randomize(string deviceId)
+    async Task<bool> ISpotifyService.Randomize(string deviceId)
     {
         /**
          * Flow
@@ -302,8 +310,10 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
          * 4. Get max number of recommendations from the recommendation endpoint (100).
          * 5. Start playback of the recommendations with the device id
          */
+        PlaybackState newState;
+        var result = false;
         try
-        {
+        {            
             var k = 10000;
             List<object>? savedTracks = null;
 
@@ -364,14 +374,21 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
             await Task.Delay(DELAY_LONG);
-            var newState = await ((ISpotifyService)this).GetPlaybackState();
-            return newState;
+            newState = await ((ISpotifyService)this).GetPlaybackState();
+            result = true;
         }
         catch (Exception ex)
         {
             m_LogService?.LogError($"Error randomizing: {ex.Message}");
-            return null;
+            newState = new PlaybackState
+            {
+                IsPlaying = false,
+                CurrentlyPlaying = "Error"
+            };
+            
         }
+        PlaybackStateChangedEvent?.Invoke(this, newState);
+        return result;
     }
 
     async Task<PlaybackState> ISpotifyService.GetPlaybackState()
