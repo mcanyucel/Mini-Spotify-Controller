@@ -18,6 +18,7 @@
                 <ResourceDictionary Source="../assets/InfoStrings.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converter:AudioAnalysisDisplayConverter x:Key="AudioAnalysisDisplayConverter" />
+            <converter:TrackSpanToStringListConverter x:Key="TrackSpanToStringListConverter" />
         </ResourceDictionary>
     </mah:MetroWindow.Resources>
     <ScrollViewer>
@@ -55,61 +56,72 @@
                     </DockPanel>
                 </GroupBox>
 
+                <UniformGrid Columns="3" MaxHeight="300">
+                    <GroupBox
+                        Header="Bars"
+                        mah:HeaderedControlHelper.HeaderFontSize="20"
+                        Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                        ToolTip="Start - End (Confidence). Double click to start a bar"
+                        x:Name="BarsGroup"
+                        Margin="10 4 4 4">
+                        <DockPanel LastChildFill="True">
+                            <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BarsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
+                            <ListBox ItemsSource="{Binding DataContext.AudioAnalysisResult.Bars, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </GroupBox>
 
+                    <GroupBox
+                        Header="Beats"
+                        Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                        x:Name="BeatsGroup"
+                        mah:HeaderedControlHelper.HeaderFontSize="20"
+                        ToolTip="Start - End (Confidence). Double click to start a beat"
+                        Margin="10 4 4 4">
+                        <DockPanel LastChildFill="True">
+                            <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BeatsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
+                            <ListBox ItemsSource="{Binding DataContext.AudioAnalysisResult.Beats, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </GroupBox>
 
-                <GroupBox
-                    Header="Bars"
-                    mah:HeaderedControlHelper.HeaderFontSize="20"
-                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
-                    x:Name="BarsGroup"
-                    MaxHeight="300"
-                    Margin="10 4 4 4">
-                    <DockPanel LastChildFill="True">
-                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BarsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
-                        <ListView
-                        ItemsSource="{Binding 
-                            DataContext.AudioAnalysisResult.Bars, 
-                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
-                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
-                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </DockPanel>
-                </GroupBox>
+                    <GroupBox
+                        Header="Tatums"
+                        x:Name="TatumsGroup"
+                        Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
+                        mah:HeaderedControlHelper.HeaderFontSize="20"
+                        ToolTip="Start - End (Confidence). Double click to start a tatum"
+                        Margin="10 4 4 4">
+                        <DockPanel LastChildFill="True">
+                            <Line Stroke="Gray" X1="0" X2="{Binding ElementName=TatumsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom" />
+                            <ListBox ItemsSource="{Binding DataContext.AudioAnalysisResult.Tatums, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </GroupBox>
 
-                <GroupBox
-                    Header="Beats"
-                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
-                    x:Name="BeatsGroup"
-                    mah:HeaderedControlHelper.HeaderFontSize="20"
-                    MaxHeight="300"
-                    Margin="10 4 4 4">
-                    <DockPanel LastChildFill="True">
-                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BeatsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
-                        <ListView
-                        ItemsSource="{Binding 
-                            DataContext.AudioAnalysisResult.Beats, 
-                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
-                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
-                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </DockPanel>
-                </GroupBox>
+                </UniformGrid>
 
                 <GroupBox
                     Header="Segments"
                     Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
                     x:Name="SegmentsGroup"
                     mah:HeaderedControlHelper.HeaderFontSize="20"
+                    ToolTip="Double click to start a segment"
                     MaxHeight="300"
                     Margin="10 4 4 4">
                     <DockPanel LastChildFill="True">
@@ -133,7 +145,7 @@
                             </ListView.View>
                         </ListView>
                     </DockPanel>
-                    
+
                 </GroupBox>
             </StackPanel>
 
@@ -164,34 +176,11 @@
                 </GroupBox>
 
                 <GroupBox
-                    Header="Tatums"
-                    x:Name="TatumsGroup"
-                    Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
-                    mah:HeaderedControlHelper.HeaderFontSize="20"
-                    MaxHeight="300"
-                    Margin="10 4 4 4">
-                    <DockPanel LastChildFill="True">
-                        <Line Stroke="Gray" X1="0" X2="{Binding ElementName=TatumsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom" />
-                        <ListView
-                        ItemsSource="{Binding 
-                            DataContext.AudioAnalysisResult.Tatums, 
-                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Start" DisplayMemberBinding="{Binding Start}" />
-                                    <GridViewColumn Header="Duration" DisplayMemberBinding="{Binding Duration}" />
-                                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Confidence}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </DockPanel>
-                </GroupBox>
-
-                <GroupBox
                     Header="Sections"
                     Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
                     x:Name="SectionsGroup"
                     mah:HeaderedControlHelper.HeaderFontSize="20"
+                    ToolTip="Double click to start a section"
                     MaxHeight="300"
                     Margin="10 4 4 4">
                     <DockPanel LastChildFill="True">
