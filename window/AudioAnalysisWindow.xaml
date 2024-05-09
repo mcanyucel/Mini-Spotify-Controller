@@ -7,6 +7,7 @@
                  xmlns:controls="clr-namespace:MiniSpotifyController.control"
                  xmlns:converter="clr-namespace:MiniSpotifyController.converter"
                  xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel"
+                 xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
                  mc:Ignorable="d"
                  WindowState="Maximized"
                  ContentRendered="MetroWindow_ContentRendered"
@@ -21,6 +22,11 @@
             <converter:TrackSpanToStringListConverter x:Key="TrackSpanToStringListConverter" />
         </ResourceDictionary>
     </mah:MetroWindow.Resources>
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="ContentRendered">
+            <behaviors:InvokeCommandAction Command="{Binding GetAudioAnalysisCommand}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
     <ScrollViewer>
         <Grid>
             <Grid.RowDefinitions>
@@ -246,6 +252,9 @@
                     </DockPanel>
                 </GroupBox>
             </StackPanel>
+
+            <mah:ProgressRing IsActive="{Binding IsBusy}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            
         </Grid>
     </ScrollViewer>
 </mah:MetroWindow>

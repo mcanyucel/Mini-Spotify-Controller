@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace MiniSpotifyController.window.helper
 {
-    internal class AudioDataTemplateSelector : DataTemplateSelector
+    internal sealed class AudioDataTemplateSelector : DataTemplateSelector
     {
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {

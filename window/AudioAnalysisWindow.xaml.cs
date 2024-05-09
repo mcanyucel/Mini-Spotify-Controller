@@ -4,34 +4,34 @@ using MiniSpotifyController.viewmodel;
 using System.Windows.Threading;
 using System;
 
-namespace MiniSpotifyController.window
+namespace MiniSpotifyController.window;
+
+/// <summary>
+/// Interaction logic for AudioAnalysisWindow.xaml
+/// </summary>
+public partial class AudioAnalysisWindow
 {
-    /// <summary>
-    /// Interaction logic for AudioAnalysisWindow.xaml
-    /// </summary>
-    public partial class AudioAnalysisWindow
+    internal AudioAnalysisWindow(string trackName, string trackId)
     {
-        internal AudioAnalysisWindow(AudioAnalysisResult audioAnalysisResult, string trackName)
-        {
-            viewModel = App.Current.Services.GetRequiredService<AudioAnalysisViewModel>();
-            // do not call update data here as it stalls the UI thread significantly
-            this.audioAnalysisResult = audioAnalysisResult;
-            this.trackName = trackName;
-            DataContext = viewModel;
-            InitializeComponent();
-        }
+        viewModel = App.Current.Services.GetRequiredService<AudioAnalysisViewModel>();
+        
+        this.trackName = trackName;
+        this.trackId = trackId;
+        DataContext = viewModel;
+        InitializeComponent();
+    }
 
-        internal void UpdateData(AudioAnalysisResult audioAnalysisResult, string trackName) => viewModel.UpdateData(audioAnalysisResult, trackName);
+    internal void UpdateData(string trackName, string trackId) => viewModel.UpdateData(trackName, trackId);
 
-        readonly AudioAnalysisViewModel viewModel;
+    readonly AudioAnalysisViewModel viewModel;
 
-        readonly AudioAnalysisResult audioAnalysisResult;
-        readonly string trackName;
+    string? trackName;
+    string? trackId;
 
-        private void MetroWindow_ContentRendered(object sender, System.EventArgs e)
-        {
-            Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.ContextIdle, null);
-            viewModel.UpdateData(audioAnalysisResult, trackName);
-        }
+
+    private void MetroWindow_ContentRendered(object sender, EventArgs e)
+    {
+        Dispatcher.Invoke(new Action(() => { }), DispatcherPriority.ContextIdle, null);
+        viewModel.UpdateData(trackName, trackId);
     }
 }

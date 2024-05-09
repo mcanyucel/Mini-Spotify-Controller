@@ -48,19 +48,19 @@ namespace MiniSpotifyController.service.implementation
             }
         }
 
-        void IWindowService.ShowAudioAnalysisWindow(AudioAnalysisResult audioAnalysisResult, string trackName)
+        void IWindowService.ShowAudioAnalysisWindow(string trackName, string trackId)
         {
             if (audioAnalysisWindow == null)
             {
-                audioAnalysisWindow = new AudioAnalysisWindow(audioAnalysisResult, trackName);
+                audioAnalysisWindow = new AudioAnalysisWindow(trackName, trackId);
                 audioAnalysisWindow.Show();
                 audioAnalysisWindow.Closed += (sender, args) => audioAnalysisWindow = null;
             }
             else
             {
-                audioAnalysisWindow.UpdateData(audioAnalysisResult, trackName);
                 audioAnalysisWindow.Activate();
             }
+
         }
 
         bool IWindowService.IsAudioMetricsWindowOpen() => audioMetricsWindow != null;

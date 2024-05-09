@@ -303,7 +303,7 @@ namespace MiniSpotifyController.viewmodel
             AudioAnalysisResult? audioAnalysis = await m_SpotifyService.GetAudioAnalysis(playbackState.CurrentlyPlayingId);
             if (audioAnalysis != null)
             {
-                m_WindowService.ShowAudioAnalysisWindow(audioAnalysis, playbackState.CurrentlyPlaying ?? string.Empty);
+                m_WindowService.ShowAudioAnalysisWindow(playbackState.CurrentlyPlaying ?? string.Empty, playbackState.CurrentlyPlayingId);
             }
             else
                 ShowError("Error", "Failed to get audio analysis.");

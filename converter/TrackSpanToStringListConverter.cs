@@ -17,7 +17,7 @@ internal sealed class TrackSpanToStringListConverter : IValueConverter
             {
                 var start = TimeSpan.FromSeconds(tatum.Start);
                 var end = TimeSpan.FromSeconds(tatum.Start + tatum.Duration);
-                return $"{start:mm\\:ss} - {end:mm\\:ss} ({System.Convert.ToByte(tatum.Confidence * 100)}%)";
+                return $"{start:mm\\:ss\\.ff} - {end:mm\\:ss\\.ff} ({System.Convert.ToByte(tatum.Confidence * 100)}%)";
             });
         }
         else if (value is IEnumerable<Beat> beats)
@@ -26,7 +26,7 @@ internal sealed class TrackSpanToStringListConverter : IValueConverter
             {
                 var start = TimeSpan.FromSeconds(beat.Start);
                 var end = TimeSpan.FromSeconds(beat.Start + beat.Duration);
-                return $"{start:mm\\:ss} - {end:mm\\:ss} ({System.Convert.ToByte(beat.Confidence * 100)}%)";
+                return $"{start:mm\\:ss\\.ff} - {end:mm\\:ss\\.ff} ({System.Convert.ToByte(beat.Confidence * 100)}%)";
             });
         }
         else if (value is IEnumerable<Bar> bars)
@@ -35,7 +35,7 @@ internal sealed class TrackSpanToStringListConverter : IValueConverter
             {
                 var start = TimeSpan.FromSeconds(bar.Start);
                 var end = TimeSpan.FromSeconds(bar.Start + bar.Duration);
-                return $"{start:mm\\:ss} - {end:mm\\:ss} ({System.Convert.ToByte(bar.Confidence * 100)}%)";
+                return $"{start:mm\\:ss\\.ff} - {end:mm\\:ss\\.ff} ({System.Convert.ToByte(bar.Confidence * 100)}%)";
             });
         }
         else if (value is IEnumerable<Segment> segments)
@@ -44,7 +44,7 @@ internal sealed class TrackSpanToStringListConverter : IValueConverter
             {
                 var start = TimeSpan.FromSeconds(segment.Start);
                 var end = TimeSpan.FromSeconds(segment.Start + segment.Duration);
-                return $"{start:mm\\:ss} - {end::mm\\:ss} ({System.Convert.ToByte(segment.Confidence * 100)}%)";
+                return $"{start:mm\\:ss\\.ff} - {end::mm\\:ss\\.ff} ({System.Convert.ToByte(segment.Confidence * 100)}%)";
             });
         }
         else

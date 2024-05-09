@@ -1,5 +1,4 @@
 ﻿using MiniSpotifyController.model;
-using MiniSpotifyController.model.AudioAnalysis;
 using System;
 using System.Threading.Tasks;
 
@@ -13,7 +12,7 @@ internal interface IWindowService
     internal void CloseAuthorizationWindowDialog();
     internal void SetClipboardText(string text);
     internal void ShowAudioFeaturesWindow(AudioFeatures audioFeatures);
-    internal void ShowAudioAnalysisWindow(AudioAnalysisResult audioAnalysisResult, string trackName);
+    internal void ShowAudioAnalysisWindow(string trackName, string trackId);
     internal bool IsAudioMetricsWindowOpen();
     internal bool ShowUpdateWindowDialog();
     internal void ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback);
