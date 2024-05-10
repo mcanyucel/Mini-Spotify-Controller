@@ -32,7 +32,7 @@ namespace MiniSpotifyController.viewmodel
         [RelayCommand]
         public async Task Initialize()
         {
-            PlaybackState = await spotifyService.GetPlaybackState();
+            await spotifyService.UpdatePlaybackState();
         }
 
         /// <summary>
@@ -72,7 +72,11 @@ namespace MiniSpotifyController.viewmodel
 
         async Task GetAudioAnalysis()
         {
-            if (!shouldUpdateAudioAnalysis || IsBusy || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId)) return;
+            if (!shouldUpdateAudioAnalysis || IsBusy || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId))
+            {
+                shouldUpdateAudioAnalysis = true;
+                return;
+            }
 
             IsBusy = true;
             var result = await spotifyService.GetAudioAnalysis(PlaybackState.CurrentlyPlayingId);
@@ -81,7 +85,6 @@ namespace MiniSpotifyController.viewmodel
             else
                 toastService.ShowTextToast("status", 0, "Error", "Failed to get audio analysis");
             IsBusy = false;
-            shouldUpdateAudioAnalysis = true;
         }
 
         public AudioAnalysisViewModel(ISpotifyService spotifyService, IToastService toastService)
@@ -102,6 +105,7 @@ namespace MiniSpotifyController.viewmodel
         readonly ISpotifyService spotifyService;
         readonly IToastService toastService;
         PlaybackState? playbackState;
+        // if false, the next playback state change will not trigger a new audio analysis request (only once per seek)
         bool shouldUpdateAudioAnalysis = true;
     }
 }

@@ -258,7 +258,6 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
 
     async Task<bool> ISpotifyService.StartSongRadio(string deviceId, string spotifyId)
     {
-        PlaybackState newState;
         var result = false;
         try
         {
@@ -283,19 +282,18 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
             await Task.Delay(DELAY_SHORT);
-            newState = await ((ISpotifyService)this).GetPlaybackState();
+            await ((ISpotifyService)this).UpdatePlaybackState();
             result = true;
         }
         catch (Exception ex)
         {
             m_LogService?.LogError($"Error randomizing: {ex.Message}");
-            newState = new PlaybackState
+            PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
-            };
+            });
         }
-        PlaybackStateChangedEvent?.Invoke(this, newState);
         return result;
     }
     async Task<bool> ISpotifyService.Randomize(string deviceId)
@@ -310,10 +308,9 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
          * 4. Get max number of recommendations from the recommendation endpoint (100).
          * 5. Start playback of the recommendations with the device id
          */
-        PlaybackState newState;
         var result = false;
         try
-        {            
+        {
             var k = 10000;
             List<object>? savedTracks = null;
 
@@ -374,30 +371,30 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
             var playResponse = await httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
             await Task.Delay(DELAY_LONG);
-            newState = await ((ISpotifyService)this).GetPlaybackState();
+            await ((ISpotifyService)this).UpdatePlaybackState();
             result = true;
         }
         catch (Exception ex)
         {
             m_LogService?.LogError($"Error randomizing: {ex.Message}");
-            newState = new PlaybackState
+            PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
-            };
-            
+            });
+
         }
-        PlaybackStateChangedEvent?.Invoke(this, newState);
         return result;
     }
 
-    async Task<PlaybackState> ISpotifyService.GetPlaybackState()
+    async Task ISpotifyService.UpdatePlaybackState(PlaybackState? currentState)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, playbackStateEndpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
 
         var response = await httpClient.SendAsync(httpRequestMessage);
         var result = new PlaybackState() { IsPlaying = false, CurrentlyPlaying = string.Empty, CurrentlyPlayingArtist = string.Empty };
+
         if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
         {
             // No active devices, get the device
@@ -444,38 +441,33 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
                 }
             }
         }
-        return result;
+        // check if the state has changed
+        if (!result.Equals(currentState))
+            PlaybackStateChangedEvent?.Invoke(this, result);
     }
     async Task ISpotifyService.StartPlay(string deviceId)
     {
-        PlaybackState newState;
-
         var endpoint = playbackStartEndpoint + $"?device_id={deviceId}";
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
-
 
         var response = await httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
         {
             await Task.Delay(DELAY_SHORT);
-            newState = await ((ISpotifyService)this).GetPlaybackState();
+            await ((ISpotifyService)this).UpdatePlaybackState();
         }
         else
         {
-            newState = new PlaybackState
+            PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
-
-            };
+            });
         }
-        PlaybackStateChangedEvent?.Invoke(this, newState);
     }
     async Task ISpotifyService.PausePlay(string deviceId)
     {
-        PlaybackState newState;
-
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, playbackPauseEndpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
         var body = new Dictionary<string, string>
@@ -489,23 +481,19 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         if (response.IsSuccessStatusCode)
         {
             await Task.Delay(DELAY_SHORT);
-            newState = await ((ISpotifyService)this).GetPlaybackState();
+            await ((ISpotifyService)this).UpdatePlaybackState();
         }
         else
         {
-            newState = new PlaybackState
+            PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
-            };
+            });
         }
-
-        PlaybackStateChangedEvent?.Invoke(this, newState);
     }
     async Task ISpotifyService.NextTrack(string deviceId)
     {
-        PlaybackState newState;
-
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackNextEndpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
         var body = new Dictionary<string, string>
@@ -519,23 +507,19 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         if (response.IsSuccessStatusCode)
         {
             await Task.Delay(DELAY_SHORT);
-            newState = await ((ISpotifyService)this).GetPlaybackState();
+            await ((ISpotifyService)this).UpdatePlaybackState();
         }
         else
         {
-            newState = new PlaybackState
+            PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
-            };
+            });
         }
-
-        PlaybackStateChangedEvent?.Invoke(this, newState);
     }
     async Task ISpotifyService.PreviousTrack(string deviceId)
     {
-        PlaybackState newState;
-
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, playbackPreviousEndpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
         var body = new Dictionary<string, string>
@@ -549,22 +533,19 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         if (response.IsSuccessStatusCode)
         {
             await Task.Delay(DELAY_SHORT);
-            newState = await ((ISpotifyService)this).GetPlaybackState();
+            await ((ISpotifyService)this).UpdatePlaybackState();
         }
         else
         {
-            newState = new PlaybackState
+            PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
-            };
+            });
         }
-        PlaybackStateChangedEvent?.Invoke(this, newState);
     }
     async Task ISpotifyService.Seek(string deviceId, int positionMs)
     {
-        PlaybackState newState;
-
         string endpoint = seekEndpoint + $"?device_id={deviceId}&position_ms={positionMs}";
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
         httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", m_AccessData?.AccessToken);
@@ -573,18 +554,16 @@ internal sealed class SpotifyService : ISpotifyService, IDisposable
         if (response.IsSuccessStatusCode)
         {
             await Task.Delay(DELAY_SHORT);
-            newState = await ((ISpotifyService)this).GetPlaybackState();
+            await ((ISpotifyService)this).UpdatePlaybackState();
         }
         else
         {
-            newState = new PlaybackState
+            PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
-            };
+            });
         }
-
-        PlaybackStateChangedEvent?.Invoke(this, newState);
     }
 
     // Explicit interface implementation required

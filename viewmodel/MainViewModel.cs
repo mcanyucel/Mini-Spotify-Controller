@@ -75,7 +75,7 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
         if (m_SpotifyService.IsAuthorized)
         {
             await GetUser();
-            PlaybackState = await m_SpotifyService.GetPlaybackState();
+            await m_SpotifyService.UpdatePlaybackState();
             SetInternalPlayerHTMLPath();
             UpdateCommandStates();
         }
@@ -222,7 +222,7 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (m_SpotifyService.IsAuthorized)
         {
-            PlaybackState = await m_SpotifyService.GetPlaybackState();
+            await m_SpotifyService.UpdatePlaybackState();
             UpdateCommandStates();
         }
     }
@@ -253,7 +253,7 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
         if (PlaybackState.ProgressMs >= PlaybackState.DurationMs && m_SpotifyService.IsAuthorized)
         {
             PlaybackState.ResetProgress();
-            _ = Task.Run(async () => PlaybackState = await m_SpotifyService.GetPlaybackState());
+            _ = Task.Run(async () => await m_SpotifyService.UpdatePlaybackState());
         }
     }
     [RelayCommand(CanExecute = nameof(GetAudioMetricsCanExecute))]
