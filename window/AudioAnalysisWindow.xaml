@@ -44,7 +44,7 @@
                     x:Name="MetadataGroup"
                     mah:HeaderedControlHelper.HeaderFontSize="20"
                     Style="{StaticResource MahApps.Styles.GroupBox.Clean}"
-                    Margin="10 4 4 4">
+                    Margin="10 4 4 20">
                     <DockPanel LastChildFill="True">
                         <Line Stroke="Gray" X1="0" X2="{Binding ElementName=MetadataGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
                         <ItemsControl
@@ -149,7 +149,7 @@
                     mah:HeaderedControlHelper.HeaderFontSize="20"
                     ToolTip="Double click to start a segment"
                     MaxHeight="300"
-                    Margin="10 4 4 4">
+                    Margin="10 20 4 4">
                     <DockPanel LastChildFill="True">
                         <Line Stroke="Gray" X1="0" X2="{Binding ElementName=SegmentsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
                         <ListView
@@ -214,7 +214,7 @@
                     mah:HeaderedControlHelper.HeaderFontSize="20"
                     ToolTip="Double click to start a section"
                     MaxHeight="300"
-                    Margin="10 4 4 4">
+                    Margin="10 20 4 4">
                     <DockPanel LastChildFill="True">
                         <Line Stroke="Gray" X1="0" X2="{Binding ElementName=SectionsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom" />
                         <ListView 
