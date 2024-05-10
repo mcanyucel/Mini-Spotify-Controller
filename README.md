@@ -83,6 +83,9 @@ The internal player uses Spotify Web Playback API. This API needs HTTPS connecti
 
 ## New Features
 
+### 2.0.1.3
+* Fixed a bug where seeking using the Audio Analysis window breaks the auto update of the track in the audio analysis window.
+
 ### 2.0.1.1
 * Added audio analysis. See above for details.
 
