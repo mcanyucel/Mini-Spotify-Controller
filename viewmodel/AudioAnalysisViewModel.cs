@@ -54,6 +54,22 @@ namespace MiniSpotifyController.viewmodel
                     await spotifyService.Seek(PlaybackState!.DeviceId!, (int)start.TotalMilliseconds);
         }
 
+        [RelayCommand(CanExecute = nameof(GetAudioAnalysisCanExecute))]
+        async Task SeekToSegment(Segment segment)
+        {
+            // do not update the audio analysis while seeking - prevents flickering and unnecessary requests
+            shouldUpdateAudioAnalysis = false;
+            await spotifyService.Seek(PlaybackState!.DeviceId!, (int)(segment.Start * 1000));
+        }
+
+        [RelayCommand(CanExecute = nameof(GetAudioAnalysisCanExecute))]
+        async Task SeekToSection(Section section)
+        {
+            // do not update the audio analysis while seeking - prevents flickering and unnecessary requests
+            shouldUpdateAudioAnalysis = false;
+            await spotifyService.Seek(PlaybackState!.DeviceId!, (int)(section.Start * 1000));
+        }
+
         async Task GetAudioAnalysis()
         {
             if (!shouldUpdateAudioAnalysis || IsBusy || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId)) return;

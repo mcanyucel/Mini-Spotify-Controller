@@ -1,5 +1,4 @@
 ﻿using MiniSpotifyController.model;
-using MiniSpotifyController.model.AudioAnalysis;
 using MiniSpotifyController.window;
 using System;
 using System.Threading.Tasks;
