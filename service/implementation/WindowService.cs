@@ -32,19 +32,34 @@ namespace MiniSpotifyController.service.implementation
 
         void IWindowService.SetClipboardText(string text) => Clipboard.SetText(text);
 
-        void IWindowService.ShowAudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
+        void IWindowService.ShowAudioFeaturesWindow(AudioFeatures audioFeatures)
         {
             if (audioMetricsWindow == null)
             {
-                audioMetricsWindow = new AudioMetricsWindow(audioFeatures, audioAnalysis);
+                audioMetricsWindow = new AudioMetricsWindow(audioFeatures);
                 audioMetricsWindow.Show();
                 audioMetricsWindow.Closed += (sender, args) => audioMetricsWindow = null;
             }
             else
             {
-                audioMetricsWindow.UpdateData(audioFeatures, audioAnalysis);
+                audioMetricsWindow.UpdateData(audioFeatures);
                 audioMetricsWindow.Activate();
             }
+        }
+
+        void IWindowService.ShowAudioAnalysisWindow()
+        {
+            if (audioAnalysisWindow == null)
+            {
+                audioAnalysisWindow = new();
+                audioAnalysisWindow.Show();
+                audioAnalysisWindow.Closed += (sender, args) => audioAnalysisWindow = null;
+            }
+            else
+            {
+                audioAnalysisWindow.Activate();
+            }
+
         }
 
         bool IWindowService.IsAudioMetricsWindowOpen() => audioMetricsWindow != null;
@@ -78,9 +93,10 @@ namespace MiniSpotifyController.service.implementation
         }
 
         #region Fields
-        private AuthWindow? authWindow;
-        private ClientIdWindow? clientIdWindow;
-        private AudioMetricsWindow? audioMetricsWindow;
+        AuthWindow? authWindow;
+        ClientIdWindow? clientIdWindow;
+        AudioMetricsWindow? audioMetricsWindow;
+        AudioAnalysisWindow? audioAnalysisWindow;
         #endregion
     }
 }

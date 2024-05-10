@@ -38,6 +38,7 @@ public partial class App : Application
         services.AddTransient<AuthViewModel>();
         services.AddTransient<ClientIdViewModel>();
         services.AddTransient<AudioMetricsViewModel>();
+        services.AddTransient<AudioAnalysisViewModel>();
         
         return services.BuildServiceProvider();
     }

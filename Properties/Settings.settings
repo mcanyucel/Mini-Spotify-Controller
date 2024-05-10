@@ -6,7 +6,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="ClientId" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">aa30000432964e4fb882c2e1db44ea47</Value>
     </Setting>
   </Settings>
 </SettingsFile>

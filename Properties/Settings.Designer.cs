@@ -37,7 +37,7 @@ namespace MiniSpotifyController.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("aa30000432964e4fb882c2e1db44ea47")]
         public string ClientId {
             get {
                 return ((string)(this["ClientId"]));

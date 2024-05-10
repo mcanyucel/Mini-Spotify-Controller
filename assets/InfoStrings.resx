@@ -1,0 +1,294 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AnalysisChannels" xml:space="preserve">
+    <value>The number of channels used for analysis. If 1, all channels are summed together to mono before analysis</value>
+  </data>
+  <data name="AnalysisSampleRate" xml:space="preserve">
+    <value>The sample rate used to decide and analyze this track. It may differ from the actual sample rate of this track available on Spotify</value>
+  </data>
+  <data name="AnalysisTime" xml:space="preserve">
+    <value>The amount of time taken to analyze this track in seconds</value>
+  </data>
+  <data name="AnalyzerVersion" xml:space="preserve">
+    <value>The version of the Analyzer used to analyze this track</value>
+  </data>
+  <data name="Codestring" xml:space="preserve">
+    <value>An Echo Nest Musical Fingerprint (ENMFP) codestring for this track.</value>
+  </data>
+  <data name="CodeVersion" xml:space="preserve">
+    <value>An Echo Nest Musical Fingerprint (ENMFP) code version for this track.</value>
+  </data>
+  <data name="ConfidenceInterval" xml:space="preserve">
+    <value>The confidence, from 0.0 to 1.0, of the reliability of the interval</value>
+  </data>
+  <data name="ConfidenceSegment" xml:space="preserve">
+    <value>The confidence, from 0.0 to 1.0, of the reliability of the segment</value>
+  </data>
+  <data name="ConfidenceTatums" xml:space="preserve">
+    <value>The confidence, from 0.0 to 1.0, of the reliability of the tatum</value>
+  </data>
+  <data name="Detailed Status" xml:space="preserve">
+    <value>A detailed status code for this track. If analysis data is missing, this code may explain why</value>
+  </data>
+  <data name="DuratioInterval" xml:space="preserve">
+    <value>The duration (in seconds) of the time interval</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>The duration of the track in seconds</value>
+  </data>
+  <data name="DurationSegment" xml:space="preserve">
+    <value>The duration (in seconds) of the segment</value>
+  </data>
+  <data name="DurationTatums" xml:space="preserve">
+    <value>The duration (in seconds) of the tatum</value>
+  </data>
+  <data name="Echoprintstring" xml:space="preserve">
+    <value>An Echo Nest Echoprint code for this track.</value>
+  </data>
+  <data name="EchoprintVersion" xml:space="preserve">
+    <value>An Echo Nest Echoprint code version for this track.</value>
+  </data>
+  <data name="EndOfFadeIn" xml:space="preserve">
+    <value>The time, in seconds, at which the track's fade-in period ends. If the track has no fade-in, this will be 0.0</value>
+  </data>
+  <data name="InputProcess" xml:space="preserve">
+    <value>The method used to read the track's audio data</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>The estimated overall key of the track. The key identifies the tonic triad, the chord, major or minor, which represents the final point of rest or resolution for a piece, or the focal point of a section. Keys are given in the standard Pitch Class notation (E.g. C, C#, D, etc)</value>
+  </data>
+  <data name="KeyConfidence" xml:space="preserve">
+    <value>An estimated overall confidence of the key, from 0.0 to 1.0. The confidence is higher for more popular keys, E.g. C, G, D minor etc</value>
+  </data>
+  <data name="KeyConfidenceInterval" xml:space="preserve">
+    <value>The confidence, from 0.0 to 1.0, of the reliability of the key. The confidence is higher for more popular keys, E.g. C, G, D minor etc. Songs with many key changes may correspond to low values in this field.</value>
+  </data>
+  <data name="KeyInterval" xml:space="preserve">
+    <value>The estimated overall key of the section. The key identifies the tonic triad, the chord, major or minor, which represents the final point of rest or resolution for a piece, or the focal point of a section. Keys are given in the standard Pitch Class notation (E.g. C, C#, D, etc)</value>
+  </data>
+  <data name="Loudness" xml:space="preserve">
+    <value>The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typically range between -60 and 0 db</value>
+  </data>
+  <data name="LoudnessEndSegment" xml:space="preserve">
+    <value>The offset loudness of the segment in decibels (dB). This value should be equivalent to the loudness_start of the following segment.</value>
+  </data>
+  <data name="LoudnessInterval" xml:space="preserve">
+    <value>The overall loudness of the section in decibels (dB). Loudness values are useful for comparing relative loudness of sections within tracks.</value>
+  </data>
+  <data name="LoudnessMaxSegment" xml:space="preserve">
+    <value>The peak loudness of the segment in decibels (dB). Combined with loudness_start and loudness_max_time, these components can be used to describe the "attack" of the segment.</value>
+  </data>
+  <data name="LoudnessMaxTimeSegment" xml:space="preserve">
+    <value>The moment in the segment of the peak loudness, in seconds.</value>
+  </data>
+  <data name="LoudnessStartSegment" xml:space="preserve">
+    <value>The onset loudness of the segment in decibels (dB). Combined with loudness_max and loudness_max_time, these components can be used to describe the "attack" of the segment.</value>
+  </data>
+  <data name="Mode" xml:space="preserve">
+    <value>Modality indicates the modality of a track, the type of scale from which its melodic content is derived. This field will contain a value of 0 for "minor", 1 for "major", or -1 for no result. Note that the major key (e.g. C major) could more likely be confused with the minor key at 3 semitones lower (e.g. A minor)</value>
+  </data>
+  <data name="ModeConfidence" xml:space="preserve">
+    <value>An estimated overall confidence of the mode, from 0.0 to 1.0. The confidence is higher for more popular keys, E.g. C, G, D minor etc</value>
+  </data>
+  <data name="ModeConfidenceInterval" xml:space="preserve">
+    <value>The confidence, from 0.0 to 1.0, of the reliability of the mode. The confidence is higher for more popular keys, E.g. C, G, D minor etc. Songs with many key changes may correspond to low values in this field.</value>
+  </data>
+  <data name="ModeInterval" xml:space="preserve">
+    <value>Modality indicates the modality of a track, the type of scale from which its melodic content is derived. This field will contain a value of 0 for "minor", 1 for "major", or -1 for no result. Note that the major key (e.g. C major) could more likely be confused with the minor key at 3 semitones lower (e.g. A minor)</value>
+  </data>
+  <data name="NumSamples" xml:space="preserve">
+    <value>The exact number of samples analyzed from this track. See also Analysis Sample Rate</value>
+  </data>
+  <data name="OffsetSeconds" xml:space="preserve">
+    <value>The offset to the start of the region of the track that was analyzed. As the entire track is analyzed, this should always be 0</value>
+  </data>
+  <data name="PitchesSegment" xml:space="preserve">
+    <value>Pitch content is given by a “chroma” vector, corresponding to the 12 pitch classes C, C#, D to B, with values ranging from 0 to 1 that describe the relative dominance of every pitch in the chromatic scale. For example a C Major chord would likely be represented by large values of C, E and G (i.e. classes 0, 4, and 7). Vectors are normalized to 1 by their strongest dimension, therefore noisy sounds are likely represented by values that are all close to 1, while pure tones are described by one value at 1 (the pitch) and others near 0. As can be seen below, the 12 vector indices are a combination of low-power spectrum values at their respective pitch frequencies.</value>
+  </data>
+  <data name="Platform" xml:space="preserve">
+    <value>The platform used to read teh track's audio data</value>
+  </data>
+  <data name="Rhythmstring" xml:space="preserve">
+    <value>An Echo Nest Rhythm code for this track.</value>
+  </data>
+  <data name="RhythmVersion" xml:space="preserve">
+    <value>An Echo Nest Rhythm code version for this track.</value>
+  </data>
+  <data name="SampleMD5" xml:space="preserve">
+    <value>This field willl always contain an empty string (because Spotify said so)</value>
+  </data>
+  <data name="StartInterval" xml:space="preserve">
+    <value>The sarting point (in seconds) of the time interval</value>
+  </data>
+  <data name="StartOfFadeOut" xml:space="preserve">
+    <value>The time, in seconds, at which the track's fade-out period starts. If the track has no fade-out, this will be the duration of the track</value>
+  </data>
+  <data name="StartSegment" xml:space="preserve">
+    <value>The starting point (in seconds) of the segment</value>
+  </data>
+  <data name="StartTatums" xml:space="preserve">
+    <value>The starting point (in seconds) of the tatum</value>
+  </data>
+  <data name="StatusCode" xml:space="preserve">
+    <value>The return code of the analyzer process. 0 if successful, 1 if any errors occurred</value>
+  </data>
+  <data name="Synchstring" xml:space="preserve">
+    <value>An Echo Nest Synch code for this track.</value>
+  </data>
+  <data name="SynchVersion" xml:space="preserve">
+    <value>An Echo Nest Synch code version for this track.</value>
+  </data>
+  <data name="Tatum" xml:space="preserve">
+    <value>A tatum represents the lowest regular pulse train that a listener intuitively infers from the timing of perceived musical events (segments).</value>
+  </data>
+  <data name="Tempo" xml:space="preserve">
+    <value>The estimated overall tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration</value>
+  </data>
+  <data name="TempoConfidence" xml:space="preserve">
+    <value>An estimated overall confidence of the tempo, from 0.0 to 1.0. Some tracks contain tempo changes or sounds which don't fit the "grid" which would correspond to a low confidence</value>
+  </data>
+  <data name="TempoConfidenceInterval" xml:space="preserve">
+    <value>The confidence, from 0.0 to 1.0, of the reliability of the tempo. Some tracks contain tempo changes or sounds which don't contain tempo (like pure speech) which would correspond to a low value in this field.</value>
+  </data>
+  <data name="TempoInterval" xml:space="preserve">
+    <value>The estimated overall tempo of the section in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration</value>
+  </data>
+  <data name="TimbreSegment" xml:space="preserve">
+    <value>Timbre is the quality of a musical note or sound that distinguishes different types of musical instruments, or voices. It is a complex notion also referred to as sound color, texture, or tone quality, and is derived from the shape of a segment’s spectro-temporal surface, independently of pitch and loudness. The timbre feature is a vector that includes 12 unbounded values roughly centered around 0. Those values are high level abstractions of the spectral surface, ordered by degree of importance. For completeness however, the first dimension represents the average loudness of the segment; second emphasizes brightness; third is more closely correlated to the flatness of a sound; fourth to sounds with a stronger attack; etc. See an image below representing the 12 basis functions (i.e. template segments). The actual timbre of the segment is best described as a linear combination of these 12 basis functions weighted by the coefficient values: timbre = c1 x b1 + c2 x b2 + ... + c12 x b12, where c1 to c12 represent the 12 coefficients and b1 to b12 the 12 basis functions as displayed below. Timbre vectors are best used in comparison with each other.</value>
+  </data>
+  <data name="TimeSignature" xml:space="preserve">
+    <value>An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure). The time signature ranges from 3 to 7 indicating time signatures of "3/4" to "7/4"</value>
+  </data>
+  <data name="TimeSignatureConfidence" xml:space="preserve">
+    <value>An estimated overall confidence of the time signature, from 0.0 to 1.0. Some tracks contain time signature changes, which would correspond to a low confidence</value>
+  </data>
+  <data name="TimeSignatureConfidenceInterval" xml:space="preserve">
+    <value>The confidence, from 0.0 to 1.0, of the reliability of the time signature. Some tracks contain time signature changes, which would correspond to a low value in this field.</value>
+  </data>
+  <data name="TimeSignatureInterval" xml:space="preserve">
+    <value>An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure). The time signature ranges from 3 to 7 indicating time signatures of "3/4" to "7/4"</value>
+  </data>
+  <data name="Timestamp" xml:space="preserve">
+    <value>The Unix timestamp (in seconds) at which this track was analyzed</value>
+  </data>
+  <data name="WindowSeconds" xml:space="preserve">
+    <value>The length of the region of the track was analyzed, if a subset of the track was analyzed. As the entire track is analyzed, this should always be 0</value>
+  </data>
+</root>

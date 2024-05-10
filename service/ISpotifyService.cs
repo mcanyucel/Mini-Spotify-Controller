@@ -1,4 +1,5 @@
 ﻿using MiniSpotifyController.model;
+using MiniSpotifyController.model.AudioAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +18,13 @@ internal interface ISpotifyService
     #endregion
 
     #region Playback
+    internal event EventHandler<PlaybackState> PlaybackStateChanged;
     internal Task<PlaybackState> GetPlaybackState();
-    internal Task<PlaybackState> StartPlay(string deviceId);
-    internal Task<PlaybackState> PausePlay(string deviceId);
-    internal Task<PlaybackState> NextTrack(string deviceId);
-    internal Task<PlaybackState> PreviousTrack(string deviceId);
-    internal Task<PlaybackState> Seek(string deviceId, int positionMs);
+    internal Task StartPlay(string deviceId);
+    internal Task PausePlay(string deviceId);
+    internal Task NextTrack(string deviceId);
+    internal Task PreviousTrack(string deviceId);
+    internal Task Seek(string deviceId, int positionMs);
     #endregion
 
     #region User
@@ -43,11 +45,12 @@ internal interface ISpotifyService
     internal Task<bool> RemoveTrack(string spotifyId);
     internal Task<string> GetShareUrl(string spotifyId);
     internal Task<AudioFeatures?> GetAudioFeatures(string spotifyId);
+    internal Task<AudioAnalysisResult?> GetAudioAnalysis(string spotifyId);
     #endregion
 
     #region Radio & Randomization
-    internal Task<PlaybackState?> Randomize(string deviceId);
-    internal Task<PlaybackState?> StartSongRadio(string deviceId, string spotifyId);
+    internal Task<bool> Randomize(string deviceId);
+    internal Task<bool> StartSongRadio(string deviceId, string spotifyId);
     #endregion
 
     #region Helpers

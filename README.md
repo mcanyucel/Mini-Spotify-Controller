@@ -12,11 +12,35 @@ When you run the application, it will open a small window that you need to enter
 ## Features
 * Mini controller to start, pause, next, previous tracks.
 * Displays current track, artist and album name.
+* Like/Unlike the current track, and instantly get a sharing url copied to the clipboard.
+* Can display audio features and audio analysis of the current track.
+* Allows to skip to any bar, beat, tatum,segment, or section of the track.
 * A randomizer! See below for details.
+* Has an internal player to play the track within the app (see below for details).
 * Requires a spotify device to be active. If there is no active device, it show a message to open a Spotify app in any of your devices.
 
-### Randomizer
+## Audio Analysis
+It displays a low-level audio analysis of the current track. The audio analysis describes the track's structure and musical content, inluding rhtyhm, pitch, and timbre. For details , see the [Spotify Web API documentation](https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-analysis/).
 
+Some notable features are:
+
+* Loudness: The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typically range between -60 and 0 db.
+* Tempo: The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration.
+* Time Signature: An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure).
+* Key: The key the track is in. Integers map to pitches using standard Pitch Class notation. E.g. 0 = C, 1 = C♯/D♭, 2 = D, and so on.
+* Mode: Mode indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0.
+* Sections: Audio sections are defined by large variations in rhythm or timbre, e.g. chorus, verse, bridge, guitar solo, etc. Each section contains its own descriptions of tempo, key, mode, time_signature, and loudness.
+* Segments: Audio segments attempts to subdivide a song into many segments, with each segment containing a roughly consitent sound throughout its duration. This is done by computing a series of features for each segment, and comparing each new segment to the entire song. The result is a series of data points representing the "distance" between the audio content of each segment and the entire song.
+* Beats: The time intervals of beats throughout the track. A beat is the basic time unit of a piece of music; for example, each tick of a metronome. Beats are typically multiples of tatums.
+* Tatums: Tatums represent the lowest regular pulse train that a listener intuitively infers from the timing of perceived musical events (segments). Tatums are the smallest regular pulse train that can be perceived in music, roughly analogous to the ticking of a clock.
+* Bars: Bars are a musical concept that defines a segment of time corresponding to a specific number of beats in which each beat is represented by a particular note value and the boundaries of the bar are indicated by vertical bar lines.
+* Echoprint: Echoprint is a music fingerprinting system that identifies a piece of music based on a short audio sample. It is used by The Echo Nest to identify songs.
+* Synchstring: Synchstring is a base64 encoded string that describes the song's structure and musical content. It is used by The Echo Nest to identify songs.
+* Rhythmstring: Rhythmstring is a base64 encoded string that describes the song's structure and musical content. It is used by The Echo Nest to identify songs.
+* Pitches: Pitch content is given by a “chroma” vector, corresponding to the 12 pitch classes C, C#, D to B, with values ranging from 0 to 1 that describe the relative dominance of every pitch in the chromatic scale. For example a C Major chord would likely be represented by large values of C, E and G (i.e. classes 0, 4, and 7). Vectors are normalized to 1 by their strongest dimension, therefore noisy sounds are likely represented by values that are all close to 1, while pure tones are described by one value at 1 (the pitch) and others near 0. As can be seen below, the 12 vector indices are a combination of low-power spectrum values at their respective pitch frequencies.
+* Timbre: Timbre is the quality of a musical note or sound that distinguishes different types of musical instruments, or voices. It is a complex notion also referred to as sound color, texture, or tone quality, and is derived from the shape of a segment’s spectro-temporal surface, independently of pitch and loudness. The timbre feature is a vector that includes 12 unbounded values roughly centered around 0. Those values are high level abstractions of the spectral surface, ordered by degree of importance. For completeness however, the first dimension represents the average loudness of the segment; second emphasizes brightness; third is more closely correlated to the flatness of a sound; fourth to sounds with a stronger attack; etc. See an image below representing the 12 basis functions (i.e. template segments). The actual timbre of the segment is best described as a linear combination of these 12 basis functions weighted by the coefficient values: timbre = c1 x b1 + c2 x b2 + ... + c12 x b12, where c1 to c12 represent the 12 coefficients and b1 to b12 the 12 basis functions as displayed below. Timbre vectors are best used in comparison with each other.
+
+### Randomizer
 The randomization flow is as follows:
 1. User clicks the randomize button.
 2. Set the randomization limit k to 10000.
@@ -55,9 +79,12 @@ The internal player uses Spotify Web Playback API. This API needs HTTPS connecti
     * The player is ready to play once the navigation is completed. 
 
 ## TODO
-* [] Add a feature to display the current track's lyrics.
+* [ ] Add a feature to display the current track's lyrics.
 
 ## New Features
+
+### 2.0.1.1
+* Added audio analysis. See above for details.
 
 ### 2.0.0.1
 * Added an invisible WebView2 to the `MainVindow` for internal playback (i.e. playback within the app). It uses Spotify Web Playback API. **TODO	**: It takes some time for the internal player to initialize, during which it is not displayed in the devices list. Maybe add a loading indicator for this?

@@ -1,25 +1,22 @@
-﻿using MiniSpotifyController.model;
+﻿using Microsoft.Extensions.DependencyInjection;
+using MiniSpotifyController.model;
 using MiniSpotifyController.viewmodel;
 
-namespace MiniSpotifyController.window
-{
-    /// <summary>
-    /// Interaction logic for AudioMetricsWindow.xaml
-    /// </summary>
-    public partial class AudioMetricsWindow
-    {
-        private readonly AudioMetricsViewModel? m_ViewModel;
-        public AudioMetricsWindow(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
-        {
-            m_ViewModel = App.Current.Services.GetService(typeof(AudioMetricsViewModel)) as AudioMetricsViewModel;
-            m_ViewModel?.UpdateData(audioFeatures, audioAnalysis);
-            this.DataContext = m_ViewModel;
-            InitializeComponent();
-        }
+namespace MiniSpotifyController.window;
 
-        public void UpdateData(AudioFeatures audioFeatures, AudioAnalysis audioAnalysis)
-        {
-            m_ViewModel?.UpdateData(audioFeatures, audioAnalysis);
-        }
+/// <summary>
+/// Interaction logic for AudioMetricsWindow.xaml
+/// </summary>
+public partial class AudioMetricsWindow
+{
+    private readonly AudioMetricsViewModel? m_ViewModel;
+    internal AudioMetricsWindow(AudioFeatures audioFeatures)
+    {
+        m_ViewModel = App.Current.Services.GetRequiredService<AudioMetricsViewModel>();
+        m_ViewModel.UpdateData(audioFeatures);
+        DataContext = m_ViewModel;
+        InitializeComponent();
     }
+
+    internal void UpdateData(AudioFeatures audioFeatures) => m_ViewModel?.UpdateData(audioFeatures);
 }

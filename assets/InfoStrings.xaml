@@ -1,0 +1,65 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <sys:String x:Key="AnalyzerVersion">The version of the Analyzer used to analyze this track</sys:String>
+    <sys:String x:Key="Platform">The platform used to read teh track's audio data</sys:String>
+    <sys:String x:Key="Detailed Status">A detailed status code for this track. If analysis data is missing, this code may explain why</sys:String>
+    <sys:String x:Key="StatusCode">The return code of the analyzer process. 0 if successful, 1 if any errors occurred</sys:String>
+    <sys:String x:Key="Timestamp">The Unix timestamp (in seconds) at which this track was analyzed</sys:String>
+    <sys:String x:Key="AnalysisTime">The amount of time taken to analyze this track in seconds</sys:String>
+    <sys:String x:Key="InputProcess">The method used to read the track's audio data</sys:String>
+    <sys:String x:Key="NumSamples">The exact number of samples analyzed from this track. See also Analysis Sample Rate</sys:String>
+    <sys:String x:Key="Duration">The duration of the track in seconds</sys:String>
+    <sys:String x:Key="SampleMD5">This field willl always contain an empty string (because Spotify said so)</sys:String>
+    <sys:String x:Key="OffsetSeconds">The offset to the start of the region of the track that was analyzed. As the entire track is analyzed, this should always be 0</sys:String>
+    <sys:String x:Key="WindowSeconds">The length of the region of the track was analyzed, if a subset of the track was analyzed. As the entire track is analyzed, this should always be 0</sys:String>
+    <sys:String x:Key="AnalysisSampleRate">The sample rate used to decide and analyze this track. It may differ from the actual sample rate of this track available on Spotify</sys:String>
+    <sys:String x:Key="AnalysisChannels">The number of channels used for analysis. If 1, all channels are summed together to mono before analysis</sys:String>
+    <sys:String x:Key="EndOfFadeIn">The time, in seconds, at which the track's fade-in period ends. If the track has no fade-in, this will be 0.0</sys:String>
+    <sys:String x:Key="StartOfFadeOut">The time, in seconds, at which the track's fade-out period starts. If the track has no fade-out, this will be the duration of the track</sys:String>
+    <sys:String x:Key="Loudness">The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typically range between -60 and 0 db</sys:String>
+    <sys:String x:Key="Tempo">The estimated overall tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration</sys:String>
+    <sys:String x:Key="TempoConfidence">An estimated overall confidence of the tempo, from 0.0 to 1.0. Some tracks contain tempo changes or sounds which don't fit the "grid" which would correspond to a low confidence</sys:String>
+    <sys:String x:Key="TimeSignature">An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure). The time signature ranges from 3 to 7 indicating time signatures of "3/4" to "7/4"</sys:String>
+    <sys:String x:Key="TimeSignatureConfidence">An estimated overall confidence of the time signature, from 0.0 to 1.0. Some tracks contain time signature changes, which would correspond to a low confidence</sys:String>
+    <sys:String x:Key="Key">The estimated overall key of the track. The key identifies the tonic triad, the chord, major or minor, which represents the final point of rest or resolution for a piece, or the focal point of a section. Keys are given in the standard Pitch Class notation (E.g. C, C#, D, etc)</sys:String>
+    <sys:String x:Key="KeyConfidence">An estimated overall confidence of the key, from 0.0 to 1.0. The confidence is higher for more popular keys, E.g. C, G, D minor etc</sys:String>
+    <sys:String x:Key="Mode">Modality indicates the modality of a track, the type of scale from which its melodic content is derived. This field will contain a value of 0 for "minor", 1 for "major", or -1 for no result. Note that the major key (e.g. C major) could more likely be confused with the minor key at 3 semitones lower (e.g. A minor)</sys:String>
+    <sys:String x:Key="ModeConfidence">An estimated overall confidence of the mode, from 0.0 to 1.0. The confidence is higher for more popular keys, E.g. C, G, D minor etc</sys:String>
+    <sys:String x:Key="Codestring">An Echo Nest Musical Fingerprint (ENMFP) codestring for this track.</sys:String>
+    <sys:String x:Key="CodeVersion">An Echo Nest Musical Fingerprint (ENMFP) code version for this track.</sys:String>
+    <sys:String x:Key="Echoprintstring">An Echo Nest Echoprint code for this track.</sys:String>
+    <sys:String x:Key="EchoprintVersion">An Echo Nest Echoprint code version for this track.</sys:String>
+    <sys:String x:Key="Synchstring">An Echo Nest Synch code for this track.</sys:String>
+    <sys:String x:Key="SynchVersion">An Echo Nest Synch code version for this track.</sys:String>
+    <sys:String x:Key="Rhythmstring">An Echo Nest Rhythm code for this track.</sys:String>
+    <sys:String x:Key="RhythmVersion">An Echo Nest Rhythm code version for this track.</sys:String>
+    <sys:String x:Key="StartInterval">The sarting point (in seconds) of the time interval</sys:String>
+    <sys:String x:Key="DuratioInterval">The duration (in seconds) of the time interval</sys:String>
+    <sys:String x:Key="ConfidenceInterval">The confidence, from 0.0 to 1.0, of the reliability of the interval</sys:String>
+    <sys:String x:Key="LoudnessInterval">The overall loudness of the section in decibels (dB). Loudness values are useful for comparing relative loudness of sections within tracks.</sys:String>
+    <sys:String x:Key="TempoInterval">The estimated overall tempo of the section in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration</sys:String>
+    <sys:String x:Key="TempoConfidenceInterval">The confidence, from 0.0 to 1.0, of the reliability of the tempo. Some tracks contain tempo changes or sounds which don't contain tempo (like pure speech) which would correspond to a low value in this field.</sys:String>
+    <sys:String x:Key="KeyInterval">The estimated overall key of the section. The key identifies the tonic triad, the chord, major or minor, which represents the final point of rest or resolution for a piece, or the focal point of a section. Keys are given in the standard Pitch Class notation (E.g. C, C#, D, etc)</sys:String>
+    <sys:String x:Key="KeyConfidenceInterval">The confidence, from 0.0 to 1.0, of the reliability of the key. The confidence is higher for more popular keys, E.g. C, G, D minor etc. Songs with many key changes may correspond to low values in this field.</sys:String>
+    <sys:String x:Key="ModeInterval">Modality indicates the modality of a track, the type of scale from which its melodic content is derived. This field will contain a value of 0 for "minor", 1 for "major", or -1 for no result. Note that the major key (e.g. C major) could more likely be confused with the minor key at 3 semitones lower (e.g. A minor)</sys:String>
+    <sys:String x:Key="ModeConfidenceInterval">The confidence, from 0.0 to 1.0, of the reliability of the mode. The confidence is higher for more popular keys, E.g. C, G, D minor etc. Songs with many key changes may correspond to low values in this field.</sys:String>
+    <sys:String x:Key="TimeSignatureInterval">An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure). The time signature ranges from 3 to 7 indicating time signatures of "3/4" to "7/4"</sys:String>
+    <sys:String x:Key="TimeSignatureConfidenceInterval">The confidence, from 0.0 to 1.0, of the reliability of the time signature. Some tracks contain time signature changes, which would correspond to a low value in this field.</sys:String>
+    <sys:String x:Key="StartSegment">The starting point (in seconds) of the segment</sys:String>
+    <sys:String x:Key="DurationSegment">The duration (in seconds) of the segment</sys:String>
+    <sys:String x:Key="ConfidenceSegment">The confidence, from 0.0 to 1.0, of the reliability of the segment</sys:String>
+    <sys:String x:Key="LoudnessStartSegment">The onset loudness of the segment in decibels (dB). Combined with loudness_max and loudness_max_time, these components can be used to describe the "attack" of the segment.</sys:String>
+    <sys:String x:Key="LoudnessMaxSegment">The peak loudness of the segment in decibels (dB). Combined with loudness_start and loudness_max_time, these components can be used to describe the "attack" of the segment.</sys:String>
+    <sys:String x:Key="LoudnessMaxTimeSegment">The moment in the segment of the peak loudness, in seconds.</sys:String>
+    <sys:String x:Key="LoudnessEndSegment">The offset loudness of the segment in decibels (dB). This value should be equivalent to the loudness_start of the following segment.</sys:String>
+    <sys:String x:Key="PitchesSegment">Pitch content is given by a “chroma” vector, corresponding to the 12 pitch classes C, C#, D to B, with values ranging from 0 to 1 that describe the relative dominance of every pitch in the chromatic scale. For example a C Major chord would likely be represented by large values of C, E and G (i.e. classes 0, 4, and 7). Vectors are normalized to 1 by their strongest dimension, therefore noisy sounds are likely represented by values that are all close to 1, while pure tones are described by one value at 1 (the pitch) and others near 0. As can be seen below, the 12 vector indices are a combination of low-power spectrum values at their respective pitch frequencies.</sys:String>
+    <sys:String x:Key="TimbreSegment">Timbre is the quality of a musical note or sound that distinguishes different types of musical instruments, or voices. It is a complex notion also referred to as sound color, texture, or tone quality, and is derived from the shape of a segment’s spectro-temporal surface, independently of pitch and loudness. The timbre feature is a vector that includes 12 unbounded values roughly centered around 0. Those values are high level abstractions of the spectral surface, ordered by degree of importance. For completeness however, the first dimension represents the average loudness of the segment; second emphasizes brightness; third is more closely correlated to the flatness of a sound; fourth to sounds with a stronger attack; etc. See an image below representing the 12 basis functions (i.e. template segments). The actual timbre of the segment is best described as a linear combination of these 12 basis functions weighted by the coefficient values: timbre = c1 x b1 + c2 x b2 + ... + c12 x b12, where c1 to c12 represent the 12 coefficients and b1 to b12 the 12 basis functions as displayed below. Timbre vectors are best used in comparison with each other.</sys:String>
+    <sys:String x:Key="Tatum">A tatum represents the lowest regular pulse train that a listener intuitively infers from the timing of perceived musical events (segments).</sys:String>
+    <sys:String x:Key="StartTatums">The starting point (in seconds) of the tatum</sys:String>
+    <sys:String x:Key="DurationTatums">The duration (in seconds) of the tatum</sys:String>
+    <sys:String x:Key="ConfidenceTatums">The confidence, from 0.0 to 1.0, of the reliability of the tatum</sys:String>
+    
+
+
+</ResourceDictionary>
