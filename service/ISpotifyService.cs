@@ -19,7 +19,7 @@ internal interface ISpotifyService
 
     #region Playback
     internal event EventHandler<PlaybackState> PlaybackStateChanged;
-    internal Task<PlaybackState> GetPlaybackState();
+    internal Task UpdatePlaybackState(PlaybackState? currentState = null);
     internal Task StartPlay(string deviceId);
     internal Task PausePlay(string deviceId);
     internal Task NextTrack(string deviceId);
