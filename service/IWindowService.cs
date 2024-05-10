@@ -12,7 +12,7 @@ internal interface IWindowService
     internal void CloseAuthorizationWindowDialog();
     internal void SetClipboardText(string text);
     internal void ShowAudioFeaturesWindow(AudioFeatures audioFeatures);
-    internal void ShowAudioAnalysisWindow(string trackName, string trackId);
+    internal void ShowAudioAnalysisWindow();
     internal bool IsAudioMetricsWindowOpen();
     internal bool ShowUpdateWindowDialog();
     internal void ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback);

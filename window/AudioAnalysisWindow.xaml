@@ -10,9 +10,8 @@
                  xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
                  mc:Ignorable="d"
                  WindowState="Maximized"
-                 ContentRendered="MetroWindow_ContentRendered"
                  d:DataContext="{d:DesignInstance Type=viewmodel:AudioAnalysisViewModel}"
-                 Title="{Binding TrackName}" Height="768" Width="1024">
+                 Title="{Binding PlaybackState.CurrentlyPlaying}" Height="768" Width="1024">
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -24,7 +23,7 @@
     </mah:MetroWindow.Resources>
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="ContentRendered">
-            <behaviors:InvokeCommandAction Command="{Binding GetAudioAnalysisCommand}" />
+            <behaviors:InvokeCommandAction Command="{Binding InitializeCommand}" />
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
     <ScrollViewer>
@@ -91,12 +90,19 @@
                         Margin="10 4 4 4">
                         <DockPanel LastChildFill="True">
                             <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BeatsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
-                            <ListBox ItemsSource="{Binding DataContext.AudioAnalysisResult.Beats, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
+                            <ListBox
+                                x:Name="lsbBeats"
+                                ItemsSource="{Binding DataContext.AudioAnalysisResult.Beats, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding}" />
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
+                                <behaviors:Interaction.Triggers>
+                                    <behaviors:EventTrigger EventName="MouseDoubleClick">
+                                        <behaviors:InvokeCommandAction Command="{Binding SeekToSpanCommand}" CommandParameter="{Binding ElementName=lsbBeats, Path=SelectedItem}" />
+                                    </behaviors:EventTrigger>
+                                </behaviors:Interaction.Triggers>
                             </ListBox>
                         </DockPanel>
                     </GroupBox>

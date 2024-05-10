@@ -4,7 +4,6 @@ using MiniSpotifyController.model;
 using MiniSpotifyController.model.AudioAnalysis;
 using MiniSpotifyController.service;
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -15,17 +14,25 @@ namespace MiniSpotifyController.viewmodel
         [ObservableProperty]
         AudioAnalysisResult? audioAnalysisResult;
 
-        [ObservableProperty]
-        string? trackName;
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(GetAudioAnalysisCommand))]
         bool isBusy;
 
-        public void UpdateData(string? p_TrackName, string? p_trackId)
+        public PlaybackState? PlaybackState
         {
-            TrackName = p_TrackName;
-            trackId = p_trackId;
+            get => playbackState;
+            set
+            {
+                SetProperty(ref playbackState, value);
+                SeekToSpanCommand.NotifyCanExecuteChanged();
+                Task.Run(GetAudioAnalysis);
+            }
+        }
+
+        [RelayCommand]
+        public async Task Initialize()
+        {
+            PlaybackState = await spotifyService.GetPlaybackState();
         }
 
         /// <summary>
@@ -33,28 +40,32 @@ namespace MiniSpotifyController.viewmodel
         /// </summary>
         /// <param name="spanString">It will be the output of `TrackSpanToStringListConverter`</param>
         /// <returns></returns>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(GetAudioAnalysisCanExecute))]
         async Task SeekToSpan(string spanString)
         {
+            if (string.IsNullOrEmpty(spanString)) return;
+
+            // do not update the audio analysis while seeking - prevents flickering and unnecessary requests
+            shouldUpdateAudioAnalysis = false;
             var spanStringArray = spanString.Split('-');
             if (spanStringArray.Length == 2)
-            {
-                var start = TimeSpan.Parse(spanStringArray[0], CultureInfo.InvariantCulture);
-                Debug.WriteLine($"Seeking to {start} for {trackId ?? "idk"}");
-                await Task.Delay(1000);
-            }
+                // the format of the timespanstring is "mm:ss.fff"
+                if (TimeSpan.TryParseExact(spanStringArray[0].Trim(), "mm\\:ss\\.fff", CultureInfo.InvariantCulture, out var start))
+                    await spotifyService.Seek(PlaybackState!.DeviceId!, (int)start.TotalMilliseconds);
         }
 
-        [RelayCommand(CanExecute = nameof(GetAudioAnalysisCanExecute))]
         async Task GetAudioAnalysis()
         {
+            if (!shouldUpdateAudioAnalysis || IsBusy || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId)) return;
+
             IsBusy = true;
-            var result = await spotifyService.GetAudioAnalysis(trackId!);
+            var result = await spotifyService.GetAudioAnalysis(PlaybackState.CurrentlyPlayingId);
             if (result != null)
                 AudioAnalysisResult = result;
             else
                 toastService.ShowTextToast("status", 0, "Error", "Failed to get audio analysis");
             IsBusy = false;
+            shouldUpdateAudioAnalysis = true;
         }
 
         public AudioAnalysisViewModel(ISpotifyService spotifyService, IToastService toastService)
@@ -65,20 +76,16 @@ namespace MiniSpotifyController.viewmodel
             spotifyService.PlaybackStateChanged += SpotifyService_PlaybackStateChanged;
         }
 
-        bool GetAudioAnalysisCanExecute => !IsBusy && !string.IsNullOrEmpty(trackId);
+        bool GetAudioAnalysisCanExecute => !IsBusy && !string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId);
 
         private void SpotifyService_PlaybackStateChanged(object? _, PlaybackState e)
         {
-            if (e.IsPlaying)
-            {
-                TrackName = e.CurrentlyPlaying;
-                trackId = e.CurrentlyPlayingId;
-            }
-            Task.Run(GetAudioAnalysis);
+            PlaybackState = e;
         }
 
-        string? trackId;
         readonly ISpotifyService spotifyService;
         readonly IToastService toastService;
+        PlaybackState? playbackState;
+        bool shouldUpdateAudioAnalysis = true;
     }
 }

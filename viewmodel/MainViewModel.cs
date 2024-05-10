@@ -298,7 +298,7 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     void GetAudioAnalysis()
     {
         if (playbackState.CurrentlyPlayingId == null) return;
-        m_WindowService.ShowAudioAnalysisWindow(playbackState.CurrentlyPlaying ?? string.Empty, playbackState.CurrentlyPlayingId);
+        m_WindowService.ShowAudioAnalysisWindow();
     }
 
     [RelayCommand(CanExecute = nameof(GetShareUrlCanExecute))]
