@@ -37,12 +37,13 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     #endregion
 
     #region Lifecycle
-    public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IWindowService windowService, IResourceService resourceService)
+    public MainViewModel(ISpotifyService spotifyService, IToastService toastService, IWindowService windowService, IResourceService resourceService, ILyricsService lyricsService)
     {
         m_SpotifyService = spotifyService;
         m_ToastService = toastService;
         m_WindowService = windowService;
         m_ResourceService = resourceService;
+        m_LyricsService = lyricsService;
 
         asyncCommandList = [TogglePlayCommand, NextCommand, PreviousCommand, ToggleLikedCommand, RandomizeCommand, GetShareUrlCommand, RefreshCommand, StartSongRadioCommand,
             GetAudioFeaturesCommand, AuthorizeCommand, SeekEndCommand];
@@ -264,6 +265,16 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     }
     #endregion
 
+    #region Lyrics
+
+    [RelayCommand]
+    async Task GetLyrics()
+    {
+        var lyrics = await m_LyricsService.GetLyrics(playbackState.CurrentlyPlaying ?? string.Empty, playbackState.CurrentlyPlayingArtist ?? string.Empty);
+        System.Diagnostics.Debug.WriteLine(lyrics);
+    }
+    #endregion
+
     #region Track Metadata & Sharing
     [RelayCommand(CanExecute = nameof(ToggleLikedCanExecute))]
     async Task ToggleLiked()
@@ -372,6 +383,7 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     readonly IToastService m_ToastService;
     readonly IWindowService m_WindowService;
     readonly IResourceService m_ResourceService;
+    readonly ILyricsService m_LyricsService;
     readonly List<IAsyncRelayCommand> asyncCommandList;
     readonly List<IRelayCommand> commandList;
     readonly Timer progressTimer;

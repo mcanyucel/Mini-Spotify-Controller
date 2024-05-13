@@ -50,6 +50,9 @@
             <Button Command="{Binding ShowDevicesCommand}" ToolTip="Devices">
                 <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Devices" />
             </Button>
+            <Button Command="{Binding GetLyricsCommand}" ToolTip="Lyrics">
+                <iconPacks:PackIconMaterial Width="16" Height="16" Kind="Text" />
+            </Button>
 
             <Button Command="{Binding OpenSettingsCommand}" ToolTip="Settings">
                 <iconPacks:PackIconMaterial Width="16" Height="16" Kind="AccountCog" />
