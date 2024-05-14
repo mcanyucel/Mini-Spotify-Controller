@@ -6,4 +6,6 @@ internal interface IPreferenceService
     internal string? GetRefreshToken();
     internal string? GetClientId();
     internal void SetClientId(string clientId);
+    internal string? GetGeniusClientId();
+    internal string? GetGeniusAccessToken();
 }

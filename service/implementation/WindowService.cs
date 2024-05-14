@@ -92,11 +92,26 @@ namespace MiniSpotifyController.service.implementation
             contextMenu.IsOpen = true;
         }
 
+        void IWindowService.ShowLyricsWindow()
+        {
+            if (lyricsWindow == null)
+            {
+                lyricsWindow = new();
+                lyricsWindow.Show();
+                lyricsWindow.Closed += (sender, args) => lyricsWindow = null;
+            }
+            else
+            {
+                lyricsWindow.Activate();
+            }
+        }
+
         #region Fields
         AuthWindow? authWindow;
         ClientIdWindow? clientIdWindow;
         AudioMetricsWindow? audioMetricsWindow;
         AudioAnalysisWindow? audioAnalysisWindow;
+        LyricsWindow? lyricsWindow;
         #endregion
     }
 }

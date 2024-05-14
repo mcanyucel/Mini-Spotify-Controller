@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MiniSpotifyController.viewmodel;
-using System;
-using System.Windows.Threading;
 
 namespace MiniSpotifyController.window;
 

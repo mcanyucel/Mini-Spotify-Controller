@@ -92,7 +92,7 @@ namespace MiniSpotifyController.viewmodel
             this.spotifyService = spotifyService;
             this.toastService = toastService;
 
-            spotifyService.PlaybackStateChanged += SpotifyService_PlaybackStateChanged;
+            this.spotifyService.PlaybackStateChanged += SpotifyService_PlaybackStateChanged;
         }
 
         bool GetAudioAnalysisCanExecute => !IsBusy && !string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId);

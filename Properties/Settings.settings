@@ -8,5 +8,11 @@
     <Setting Name="ClientId" Type="System.String" Scope="User">
       <Value Profile="(Default)">aa30000432964e4fb882c2e1db44ea47</Value>
     </Setting>
+    <Setting Name="GeniusClientId" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GnMofLyETz8bawViWvEC-h9r3GKlbaKoOrzaZYKYV34Q7V-B8snQhXBptxU8uCTg</Value>
+    </Setting>
+    <Setting Name="GeniusClientAccessToken" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CuduPRAIkIjVLBmTcGv_i02KJBaJgE6MtF9btV7FVwq48q9oadDd5KhhbBYuyMAK</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

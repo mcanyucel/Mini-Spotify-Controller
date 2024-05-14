@@ -37,5 +37,21 @@
             Properties.Settings.Default.RefreshToken = refreshToken;
             Properties.Settings.Default.Save();
         }
+
+        string? IPreferenceService.GetGeniusClientId()
+        {
+            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.GeniusClientId))
+                return null;
+            else
+                return Properties.Settings.Default.GeniusClientId;
+        }
+
+        string? IPreferenceService.GetGeniusAccessToken()
+        {
+            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.GeniusClientAccessToken))
+                return null;
+            else
+                return Properties.Settings.Default.GeniusClientAccessToken;
+        }
     }
 }

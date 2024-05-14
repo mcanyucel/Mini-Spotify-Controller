@@ -78,10 +78,23 @@ The internal player uses Spotify Web Playback API. This API needs HTTPS connecti
     * It navigates to the virtual host with the internal player source file using HTTPS connection.
     * The player is ready to play once the navigation is completed. 
 
+### Lyrics
+The lyrics are obtained using the [Genius API](https://docs.genius.com/). They follow the following flow:
+1. Search for the track using the track name.
+2. If there are hits, check the hits for the exact match of the track name.
+2a. If there are hits with the exact track name match, check the artist names (primary artist)
+2a1. If there are hits with the exact artist name, return the first one  .
+2a2. If there are no hits with the exact artist name, this it possibly a cover. Return the hit with the highest page views.
+2b. If there no hits with the exact track name match, return the hit whose name is the closest to the track name. The similarity is calculated using the [Smith Waterman Algorithm] (https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm). The hit with the highest similarity is returned. The similarity score is calculated using [SimMetrics.Net](https://github.com/StefH/SimMetrics.Net). 
+3. If there are no hits, return a message that the lyrics are not found. 
+
 ## TODO
-* [ ] Add a feature to display the current track's lyrics.
+* [ ] Check issues on first run when no other device is playing.
 
 ## New Features
+
+### 2.0.2.0
+* Added displaying lyrics (see below for details).
 
 ### 2.0.1.3
 * Fixed a bug where seeking using the Audio Analysis window breaks the auto update of the track in the audio analysis window.

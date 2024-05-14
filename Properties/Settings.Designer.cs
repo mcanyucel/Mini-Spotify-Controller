@@ -46,5 +46,29 @@ namespace MiniSpotifyController.Properties {
                 this["ClientId"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("GnMofLyETz8bawViWvEC-h9r3GKlbaKoOrzaZYKYV34Q7V-B8snQhXBptxU8uCTg")]
+        public string GeniusClientId {
+            get {
+                return ((string)(this["GeniusClientId"]));
+            }
+            set {
+                this["GeniusClientId"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CuduPRAIkIjVLBmTcGv_i02KJBaJgE6MtF9btV7FVwq48q9oadDd5KhhbBYuyMAK")]
+        public string GeniusClientAccessToken {
+            get {
+                return ((string)(this["GeniusClientAccessToken"]));
+            }
+            set {
+                this["GeniusClientAccessToken"] = value;
+            }
+        }
     }
 }

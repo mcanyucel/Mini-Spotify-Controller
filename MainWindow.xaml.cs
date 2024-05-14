@@ -68,7 +68,7 @@ namespace MiniSpotifyController
                     // Navigate to the player HTML
                     webView.CoreWebView2.Navigate($"https://{VIRTUAL_HOST_NAME}/{playerHTMLName}");
                 });
-                
+
             }
             catch (Exception)
             {
