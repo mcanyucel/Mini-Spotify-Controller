@@ -92,11 +92,41 @@ namespace MiniSpotifyController.service.implementation
             contextMenu.IsOpen = true;
         }
 
+        void IWindowService.ShowLyricsDecisionWindow()
+        {
+            if (lyricsDecisionWindow == null)
+            {
+                lyricsDecisionWindow = new();
+                lyricsDecisionWindow.Show();
+                lyricsDecisionWindow.Closed += (sender, args) => lyricsDecisionWindow = null;
+            }
+            else
+            {
+                lyricsDecisionWindow.Activate();
+            }
+        }
+
+        void IWindowService.ShowLyricsWindow()
+        {
+            if (lyricsWindow == null)
+            {
+                lyricsWindow = new();
+                lyricsWindow.Show();
+                lyricsWindow.Closed += (sender, args) => lyricsWindow = null;
+            }
+            else
+            {
+                lyricsWindow.Activate();
+            }
+        }
+
         #region Fields
         AuthWindow? authWindow;
         ClientIdWindow? clientIdWindow;
         AudioMetricsWindow? audioMetricsWindow;
         AudioAnalysisWindow? audioAnalysisWindow;
+        LyricsDecisionWindowDialog? lyricsDecisionWindow;
+        LyricsWindow? lyricsWindow;
         #endregion
     }
 }

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MiniSpotifyController.model;
+using MiniSpotifyController.model.Lyrics;
 using MiniSpotifyController.service;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,9 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     /// </summary>
     [ObservableProperty]
     string? internalPlayerId;
+
+    [ObservableProperty]
+    LyricsResult? lyricsResult;
 
     #endregion
 
@@ -270,8 +274,19 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     async Task GetLyrics()
     {
-        var lyrics = await m_LyricsService.GetLyrics(playbackState.CurrentlyPlaying ?? string.Empty, playbackState.CurrentlyPlayingArtist ?? string.Empty);
-        System.Diagnostics.Debug.WriteLine(lyrics);
+        LyricsResult = await m_LyricsService.GetLyrics(playbackState.CurrentlyPlaying ?? string.Empty, playbackState.CurrentlyPlayingArtist ?? string.Empty);
+        switch (LyricsResult.ResultType)
+        {
+            case LyricsResultType.Error: ShowError("Error", LyricsResult.ErrorMessage ?? "Failed to get lyrics.");
+                break;
+            case LyricsResultType.NameMatch:
+            case LyricsResultType.SimilarMatch:
+            case LyricsResultType.NoResult: 
+                m_WindowService.ShowLyricsDecisionWindow();
+                break;
+            case LyricsResultType.ExactMatch:
+                break;
+        }
     }
     #endregion
 
