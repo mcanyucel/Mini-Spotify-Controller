@@ -1,12 +1,58 @@
-﻿<Window x:Class="MiniSpotifyController.window.LyricsWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MiniSpotifyController.window"
-        mc:Ignorable="d"
-        Title="LyricsWindow" Height="450" Width="800">
+﻿<mah:MetroWindow x:Class="MiniSpotifyController.window.LyricsWindow"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors" 
+                xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel" 
+                xmlns:converters="clr-namespace:MiniSpotifyController.converter"
+                d:DataContext="{d:DesignInstance Type=viewmodel:LyricsViewModel}"
+                ShowMinButton="False"
+                mc:Ignorable="d"
+                Title="{Binding LyricsResult.Title}" Height="450" Width="800">
+
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="ContentRendered">
+            <behaviors:InvokeCommandAction Command="{Binding InitializeCommand}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
+
+    <mah:MetroWindow.Resources>
+        <converters:LyricsResultTypeToStringConverter x:Key="LyricsResultTypeToStringConverter"/>
+    </mah:MetroWindow.Resources>
+
     <Grid>
-        
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding LyricsResult.ResultType, Converter={StaticResource LyricsResultTypeToStringConverter}}" VerticalAlignment="Center" Margin="2" FontStyle="Italic" FontSize="14"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Title:" VerticalAlignment="Center" Margin="2" FontWeight="Bold" FontSize="16"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LyricsResult.Title}" VerticalAlignment="Center" Margin="2" FontSize="16"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Artist:" VerticalAlignment="Center" Margin="2" FontWeight="Bold" FontSize="16" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LyricsResult.ArtistName}" VerticalAlignment="Center" Margin="2" FontSize="16"/>
+
+            <ScrollViewer Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+                <TextBox Text="{Binding LyricsResult.Lyrics}" TextWrapping="Wrap" Margin="5" IsReadOnly="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" mah:TextBoxHelper.Watermark="No Lyrics Found"/>
+            </ScrollViewer>
+
+            <UniformGrid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Columns="2">
+                <Button Content="Open in Genius" Command="{Binding OpenInGeniusCommand}" Margin="5"/>
+                <Button Content="Open in Google" Command="{Binding OpenInGoogleSearchCommand}" Margin="5"/>
+            </UniformGrid>
+        </Grid>
+
+        <mah:ProgressRing IsActive="{Binding IsBusy}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="128" Height="128" />
     </Grid>
-</Window>
+</mah:MetroWindow>

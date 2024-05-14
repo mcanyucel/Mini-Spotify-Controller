@@ -272,21 +272,9 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable
     #region Lyrics
 
     [RelayCommand]
-    async Task GetLyrics()
+    void GetLyrics()
     {
-        LyricsResult = await m_LyricsService.GetLyrics(playbackState.CurrentlyPlaying ?? string.Empty, playbackState.CurrentlyPlayingArtist ?? string.Empty);
-        switch (LyricsResult.ResultType)
-        {
-            case LyricsResultType.Error: ShowError("Error", LyricsResult.ErrorMessage ?? "Failed to get lyrics.");
-                break;
-            case LyricsResultType.NameMatch:
-            case LyricsResultType.SimilarMatch:
-            case LyricsResultType.NoResult: 
-                m_WindowService.ShowLyricsDecisionWindow();
-                break;
-            case LyricsResultType.ExactMatch:
-                break;
-        }
+        m_WindowService.ShowLyricsWindow();
     }
     #endregion
 

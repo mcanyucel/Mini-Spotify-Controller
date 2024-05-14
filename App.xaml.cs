@@ -40,6 +40,7 @@ public partial class App : Application
         services.AddTransient<AudioMetricsViewModel>();
         services.AddTransient<AudioAnalysisViewModel>();
         services.AddTransient<ILyricsService, GeniusService>();
+        services.AddTransient<LyricsViewModel>();
         
         return services.BuildServiceProvider();
     }

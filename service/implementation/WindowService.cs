@@ -92,20 +92,6 @@ namespace MiniSpotifyController.service.implementation
             contextMenu.IsOpen = true;
         }
 
-        void IWindowService.ShowLyricsDecisionWindow()
-        {
-            if (lyricsDecisionWindow == null)
-            {
-                lyricsDecisionWindow = new();
-                lyricsDecisionWindow.Show();
-                lyricsDecisionWindow.Closed += (sender, args) => lyricsDecisionWindow = null;
-            }
-            else
-            {
-                lyricsDecisionWindow.Activate();
-            }
-        }
-
         void IWindowService.ShowLyricsWindow()
         {
             if (lyricsWindow == null)
@@ -124,8 +110,7 @@ namespace MiniSpotifyController.service.implementation
         AuthWindow? authWindow;
         ClientIdWindow? clientIdWindow;
         AudioMetricsWindow? audioMetricsWindow;
-        AudioAnalysisWindow? audioAnalysisWindow;
-        LyricsDecisionWindowDialog? lyricsDecisionWindow;
+        AudioAnalysisWindow? audioAnalysisWindow;        
         LyricsWindow? lyricsWindow;
         #endregion
     }

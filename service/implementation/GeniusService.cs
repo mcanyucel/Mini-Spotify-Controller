@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MiniSpotifyController.service.implementation;
 
-internal class GeniusService(IPreferenceService preferenceService) : ILyricsService, IDisposable
+internal partial class GeniusService(IPreferenceService preferenceService) : ILyricsService, IDisposable
 {
     public async Task<LyricsResult> GetLyrics(string songName, string artist)
     {
@@ -73,7 +73,7 @@ internal class GeniusService(IPreferenceService preferenceService) : ILyricsServ
 
                 var lyricsUrl = finalMatch.Result.Url;
                 var lyrics = await GetLyricsFromUrl(lyricsUrl);
-                result = LyricsResult.CreateMatch(resultType, finalMatch.Result.PrimaryArtist.Name, lyrics, lyricsUrl);
+                result = LyricsResult.CreateMatch(resultType, finalMatch.Result.Title, finalMatch.Result.PrimaryArtist.Name, lyrics, lyricsUrl);
             }
             else
                 result = LyricsResult.CreateNoResult();
@@ -96,6 +96,8 @@ internal class GeniusService(IPreferenceService preferenceService) : ILyricsServ
         innerHtml = innerHtml.Replace("<br>", "\n");
         // decode HTML entities
         responseContent = System.Net.WebUtility.HtmlDecode(innerHtml);
+        // remove all HTML tags
+        responseContent = HtmlRegex().Replace(responseContent, string.Empty);
         return responseContent;
     }
 
@@ -104,10 +106,13 @@ internal class GeniusService(IPreferenceService preferenceService) : ILyricsServ
     const string SEARCH_ENDPOINT = "https://api.genius.com/search?q=";
 
     readonly HttpClient httpClient = new();
-    string? clientId = preferenceService.GetGeniusClientId();
-    string? accessToken = preferenceService.GetGeniusAccessToken();
+    readonly string? clientId = preferenceService.GetGeniusClientId();
+    readonly string? accessToken = preferenceService.GetGeniusAccessToken();
     readonly JsonSerializerOptions jsonOptions = new() 
     { 
         UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
     };
+
+    [System.Text.RegularExpressions.GeneratedRegex("<.*?>")]
+    private static partial System.Text.RegularExpressions.Regex HtmlRegex();
 }
