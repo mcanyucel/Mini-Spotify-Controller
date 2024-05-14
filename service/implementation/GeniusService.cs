@@ -28,7 +28,7 @@ internal partial class GeniusService(IPreferenceService preferenceService) : ILy
         var response = await httpClient.SendAsync(httpRequest);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
-        ReturnData? responseRoot = await Task.Run(()=>JsonSerializer.Deserialize<ReturnData>(responseContent, jsonOptions));
+        ReturnData? responseRoot = await Task.Run(() => JsonSerializer.Deserialize<ReturnData>(responseContent, jsonOptions));
 
         if (responseRoot is null)
             result = LyricsResult.CreateError("Failed to deserialize Genius API response");
@@ -57,7 +57,7 @@ internal partial class GeniusService(IPreferenceService preferenceService) : ILy
                         finalMatch = nameMatches.OrderByDescending(hit => hit.Result.Stats.Pageviews).First();
                         resultType = LyricsResultType.NameMatch;
                     }
-                    
+
                 }
                 else
                 {
@@ -108,8 +108,8 @@ internal partial class GeniusService(IPreferenceService preferenceService) : ILy
     readonly HttpClient httpClient = new();
     readonly string? clientId = preferenceService.GetGeniusClientId();
     readonly string? accessToken = preferenceService.GetGeniusAccessToken();
-    readonly JsonSerializerOptions jsonOptions = new() 
-    { 
+    readonly JsonSerializerOptions jsonOptions = new()
+    {
         UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
     };
 

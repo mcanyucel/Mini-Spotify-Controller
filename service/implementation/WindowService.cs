@@ -110,7 +110,7 @@ namespace MiniSpotifyController.service.implementation
         AuthWindow? authWindow;
         ClientIdWindow? clientIdWindow;
         AudioMetricsWindow? audioMetricsWindow;
-        AudioAnalysisWindow? audioAnalysisWindow;        
+        AudioAnalysisWindow? audioAnalysisWindow;
         LyricsWindow? lyricsWindow;
         #endregion
     }

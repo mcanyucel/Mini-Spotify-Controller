@@ -7,7 +7,7 @@ namespace MiniSpotifyController.window.helper;
 internal static class UIHelpers
 {
     public static List<AudioDataDisplayItem> ToDisplayItems(this Meta meta)
-   {
+    {
         List<AudioDataDisplayItem> result = [];
         result.Add(new AudioDataDisplayItem("Analyzer Version", meta.AnalyzerVersion, assets.InfoStrings.AnalyzerVersion));
         result.Add(new AudioDataDisplayItem("Platform", meta.Platform, assets.InfoStrings.Platform));

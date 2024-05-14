@@ -21,6 +21,6 @@ internal sealed record LyricsResult
 
     internal static LyricsResult CreateError(string? errorMessage) => new(LyricsResultType.Error, errorMessage: errorMessage);
     internal static LyricsResult CreateNoResult() => new(LyricsResultType.NoResult);
-    internal static LyricsResult CreateMatch(LyricsResultType lyricsResultType, string title, string artistName, string lyrics, string url) => 
+    internal static LyricsResult CreateMatch(LyricsResultType lyricsResultType, string title, string artistName, string lyrics, string url) =>
         new(lyricsResultType, title, artistName, lyrics, url);
 }
