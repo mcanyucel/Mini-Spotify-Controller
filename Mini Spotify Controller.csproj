@@ -11,7 +11,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <Platforms>AnyCPU;x64</Platforms>
     <Version>$(VersionPrefix)</Version>
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>
+    <AssemblyVersion>2.0.2.1</AssemblyVersion>
     <FileVersion></FileVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>spotify.png</PackageIcon>
@@ -55,14 +55,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.67" />
     <PackageReference Include="MahApps.Metro" Version="2.4.10" />
-    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="4.11.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2478.35" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="SimMetrics.Net" Version="1.0.5" />
   </ItemGroup>
 
