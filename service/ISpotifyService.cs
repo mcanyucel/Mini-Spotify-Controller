@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 
 namespace MiniSpotifyController.service;
 
-internal interface ISpotifyService
+public interface ISpotifyService
 {
     #region Authorization
-    internal Task Authorize();
-    internal AccessData? AccessData { get; }
-    internal bool IsAuthorized { get; }
-    internal string GetRequestUrl(string codeVerifier);
-    internal Task RequestAccessToken(string codeVerifier, string accessCode);
+    public Task<bool> Authorize();
+    public Task<bool> IsAuthorized();
+    public string? AccessToken { get; }
     #endregion
 
     #region Playback

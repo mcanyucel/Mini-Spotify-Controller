@@ -1,17 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using MiniSpotifyController.viewmodel;
-
-namespace MiniSpotifyController.window;
+﻿namespace MiniSpotifyController.window;
 
 /// <summary>
 /// Interaction logic for AudioAnalysisWindow.xaml
 /// </summary>
 public partial class AudioAnalysisWindow
 {
-    internal AudioAnalysisWindow()
-    {
-        var viewModel = App.Current.Services.GetRequiredService<AudioAnalysisViewModel>();
-        DataContext = viewModel;
-        InitializeComponent();
-    }
+    internal AudioAnalysisWindow() => InitializeComponent();
 }

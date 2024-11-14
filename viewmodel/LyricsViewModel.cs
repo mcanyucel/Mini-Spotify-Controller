@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MiniSpotifyController.viewmodel
 {
-    internal sealed partial class LyricsViewModel : ObservableObject
+    internal sealed partial class LyricsViewModel : ObservableObject, IViewModel
     {
         [ObservableProperty] private LyricsResult? _lyricsResult;
 

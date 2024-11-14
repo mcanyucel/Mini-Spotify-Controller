@@ -3,7 +3,7 @@ using MiniSpotifyController.model;
 
 namespace MiniSpotifyController.viewmodel;
 
-internal sealed partial class AudioMetricsViewModel : ObservableObject
+internal sealed partial class AudioMetricsViewModel : ObservableObject, IViewModel
 {
     [ObservableProperty] private AudioFeatures? _audioFeatures;
 

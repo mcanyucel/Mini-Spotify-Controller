@@ -1,72 +1,69 @@
 ﻿using MiniSpotifyController.model;
 using MiniSpotifyController.window;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MiniSpotifyController.Extensions;
+using MiniSpotifyController.viewmodel;
+using Serilog;
 
 namespace MiniSpotifyController.service.implementation
 {
-    internal sealed class WindowService : IWindowService
+    internal sealed partial class WindowService(ViewModelFactory viewModelFactory, WindowFactory windowFactory, ILogger logger) : IWindowService, IDisposable
     {
-        void IWindowService.ShowClientIdWindowDialog()
+        public void ShowWindow<TViewModel>(bool isModal = false, Dictionary<string, object>? parameters = null) where TViewModel : IViewModel
         {
-            _clientIdWindow = new ClientIdWindow();
-            _clientIdWindow.ShowDialog();
-        }
-        void IWindowService.CloseClientIdWindowDialog()
-        {
-            _clientIdWindow?.Close();
-            _clientIdWindow = null;
-        }
-        void IWindowService.ShowAuthorizationWindowDialog()
-        {
-            _authWindow = new AuthWindow();
-            _authWindow.ShowDialog();
-        }
-        void IWindowService.CloseAuthorizationWindowDialog()
-        {
-            _authWindow?.Close();
-            _authWindow = null;
-        }
-
-        void IWindowService.SetClipboardText(string text) => Clipboard.SetText(text);
-
-        void IWindowService.ShowAudioFeaturesWindow(AudioFeatures audioFeatures)
-        {
-            if (_audioMetricsWindow == null)
+            int windowHash;
+            if (parameters == null || !parameters.TryGetValue(IViewModel.ParameterId, out var id))
             {
-                _audioMetricsWindow = new AudioMetricsWindow(audioFeatures);
-                _audioMetricsWindow.Show();
-                _audioMetricsWindow.Closed += (_, _) => _audioMetricsWindow = null;
+                windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name);
             }
             else
             {
-                _audioMetricsWindow.UpdateData(audioFeatures);
-                _audioMetricsWindow.Activate();
+                windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name, (int)id);
             }
-        }
-
-        void IWindowService.ShowAudioAnalysisWindow()
-        {
-            if (_audioAnalysisWindow == null)
+            
+            if (_openWindows.TryGetValue(windowHash, out var existingWindow))
             {
-                _audioAnalysisWindow = new AudioAnalysisWindow();
-                _audioAnalysisWindow.Show();
-                _audioAnalysisWindow.Closed += (_, _) => _audioAnalysisWindow = null;
+                existingWindow.Activate();
             }
             else
             {
-                _audioAnalysisWindow.Activate();
-            }
+                var viewModel = viewModelFactory.Create<TViewModel>(parameters);
+                var window = windowFactory.CreateWindowForViewModel<TViewModel>();
+                _openWindows.Add(windowHash, window);
+                SubscribeToWindowClosed(window, windowHash);
+                window.DataContext = viewModel;
+                if (isModal)
+                {
+                    window.ShowDialog();
+                }
+                else
+                {
+                    window.Show();
+                }
 
+                if (typeof(TViewModel) == typeof(MainViewModel))
+                {
+                    _homeWindowHash = windowHash;
+                }
+            }
+        }
+        
+        public void CloseWindow<TViewModel>(int? id = null) where TViewModel : IViewModel
+        {
+            var windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name, id);
+            if (_openWindows.TryGetValue(windowHash, out var window))
+                window.Close();
+            else
+                logger.Warning("Window with hash {windowHash} not found.", windowHash);
         }
 
-        bool IWindowService.IsAudioMetricsWindowOpen() => _audioMetricsWindow != null;
+        public void SetClipboardText(string text) => Clipboard.SetText(text);
 
-        bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
-
-        void IWindowService.ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback)
+        public void ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback)
         {
             ContextMenu contextMenu = new();
 
@@ -91,28 +88,71 @@ namespace MiniSpotifyController.service.implementation
 
             contextMenu.IsOpen = true;
         }
-
-        void IWindowService.ShowLyricsWindow()
+        
+        /// <summary>
+        /// Subscribe to the Closed event of a window to remove it from the openWindows dictionary when it is closed.
+        /// </summary>
+        /// <param name="window"></param>
+        /// <param name="windowHash"></param>
+        private void SubscribeToWindowClosed(Window window, int windowHash)
         {
-            if (_lyricsWindow == null)
+            window.Closed += OnWindowClosedHandler;
+            return;
+
+            void OnWindowClosedHandler(object? _, EventArgs e)
             {
-                _lyricsWindow = new LyricsWindow();
-                _lyricsWindow.Show();
-                _lyricsWindow.Closed += (_, _) => _lyricsWindow = null;
-            }
-            else
-            {
-                _lyricsWindow.Activate();
+                _openWindows.Remove(windowHash);
+                window.Closed -= OnWindowClosedHandler;
+
+                if (windowHash == _homeWindowHash)
+                {
+                    Application.Current.Shutdown();
+                }
             }
         }
 
         #region Fields
 
-        private AuthWindow? _authWindow;
-        private ClientIdWindow? _clientIdWindow;
-        private AudioMetricsWindow? _audioMetricsWindow;
-        private AudioAnalysisWindow? _audioAnalysisWindow;
-        private LyricsWindow? _lyricsWindow;
+        private readonly Dictionary<int, Window> _openWindows = [];
+        private int _homeWindowHash;
+        #endregion
+        
+        #region IDisposable Support
+        private bool _disposedValue;
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposedValue) return;
+            if (disposing)
+            {
+                // Dispose managed state (managed objects)
+
+                // Close all open windows
+                foreach (var window in _openWindows.Values)
+                {
+                    window.Close();
+                }
+            }
+
+            // Free unmanaged resources (unmanaged objects) and override finalizer
+            // Set large fields to null
+            _disposedValue = true;
+        }
+
+        // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~WindowService()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            // GC.SuppressFinalize(this); // uncomment if 'Dispose(bool disposing)' has code to free unmanaged resources
+        }
+    
         #endregion
     }
 }

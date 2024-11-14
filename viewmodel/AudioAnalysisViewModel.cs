@@ -9,11 +9,9 @@ using System.Threading.Tasks;
 
 namespace MiniSpotifyController.viewmodel
 {
-    internal sealed partial class AudioAnalysisViewModel : ObservableObject
+    internal sealed partial class AudioAnalysisViewModel : ObservableObject, IViewModel
     {
         [ObservableProperty] private AudioAnalysisResult? _audioAnalysisResult;
-
-
         [ObservableProperty] private bool _isBusy;
 
         public PlaybackState? PlaybackState

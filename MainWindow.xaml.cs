@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Web.WebView2.Core;
+﻿using Microsoft.Web.WebView2.Core;
 using MiniSpotifyController.viewmodel;
 using System;
 
@@ -10,17 +9,17 @@ namespace MiniSpotifyController
     /// </summary>
     public partial class MainWindow
     {
-
         public MainWindow()
         {
             Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--autoplay-policy=no-user-gesture-required");
             InitializeComponent();
-            DataContext = App.Current.Services.GetRequiredService<MainViewModel>();
-            _viewModel = (MainViewModel)DataContext;
+            
         }
 
+        // ReSharper disable once AsyncVoidMethod - Event handler
         private async void MetroWindow_ContentRendered(object sender, EventArgs e)
         {
+            _viewModel = (MainViewModel)DataContext;
             try
             {
                 // Define environment for WebView2
@@ -53,30 +52,30 @@ namespace MiniSpotifyController
             }
         }
 
-        void InitializeInternalPlayer()
+        private void InitializeInternalPlayer()
         {
             try
             {
                 // Set up virtual host for WebView2 since EME requires HTTPS
                 var htmlFolder = System.IO.Path.GetDirectoryName(_viewModel.InternalPlayerHTMLPath);
-                var playerHTMLName = System.IO.Path.GetFileName(_viewModel.InternalPlayerHTMLPath);
+                var playerHtmlName = System.IO.Path.GetFileName(_viewModel.InternalPlayerHTMLPath);
 
                 // Update UI elements on the main thread
                 Dispatcher.Invoke(() =>
                 {
                     webView.CoreWebView2.SetVirtualHostNameToFolderMapping(VirtualHostName, htmlFolder, CoreWebView2HostResourceAccessKind.Deny);
                     // Navigate to the player HTML
-                    webView.CoreWebView2.Navigate($"https://{VirtualHostName}/{playerHTMLName}");
+                    webView.CoreWebView2.Navigate($"https://{VirtualHostName}/{playerHtmlName}");
                 });
 
             }
             catch (Exception)
             {
-                _viewModel.ShowError("Internal Player Errror", "Failed to initialize internal player; it will be disabled");
+                _viewModel.ShowError("Internal Player Error", "Failed to initialize internal player; it will be disabled");
             }
         }
 
-        private readonly MainViewModel _viewModel;
+        private MainViewModel _viewModel = null!;
         private const string VirtualHostName = "mscplayer";
     }
 }

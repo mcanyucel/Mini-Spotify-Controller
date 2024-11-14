@@ -8,180 +8,53 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using MiniSpotifyController.OAuth;
+using MiniSpotifyController.viewmodel;
 
 namespace MiniSpotifyController.service.implementation;
 
-internal sealed partial class SpotifyService : ISpotifyService, IDisposable
+internal sealed partial class SpotifyService(OAuthAuthenticator authenticator, IPreferenceService preferenceService, IWindowService windowService, ILogService logService) : ISpotifyService, IDisposable
 {
     #region Properties
-    AccessData? ISpotifyService.AccessData => _accessData;
-    bool ISpotifyService.IsAuthorized => _accessData != null && _accessData.AccessToken != null;
-
+    
     private static int DelayShort => 500;
     private static int DelayLong => 1500;
     #endregion
-
-    #region Lifecycle
-    public SpotifyService(IPreferenceService preferenceService, IWindowService windowService, ILogService logService)
-    {
-        _preferenceService = preferenceService;
-        _windowService = windowService;
-        _clientId = _preferenceService.GetClientId();
-        _logService = logService;
-    }
-
-    public void Dispose()
-    {
-        _httpClient.Dispose();
-    }
-    #endregion
+    public string AccessToken => authenticator.AccessToken ?? string.Empty;
 
     #region Authorization
-    /**
-     * Authorization Flow:
-     * 1. Client Id is acquired during construction of this class.
-     * 2. 
-     *    a. If the client id is not set, the user is prompted to enter it. It is a dialog, so it will suspend the flow until the user enters the client id. 
-     *    b. If the client id is set, go to step 3.
-     * 3. Refresh access token using the refresh token
-     *    a. If the access token is successfully refreshed,set m_AccessData and go to step 5.
-     *    b. If the access token is not successfully refreshed, go to step 4.
-     * 4. Show the access token request dialog. This is a dialog, so it will suspend the flow until the logs in, allows the access, and the access token is acquired. Note tjat tje AuthViewModel will call
-     *    RequestAccessToken method with the code verifier and the access code, and this method will set m_AccessData. Then, go to step 5.
-     * 5. The access token is successfully refreshed or acquired, and the m_AccessData is set. The flow is complete.
-     */
-    async Task ISpotifyService.Authorize()
+    public async Task<bool> Authorize()
     {
-        if (_clientId == null)
+        _clientId = preferenceService.GetClientId();
+        if (_clientId != null) return await authenticator.Authorize();
+        var clientIdAcquired = AcquireClientId();
+        return clientIdAcquired && await authenticator.Authorize();
+    }
+    
+    public async Task<bool> IsAuthorized() => await authenticator.IsAuthorized();
+
+    private bool AcquireClientId()
+    {
+        const int maxRetry = 3;
+        var retry = 0;
+        while (string.IsNullOrEmpty(_clientId) && retry < maxRetry)
         {
-            _windowService.ShowClientIdWindowDialog();
-            RefreshClientId();
+            windowService.ShowWindow<ClientIdViewModel>();
+            _clientId = preferenceService.GetClientId();
+            retry++;
         }
 
-        _accessData = await RefreshAccessToken();
-        // If we still don't have an access token, we need to request one
-        if (_accessData == null)
-            ShowAccessTokenRequest();
+        if (!string.IsNullOrEmpty(_clientId)) return true;
+        logService.LogError("Failed to acquire client id");
+        return false;
     }
 
-    void RefreshClientId() => _clientId = _preferenceService.GetClientId();
-
-    async Task ISpotifyService.RequestAccessToken(string codeVerifier, string code)
-    {
-        try
-        {
-            if (_clientId == null) throw new InvalidOperationException("Client Id is not set");
-
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, TokenEndpoint);
-            var body = new Dictionary<string, string>
-        {
-            { "client_id", _clientId },
-            { "grant_type", "authorization_code" },
-            { "code", code },
-            { "redirect_uri", RedirectUri },
-            { "code_verifier", codeVerifier }
-        };
-
-            var content = new FormUrlEncodedContent(body);
-            httpRequestMessage.Content = content;
-            var response = await _httpClient.SendAsync(httpRequestMessage);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-            _accessData = responseDictionary == null
-                ? null
-                : new AccessData
-                {
-                    AccessToken = responseDictionary["access_token"].ToString(),
-                    RefreshToken = responseDictionary["refresh_token"].ToString(),
-                    ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0", CultureInfo.InvariantCulture),
-                    TokenType = responseDictionary["token_type"].ToString()
-                };
-            if (_accessData != null && _accessData.RefreshToken != null)
-                _preferenceService.SetRefreshToken(_accessData.RefreshToken);
-        }
-        catch (Exception ex)
-        {
-            _logService.LogError($"Failed to request access token: {ex.Message}");
-            _accessData = null;
-        }
-    }
-    string ISpotifyService.GetRequestUrl(string codeVerifier)
-    {
-        string codeChallenge = HashString(codeVerifier);
-        string state = ISpotifyService.GenerateRandomString(16);
-        string scope = "user-read-private user-read-email user-library-read user-library-modify user-read-playback-state user-modify-playback-state app-remote-control streaming";
-        string responseType = "code";
-        string url = $"{AuthorizationEndpoint}?client_id={_clientId}&response_type={responseType}&redirect_uri={RedirectUri}&code_challenge_method=S256&code_challenge={codeChallenge}&state={state}&scope={scope}";
-
-        return url;
-    }
-    private async Task<AccessData?> RefreshAccessToken()
-    {
-        AccessData? result = null;
-        try
-        {
-            string? refreshToken = _preferenceService.GetRefreshToken();
-            if (refreshToken != null)
-            {
-                result = await RefreshAccessToken(refreshToken);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logService.LogError($"Failed to refresh access token: {ex.Message}");
-        }
-        return result;
-    }
-
-    private void ShowAccessTokenRequest() => _windowService.ShowAuthorizationWindowDialog();
-
-    private async Task<AccessData?> RefreshAccessToken(string refreshToken)
-    {
-        try
-        {
-            if (_clientId == null) throw new InvalidOperationException("Client Id is not set");
-
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, TokenEndpoint);
-            var body = new Dictionary<string, string>
-            {
-                { "client_id", _clientId },
-                { "grant_type", "refresh_token" },
-                { "refresh_token", refreshToken }
-            };
-            var content = new FormUrlEncodedContent(body);
-            httpRequestMessage.Content = content;
-            var response = await _httpClient.SendAsync(httpRequestMessage);
-            if (response.IsSuccessStatusCode == false)
-            {
-                return null;
-            }
-            else
-            {
-                var responseString = await response.Content.ReadAsStringAsync();
-                var responseDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-                return responseDictionary == null
-                    ? null
-                    : new AccessData
-                    {
-                        AccessToken = responseDictionary["access_token"].ToString(),
-                        RefreshToken = refreshToken,
-                        ExpiresIn = int.Parse(responseDictionary["expires_in"].ToString() ?? "0", CultureInfo.InvariantCulture),
-                        TokenType = responseDictionary["token_type"].ToString()
-                    };
-            }
-        }
-        catch (Exception ex)
-        {
-            _logService.LogError($"Failed to refresh access token: {ex.Message}");
-            return null;
-        }
-    }
     #endregion
 
     #region Devices
-    async Task<Device?> ISpotifyService.GetLastListenedDevice()
+    public async Task<Device?> GetLastListenedDevice()
     {
-        var devices = await ((ISpotifyService)this).GetDevices();
+        var devices = await GetDevices();
         // if there is an active device, return it
         var devicesList = devices.ToList();
         var activeDevice = devicesList.FirstOrDefault(d => d.IsActive);
@@ -189,10 +62,10 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         return activeDevice ?? devicesList.FirstOrDefault();
     }
 
-    async Task<IEnumerable<Device>> ISpotifyService.GetDevices()
+    public async Task<IEnumerable<Device>> GetDevices()
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, DevicesEndpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
         List<Device> result = [];
 
         // get the list of devices from the Spotify API
@@ -225,13 +98,13 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         return result;
     }
 
-    async Task<bool> ISpotifyService.TransferPlayback(string deviceId)
+    public async Task<bool> TransferPlayback(string deviceId)
     {
         bool result;
         try
         {
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, TransferPlaybackEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var body = new Dictionary<string, string[]>
             {
                 { "device_ids", [deviceId] }
@@ -243,7 +116,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to transfer playback: {ex.Message}");
+            logService.LogError($"Failed to transfer playback: {ex.Message}");
             result = false;
         }
         return result;
@@ -252,14 +125,14 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
 
     #region Playback State
 
-    async Task<bool> ISpotifyService.StartSongRadio(string deviceId, string spotifyId)
+    public async Task<bool> StartSongRadio(string deviceId, string spotifyId)
     {
         var result = false;
         try
         {
             var recommendationEndpoint = $"{RecommendationsEndpoint}?limit={100}&seed_tracks={spotifyId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, recommendationEndpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var response = await _httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
@@ -273,7 +146,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
             var playEndpoint = $"{PlaybackStartEndpoint}?device_id={deviceId}";
             var body = JsonSerializer.Serialize(new { uris = recommendedUriList });
             HttpRequestMessage playRequestMessage = new(HttpMethod.Put, playEndpoint);
-            playRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            playRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
             var playResponse = await _httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
@@ -283,8 +156,8 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Error randomizing: {ex.Message}");
-            PlaybackStateChangedEvent?.Invoke(this, new()
+            logService.LogError($"Error randomizing: {ex.Message}");
+            PlaybackStateChangedEvent?.Invoke(this, new PlaybackState
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
@@ -292,7 +165,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         return result;
     }
-    async Task<bool> ISpotifyService.Randomize(string deviceId)
+    public async Task<bool> Randomize(string deviceId)
     {
         /*
          * Flow
@@ -316,7 +189,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
                 const int limit = 50;
                 var seedSongEndpoint = $"{SavedTracksEndpoint}?offset={offset}&limit={limit}";
                 HttpRequestMessage savedTracksRequestMessage = new(HttpMethod.Get, seedSongEndpoint);
-                savedTracksRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+                savedTracksRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
                 var savedTracksResponse = await _httpClient.SendAsync(savedTracksRequestMessage);
                 savedTracksResponse.EnsureSuccessStatusCode();
                 var savedTracksResponseString = await savedTracksResponse.Content.ReadAsStringAsync();
@@ -345,7 +218,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
 
             var recommendationEndpoint = $"{RecommendationsEndpoint}?limit={100}&{seedTracksString}";
             HttpRequestMessage recommendationRequestMessage = new(HttpMethod.Get, recommendationEndpoint);
-            recommendationRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            recommendationRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var recommendationResponse = await _httpClient.SendAsync(recommendationRequestMessage);
             recommendationResponse.EnsureSuccessStatusCode();
             var recommendationResponseString = await recommendationResponse.Content.ReadAsStringAsync();
@@ -362,7 +235,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
             var playEndpoint = $"{PlaybackStartEndpoint}?device_id={deviceId}";
             var body = JsonSerializer.Serialize(new { uris = recommendedUriList });
             HttpRequestMessage playRequestMessage = new(HttpMethod.Put, playEndpoint);
-            playRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            playRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             playRequestMessage.Content = new StringContent(body, Encoding.UTF8, "application/json");
             var playResponse = await _httpClient.SendAsync(playRequestMessage);
             playResponse.EnsureSuccessStatusCode();
@@ -372,7 +245,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Error randomizing: {ex.Message}");
+            logService.LogError($"Error randomizing: {ex.Message}");
             PlaybackStateChangedEvent?.Invoke(this, new()
             {
                 IsPlaying = false,
@@ -383,10 +256,10 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         return result;
     }
 
-    async Task ISpotifyService.UpdatePlaybackState(PlaybackState? currentState)
+    public async Task UpdatePlaybackState(PlaybackState? currentState)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, PlaybackStateEndpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
 
         var response = await _httpClient.SendAsync(httpRequestMessage);
         var result = new PlaybackState() { IsPlaying = false, CurrentlyPlaying = string.Empty, CurrentlyPlayingArtist = string.Empty };
@@ -394,7 +267,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
         {
             // No active devices, get the device
-            var device = await ((ISpotifyService)this).GetLastListenedDevice();
+            var device = await GetLastListenedDevice();
             result.DeviceId = device?.Id;
         }
         if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -428,11 +301,11 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
 
                         result.SetProgress(int.Parse(responseDictionary["progress_ms"].ToString() ?? "0", CultureInfo.InvariantCulture));
 
-                        result.IsLiked = await ((ISpotifyService)this).CheckIfTrackIsSaved(result.CurrentlyPlayingId);
+                        result.IsLiked = await CheckIfTrackIsSaved(result.CurrentlyPlayingId);
                     }
                     catch (Exception ex)
                     {
-                        _logService.LogError($"Failed to get playback state: {ex.Message}");
+                        logService.LogError($"Failed to get playback state: {ex.Message}");
                     }
                 }
             }
@@ -441,11 +314,11 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         if (!result.Equals(currentState))
             PlaybackStateChangedEvent?.Invoke(this, result);
     }
-    async Task ISpotifyService.StartPlay(string deviceId)
+    public async Task StartPlay(string deviceId)
     {
         var endpoint = PlaybackStartEndpoint + $"?device_id={deviceId}";
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
 
         var response = await _httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
@@ -462,10 +335,10 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
             });
         }
     }
-    async Task ISpotifyService.PausePlay(string deviceId)
+    public async Task PausePlay(string deviceId)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, PlaybackPauseEndpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
         var body = new Dictionary<string, string>
         {
             { "device_id", deviceId }
@@ -488,10 +361,10 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
             });
         }
     }
-    async Task ISpotifyService.NextTrack(string deviceId)
+    public async Task NextTrack(string deviceId)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, PlaybackNextEndpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
         var body = new Dictionary<string, string>
         {
             { "device_id", deviceId }
@@ -507,17 +380,17 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         else
         {
-            PlaybackStateChangedEvent?.Invoke(this, new()
+            PlaybackStateChangedEvent?.Invoke(this, new PlaybackState
             {
                 IsPlaying = false,
                 CurrentlyPlaying = "Error"
             });
         }
     }
-    async Task ISpotifyService.PreviousTrack(string deviceId)
+    public async Task PreviousTrack(string deviceId)
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, PlaybackPreviousEndpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
         var body = new Dictionary<string, string>
         {
             { "device_id", deviceId }
@@ -540,11 +413,11 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
             });
         }
     }
-    async Task ISpotifyService.Seek(string deviceId, int positionMs)
+    public async Task Seek(string deviceId, int positionMs)
     {
-        string endpoint = SeekEndpoint + $"?device_id={deviceId}&position_ms={positionMs}";
+        var endpoint = SeekEndpoint + $"?device_id={deviceId}&position_ms={positionMs}";
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
 
         var response = await _httpClient.SendAsync(httpRequestMessage);
         if (response.IsSuccessStatusCode)
@@ -563,7 +436,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
     }
 
     // Explicit interface implementation required
-    event EventHandler<PlaybackState> ISpotifyService.PlaybackStateChanged
+    public event EventHandler<PlaybackState> PlaybackStateChanged
     {
         add
         {
@@ -585,14 +458,14 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
     #endregion
 
     #region Track Data
-    async Task<AudioFeatures?> ISpotifyService.GetAudioFeatures(string spotifyId)
+    public async Task<AudioFeatures?> GetAudioFeatures(string spotifyId)
     {
         AudioFeatures? result = null;
         try
         {
             var endpoint = AudioFeaturesEndpoint + $"/{spotifyId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var response = await _httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
 
@@ -602,19 +475,19 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to get audio features: {ex.Message}");
+            logService.LogError($"Failed to get audio features: {ex.Message}");
         }
         return result;
     }
 
-    async Task<AudioAnalysisResult?> ISpotifyService.GetAudioAnalysis(string spotifyId)
+    public async Task<AudioAnalysisResult?> GetAudioAnalysis(string spotifyId)
     {
         AudioAnalysisResult? result = null;
         try
         {
             var endpoint = AudioAnalysisEndpoint + $"/{spotifyId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var response = await _httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
@@ -622,18 +495,18 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to get audio analysis result: {ex.Message}");
+            logService.LogError($"Failed to get audio analysis result: {ex.Message}");
         }
         return result;
     }
-    async Task<string> ISpotifyService.GetShareUrl(string spotifyId)
+    public async Task<string> GetShareUrl(string spotifyId)
     {
         var result = string.Empty;
         try
         {
             var endpoint = TracksEndpoint + $"/{spotifyId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var response = await _httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
 
@@ -644,19 +517,19 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to get share url: {ex.Message}");
+            logService.LogError($"Failed to get share url: {ex.Message}");
         }
 
         return result;
     }
-    async Task<bool> ISpotifyService.CheckIfTrackIsSaved(string spotifyId)
+    public async Task<bool> CheckIfTrackIsSaved(string spotifyId)
     {
         var result = false;
         try
         {
             var endpoint = LibraryCheckEndpoint + $"?ids={spotifyId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var response = await _httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
 
@@ -666,43 +539,43 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to check if track is saved: {ex.Message}");
+            logService.LogError($"Failed to check if track is saved: {ex.Message}");
         }
         return result;
     }
-    async Task<bool> ISpotifyService.SaveTrack(string spotifyId)
+    public async Task<bool> SaveTrack(string spotifyId)
     {
         var result = false;
         try
         {
             var endpoint = SavedTracksEndpoint + $"?ids={spotifyId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Put, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var response = await _httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
             result = true;
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to save track: {ex.Message}");
+            logService.LogError($"Failed to save track: {ex.Message}");
         }
         return result;
     }
-    async Task<bool> ISpotifyService.RemoveTrack(string spotifyId)
+    public async Task<bool> RemoveTrack(string spotifyId)
     {
         var result = false;
         try
         {
             var endpoint = SavedTracksEndpoint + $"?ids={spotifyId}";
             HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, endpoint);
-            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+            httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
             var response = await _httpClient.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
             result = true;
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to remove track: {ex.Message}");
+            logService.LogError($"Failed to remove track: {ex.Message}");
         }
         return result;
 
@@ -710,10 +583,10 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
     #endregion
 
     #region User
-    async Task<User?> ISpotifyService.GetUser()
+    public async Task<User?> GetUser()
     {
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, UserEndpoint);
-        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessData?.AccessToken);
+        httpRequestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
 
         var response = await _httpClient.SendAsync(httpRequestMessage);
         var responseString = await response.Content.ReadAsStringAsync();
@@ -730,10 +603,11 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
     #endregion
 
     #region Helpers
-    internal static string HashString(string input)
+
+    private static string HashString(string input)
     {
-        byte[] bytes = Encoding.UTF8.GetBytes(input);
-        byte[] hashedInputBytes = System.Security.Cryptography.SHA256.HashData(bytes);
+        var bytes = Encoding.UTF8.GetBytes(input);
+        var hashedInputBytes = System.Security.Cryptography.SHA256.HashData(bytes);
         var converted = Convert.ToBase64String(hashedInputBytes);
         return converted.Replace('+', '-').Replace('/', '_').Replace("=", "").Trim();
     }
@@ -771,7 +645,7 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to extract audio features: {ex.Message}");
+            logService.LogError($"Failed to extract audio features: {ex.Message}");
         }
         return audioFeatures;
     }
@@ -782,9 +656,6 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
     #region Fields
 
     private string? _clientId;
-    private const string RedirectUri = "https://mustafacanyucel.com";
-    private const string AuthorizationEndpoint = "https://accounts.spotify.com/authorize";
-    private const string TokenEndpoint = "https://accounts.spotify.com/api/token";
     private const string UserEndpoint = "https://api.spotify.com/v1/me";
     private const string PlaybackStateEndpoint = "https://api.spotify.com/v1/me/player";
     private const string PlaybackStartEndpoint = "https://api.spotify.com/v1/me/player/play";
@@ -801,11 +672,40 @@ internal sealed partial class SpotifyService : ISpotifyService, IDisposable
     private const string RecommendationsEndpoint = "https://api.spotify.com/v1/recommendations";
     private const string AudioAnalysisEndpoint = "https://api.spotify.com/v1/audio-analysis";
     private readonly HttpClient _httpClient = new();
-    private readonly IPreferenceService _preferenceService;
-    private readonly IWindowService _windowService;
-    private readonly ILogService _logService;
     private readonly object _objectLock = new();
     private event EventHandler<PlaybackState>? PlaybackStateChangedEvent;
-    private AccessData? _accessData;
+    
     #endregion
+
+    private bool _disposedValue;
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposedValue) return;
+        if (disposing)
+        {
+            // dispose managed state (managed objects)
+            _httpClient.Dispose();
+            authenticator.Dispose();
+        }
+        // free unmanaged resources (unmanaged objects) and override finalizer
+        
+        
+        _disposedValue = true;
+    }
+    
+    // // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    //~OAuthAuthenticator()
+    //{
+    //    // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //    Dispose(disposing: false);
+    //}
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        // GC.SuppressFinalize(this); only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    }
+    
 }
