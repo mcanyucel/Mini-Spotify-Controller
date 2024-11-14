@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace MiniSpotifyController.window.helper;
 
-internal static class UIHelpers
+internal static class UiHelpers
 {
     public static List<AudioDataDisplayItem> ToDisplayItems(this Meta meta)
     {
@@ -24,7 +24,7 @@ internal static class UIHelpers
         List<AudioDataDisplayItem> result = [];
         result.Add(new AudioDataDisplayItem("Number of Samples", track.NumSamples.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.NumSamples));
         result.Add(new AudioDataDisplayItem("Duration", track.Duration.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.Duration));
-        result.Add(new AudioDataDisplayItem("Sample MD5", track.SampleMD5, assets.InfoStrings.SampleMD5));
+        result.Add(new AudioDataDisplayItem("Sample MD5", track.SampleMd5, assets.InfoStrings.SampleMD5));
         result.Add(new AudioDataDisplayItem("Offset Seconds", track.OffsetSeconds.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.OffsetSeconds));
         result.Add(new AudioDataDisplayItem("Window Seconds", track.WindowSeconds.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.WindowSeconds));
         result.Add(new AudioDataDisplayItem("Analysis Sample Rate", track.AnalysisSampleRate.ToString(CultureInfo.InvariantCulture), assets.InfoStrings.AnalysisSampleRate));

@@ -11,27 +11,25 @@ namespace MiniSpotifyController.viewmodel
 {
     internal sealed partial class LyricsViewModel : ObservableObject
     {
-        [ObservableProperty]
-        LyricsResult? lyricsResult;
+        [ObservableProperty] private LyricsResult? _lyricsResult;
 
-        [ObservableProperty]
-        bool isBusy;
+        [ObservableProperty] private bool _isBusy;
 
-        public PlaybackState? PlaybackState
+        private PlaybackState? PlaybackState
         {
-            get => playbackState;
+            get => _playbackState;
             set
             {
-                SetProperty(ref playbackState, value);
+                SetProperty(ref _playbackState, value);
                 Task.Run(GetLyrics);
             }
         }
 
         [RelayCommand]
-        public void Initialize() => spotifyService.UpdatePlaybackState();
+        private void Initialize() => _spotifyService.UpdatePlaybackState();
 
         [RelayCommand]
-        void OpenInGoogleSearch()
+        private void OpenInGoogleSearch()
         {
             try
             {
@@ -45,12 +43,12 @@ namespace MiniSpotifyController.viewmodel
             }
             catch (Exception)
             {
-                toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
+                _toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
             }
         }
 
         [RelayCommand]
-        void OpenInGenius()
+        private void OpenInGenius()
         {
             try
             {
@@ -63,37 +61,38 @@ namespace MiniSpotifyController.viewmodel
             }
             catch (Exception)
             {
-                toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
+                _toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
             }
         }
 
 
-        async Task GetLyrics()
+        private async Task GetLyrics()
         {
             if (string.IsNullOrEmpty(PlaybackState?.CurrentlyPlaying) || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingArtist)) return;
 
             IsBusy = true;
-            LyricsResult = await lyricsService.GetLyrics(PlaybackState.CurrentlyPlaying, PlaybackState.CurrentlyPlayingArtist);
+            LyricsResult = await _lyricsService.GetLyrics(PlaybackState.CurrentlyPlaying, PlaybackState.CurrentlyPlayingArtist);
             IsBusy = false;
         }
 
         public LyricsViewModel(ISpotifyService spotifyService, IToastService toastService, ILyricsService lyricsService)
         {
-            this.spotifyService = spotifyService;
-            this.toastService = toastService;
-            this.lyricsService = lyricsService;
+            _spotifyService = spotifyService;
+            _toastService = toastService;
+            _lyricsService = lyricsService;
 
-            this.spotifyService.PlaybackStateChanged += (_, e) =>
+            _spotifyService.PlaybackStateChanged += (_, e) =>
             {
                 PlaybackState = e;
             };
 
         }
         #region Fields
-        readonly ISpotifyService spotifyService;
-        readonly IToastService toastService;
-        readonly ILyricsService lyricsService;
-        PlaybackState? playbackState;
+
+        private readonly ISpotifyService _spotifyService;
+        private readonly IToastService _toastService;
+        private readonly ILyricsService _lyricsService;
+        private PlaybackState? _playbackState;
         #endregion
     }
 }

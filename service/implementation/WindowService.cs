@@ -11,58 +11,58 @@ namespace MiniSpotifyController.service.implementation
     {
         void IWindowService.ShowClientIdWindowDialog()
         {
-            clientIdWindow = new ClientIdWindow();
-            clientIdWindow.ShowDialog();
+            _clientIdWindow = new ClientIdWindow();
+            _clientIdWindow.ShowDialog();
         }
         void IWindowService.CloseClientIdWindowDialog()
         {
-            clientIdWindow?.Close();
-            clientIdWindow = null;
+            _clientIdWindow?.Close();
+            _clientIdWindow = null;
         }
         void IWindowService.ShowAuthorizationWindowDialog()
         {
-            authWindow = new AuthWindow();
-            authWindow.ShowDialog();
+            _authWindow = new AuthWindow();
+            _authWindow.ShowDialog();
         }
         void IWindowService.CloseAuthorizationWindowDialog()
         {
-            authWindow?.Close();
-            authWindow = null;
+            _authWindow?.Close();
+            _authWindow = null;
         }
 
         void IWindowService.SetClipboardText(string text) => Clipboard.SetText(text);
 
         void IWindowService.ShowAudioFeaturesWindow(AudioFeatures audioFeatures)
         {
-            if (audioMetricsWindow == null)
+            if (_audioMetricsWindow == null)
             {
-                audioMetricsWindow = new AudioMetricsWindow(audioFeatures);
-                audioMetricsWindow.Show();
-                audioMetricsWindow.Closed += (sender, args) => audioMetricsWindow = null;
+                _audioMetricsWindow = new AudioMetricsWindow(audioFeatures);
+                _audioMetricsWindow.Show();
+                _audioMetricsWindow.Closed += (_, _) => _audioMetricsWindow = null;
             }
             else
             {
-                audioMetricsWindow.UpdateData(audioFeatures);
-                audioMetricsWindow.Activate();
+                _audioMetricsWindow.UpdateData(audioFeatures);
+                _audioMetricsWindow.Activate();
             }
         }
 
         void IWindowService.ShowAudioAnalysisWindow()
         {
-            if (audioAnalysisWindow == null)
+            if (_audioAnalysisWindow == null)
             {
-                audioAnalysisWindow = new();
-                audioAnalysisWindow.Show();
-                audioAnalysisWindow.Closed += (sender, args) => audioAnalysisWindow = null;
+                _audioAnalysisWindow = new AudioAnalysisWindow();
+                _audioAnalysisWindow.Show();
+                _audioAnalysisWindow.Closed += (_, _) => _audioAnalysisWindow = null;
             }
             else
             {
-                audioAnalysisWindow.Activate();
+                _audioAnalysisWindow.Activate();
             }
 
         }
 
-        bool IWindowService.IsAudioMetricsWindowOpen() => audioMetricsWindow != null;
+        bool IWindowService.IsAudioMetricsWindowOpen() => _audioMetricsWindow != null;
 
         bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
@@ -70,7 +70,7 @@ namespace MiniSpotifyController.service.implementation
         {
             ContextMenu contextMenu = new();
 
-            foreach (Device device in devices)
+            foreach (var device in devices)
             {
                 MenuItem menuItem = new()
                 {
@@ -79,11 +79,11 @@ namespace MiniSpotifyController.service.implementation
                     IsCheckable = true,
                     IsChecked = device.IsActive,
                 };
-                menuItem.Click += async (sender, args) =>
+                menuItem.Click += async (sender, _) =>
                 {
-                    if (sender is MenuItem menuItem)
+                    if (sender is MenuItem item)
                     {
-                        await transferPlayback(menuItem.Tag as string ?? string.Empty);
+                        await transferPlayback(item.Tag as string ?? string.Empty);
                     }
                 };
                 contextMenu.Items.Add(menuItem);
@@ -94,24 +94,25 @@ namespace MiniSpotifyController.service.implementation
 
         void IWindowService.ShowLyricsWindow()
         {
-            if (lyricsWindow == null)
+            if (_lyricsWindow == null)
             {
-                lyricsWindow = new();
-                lyricsWindow.Show();
-                lyricsWindow.Closed += (sender, args) => lyricsWindow = null;
+                _lyricsWindow = new LyricsWindow();
+                _lyricsWindow.Show();
+                _lyricsWindow.Closed += (_, _) => _lyricsWindow = null;
             }
             else
             {
-                lyricsWindow.Activate();
+                _lyricsWindow.Activate();
             }
         }
 
         #region Fields
-        AuthWindow? authWindow;
-        ClientIdWindow? clientIdWindow;
-        AudioMetricsWindow? audioMetricsWindow;
-        AudioAnalysisWindow? audioAnalysisWindow;
-        LyricsWindow? lyricsWindow;
+
+        private AuthWindow? _authWindow;
+        private ClientIdWindow? _clientIdWindow;
+        private AudioMetricsWindow? _audioMetricsWindow;
+        private AudioAnalysisWindow? _audioAnalysisWindow;
+        private LyricsWindow? _lyricsWindow;
         #endregion
     }
 }

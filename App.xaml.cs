@@ -10,13 +10,13 @@ namespace MiniSpotifyController;
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : Application
+public partial class App
 {
     public App()
     {
         Services = ConfigureServices();
 
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     public new static App Current => (App)Application.Current;

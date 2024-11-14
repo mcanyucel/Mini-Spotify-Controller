@@ -8,37 +8,35 @@ namespace MiniSpotifyController.viewmodel
 {
     internal sealed partial class AuthViewModel : ObservableObject
     {
-        public string RequestUrl { get => requestUrl; }
-        public AuthViewModel(ISpotifyService spotifyService, IWindowService windowService, ILogService logService)
+        public string RequestUrl { get; }
+
+        public AuthViewModel(ISpotifyService spotifyService, IWindowService windowService)
         {
-            this.spotifyService = spotifyService;
-            this.windowService = windowService;
-            this.logService = logService;
-            codeVerifier = ISpotifyService.GenerateRandomString(128);
-            requestUrl = this.spotifyService.GetRequestUrl(codeVerifier);
+            _spotifyService = spotifyService;
+            _windowService = windowService;
+            _codeVerifier = ISpotifyService.GenerateRandomString(128);
+            RequestUrl = _spotifyService.GetRequestUrl(_codeVerifier);
         }
 
         [RelayCommand]
-        async Task NavigationCompleted(Uri? uri)
+        private async Task NavigationCompleted(Uri? uri)
         {
-            if (uri != null && codeVerifier != null)
+            if (uri != null)
             {
-                string url = uri?.ToString() ?? string.Empty;
+                var url = uri.ToString();
                 if (url.StartsWith("https://mustafacanyucel.com", StringComparison.InvariantCulture))
                 {
-                    string accessCode = url.Split("code=")[1].Split("&")[0];
-                    await spotifyService.RequestAccessToken(codeVerifier, accessCode);
-                    windowService.CloseAuthorizationWindowDialog();
+                    var accessCode = url.Split("code=")[1].Split("&")[0];
+                    await _spotifyService.RequestAccessToken(_codeVerifier, accessCode);
+                    _windowService.CloseAuthorizationWindowDialog();
                 }
             }
         }
 
         //region Fields
-        readonly ISpotifyService spotifyService;
-        readonly string codeVerifier;
-        readonly string requestUrl;
-        readonly IWindowService windowService;
-        readonly ILogService logService;
+        private readonly ISpotifyService _spotifyService;
+        private readonly string _codeVerifier;
+        private readonly IWindowService _windowService;
         //endregion
     }
 }

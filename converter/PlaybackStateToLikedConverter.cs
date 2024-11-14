@@ -7,15 +7,14 @@ namespace MiniSpotifyController.converter
 {
     internal sealed class PlaybackStateToLikedConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is model.PlaybackState playbackState)
                 return playbackState.IsLiked ? Color.Red : Color.LightGray;
-            else
-                throw new ArgumentException("Value is not of type PlaybackState");
+            throw new ArgumentException("Value is not of type PlaybackState");
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new InvalidOperationException("PlaybackStateToLikedConverter can only be used OneWay.");
         }

@@ -5,7 +5,7 @@ namespace MiniSpotifyController.window.helper
 {
     internal sealed class AudioDataTemplateSelector : DataTemplateSelector
     {
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
         {
             if (item is AudioDataDisplayItem audioDataDisplayItem)
             {

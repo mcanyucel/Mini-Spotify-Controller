@@ -8,10 +8,9 @@ namespace MiniSpotifyController.window
     /// </summary>
     public partial class LyricsWindow
     {
-        readonly LyricsViewModel viewModel;
         public LyricsWindow()
         {
-            viewModel = App.Current.Services.GetRequiredService<LyricsViewModel>();
+            var viewModel = App.Current.Services.GetRequiredService<LyricsViewModel>();
             DataContext = viewModel;
             InitializeComponent();
         }

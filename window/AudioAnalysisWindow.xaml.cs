@@ -10,10 +10,8 @@ public partial class AudioAnalysisWindow
 {
     internal AudioAnalysisWindow()
     {
-        viewModel = App.Current.Services.GetRequiredService<AudioAnalysisViewModel>();
+        var viewModel = App.Current.Services.GetRequiredService<AudioAnalysisViewModel>();
         DataContext = viewModel;
         InitializeComponent();
     }
-
-    readonly AudioAnalysisViewModel viewModel;
 }

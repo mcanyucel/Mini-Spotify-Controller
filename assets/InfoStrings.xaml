@@ -10,7 +10,7 @@
     <sys:String x:Key="InputProcess">The method used to read the track's audio data</sys:String>
     <sys:String x:Key="NumSamples">The exact number of samples analyzed from this track. See also Analysis Sample Rate</sys:String>
     <sys:String x:Key="Duration">The duration of the track in seconds</sys:String>
-    <sys:String x:Key="SampleMD5">This field willl always contain an empty string (because Spotify said so)</sys:String>
+    <sys:String x:Key="SampleMD5">This field will always contain an empty string (because Spotify said so)</sys:String>
     <sys:String x:Key="OffsetSeconds">The offset to the start of the region of the track that was analyzed. As the entire track is analyzed, this should always be 0</sys:String>
     <sys:String x:Key="WindowSeconds">The length of the region of the track was analyzed, if a subset of the track was analyzed. As the entire track is analyzed, this should always be 0</sys:String>
     <sys:String x:Key="AnalysisSampleRate">The sample rate used to decide and analyze this track. It may differ from the actual sample rate of this track available on Spotify</sys:String>

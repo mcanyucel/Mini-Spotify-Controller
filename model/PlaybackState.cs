@@ -5,28 +5,17 @@ namespace MiniSpotifyController.model;
 public sealed partial class PlaybackState : ObservableObject
 {
 
-    [ObservableProperty]
-    bool isPlaying;
-    [ObservableProperty]
-    string? currentlyPlayingId;
-    [ObservableProperty]
-    string? currentlyPlayingSpotifyId;
-    [ObservableProperty]
-    string? currentlyPlaying;
-    [ObservableProperty]
-    string? currentlyPlayingArtist;
-    [ObservableProperty]
-    Album? currentlyPlayingAlbum;
-    [ObservableProperty]
-    string? deviceId;
-    [ObservableProperty]
-    int progressMs;
-    [ObservableProperty]
-    int durationMs;
-    [ObservableProperty]
-    bool isLiked;
-    [ObservableProperty]
-    bool isBusy;
+    [ObservableProperty] private bool _isPlaying;
+    [ObservableProperty] private string? _currentlyPlayingId;
+    [ObservableProperty] private string? _currentlyPlayingSpotifyId;
+    [ObservableProperty] private string? _currentlyPlaying;
+    [ObservableProperty] private string? _currentlyPlayingArtist;
+    [ObservableProperty] private Album? _currentlyPlayingAlbum;
+    [ObservableProperty] private string? _deviceId;
+    [ObservableProperty] private int _progressMs;
+    [ObservableProperty] private int _durationMs;
+    [ObservableProperty] private bool _isLiked;
+    [ObservableProperty] private bool _isBusy;
     public void IncrementProgress(int delta, bool isSeeking)
     {
 
@@ -34,7 +23,7 @@ public sealed partial class PlaybackState : ObservableObject
             ProgressMs += delta;
         else
 #pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-            progressMs += delta;
+            _progressMs += delta;
 #pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
     }
     public void ResetProgress() => ProgressMs = 0;

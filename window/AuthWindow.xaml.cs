@@ -20,8 +20,8 @@ namespace MiniSpotifyController.window
         {
             string userDataFolder = $"{System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData)}\\MiniSpotifyController";
             var environment = await CoreWebView2Environment.CreateAsync(userDataFolder: userDataFolder);
-            await webView.EnsureCoreWebView2Async(environment);
-            webView.CoreWebView2.Navigate(((AuthViewModel)DataContext).RequestUrl);
+            await WebView.EnsureCoreWebView2Async(environment);
+            WebView.CoreWebView2.Navigate(((AuthViewModel)DataContext).RequestUrl);
         }
     }
 }

@@ -9,14 +9,14 @@ namespace MiniSpotifyController.window;
 /// </summary>
 public partial class AudioMetricsWindow
 {
-    private readonly AudioMetricsViewModel? m_ViewModel;
+    private readonly AudioMetricsViewModel? _viewModel;
     internal AudioMetricsWindow(AudioFeatures audioFeatures)
     {
-        m_ViewModel = App.Current.Services.GetRequiredService<AudioMetricsViewModel>();
-        m_ViewModel.UpdateData(audioFeatures);
-        DataContext = m_ViewModel;
+        _viewModel = App.Current.Services.GetRequiredService<AudioMetricsViewModel>();
+        _viewModel.UpdateData(audioFeatures);
+        DataContext = _viewModel;
         InitializeComponent();
     }
 
-    internal void UpdateData(AudioFeatures audioFeatures) => m_ViewModel?.UpdateData(audioFeatures);
+    internal void UpdateData(AudioFeatures audioFeatures) => _viewModel?.UpdateData(audioFeatures);
 }

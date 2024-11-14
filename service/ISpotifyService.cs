@@ -33,10 +33,10 @@ internal interface ISpotifyService
 
     #region Devices
     internal Task<IEnumerable<Device>> GetDevices();
-    internal Task<Device?> GetLastListenedDevice(string accessToken);
+    internal Task<Device?> GetLastListenedDevice();
     internal Task<bool> TransferPlayback(string deviceId);
 
-    internal const string INTERNAL_PLAYER_NAME = "Mini Spotify Controller";
+    internal const string InternalPlayerName = "Mini Spotify Controller";
     #endregion
 
     #region Track
@@ -57,7 +57,8 @@ internal interface ISpotifyService
     internal static string GenerateRandomString(int length)
     {
         Random random = new();
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        // ReSharper disable once StringLiteralTypo
+        const string chars = @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         return new string(Enumerable.Repeat(chars, length)
                          .Select(s => s[random.Next(s.Length)]).ToArray());
     }

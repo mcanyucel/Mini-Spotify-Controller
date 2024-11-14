@@ -5,8 +5,7 @@ namespace MiniSpotifyController.viewmodel;
 
 internal sealed partial class AudioMetricsViewModel : ObservableObject
 {
-    [ObservableProperty]
-    AudioFeatures? audioFeatures;
+    [ObservableProperty] private AudioFeatures? _audioFeatures;
 
     public void UpdateData(AudioFeatures audioFeatures) => AudioFeatures = audioFeatures;
 }

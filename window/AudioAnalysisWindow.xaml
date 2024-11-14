@@ -51,7 +51,7 @@
                             ItemsSource="{Binding 
                                 DataContext.AudioAnalysisResult.Meta, 
                                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, 
-                                Converter={StaticResource AudioAnalysisDisplayConverter}}">
+                                Converter={StaticResource AudioAnalysisDisplayConverter}, FallbackValue=''}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <controls:AudioAnalysisItem DisplayItem="{Binding Path=DataContext, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
@@ -72,7 +72,7 @@
                         <DockPanel LastChildFill="True">
                             <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BarsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
                             <ListBox 
-                                x:Name="lsbBars"
+                                x:Name="LsbBars"
                                 ItemsSource="{Binding DataContext.AudioAnalysisResult.Bars, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
@@ -81,7 +81,7 @@
                                 </ListBox.ItemTemplate>
                                 <behaviors:Interaction.Triggers>
                                     <behaviors:EventTrigger EventName="MouseDoubleClick">
-                                        <behaviors:InvokeCommandAction Command="{Binding SeekToSpanCommand}" CommandParameter="{Binding ElementName=lsbBars, Path=SelectedItem}" />
+                                        <behaviors:InvokeCommandAction Command="{Binding SeekToSpanCommand}" CommandParameter="{Binding ElementName=LsbBars, Path=SelectedItem}" />
                                     </behaviors:EventTrigger>
                                 </behaviors:Interaction.Triggers>
                             </ListBox>
@@ -98,7 +98,7 @@
                         <DockPanel LastChildFill="True">
                             <Line Stroke="Gray" X1="0" X2="{Binding ElementName=BeatsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
                             <ListBox
-                                x:Name="lsbBeats"
+                                x:Name="LsbBeats"
                                 ItemsSource="{Binding DataContext.AudioAnalysisResult.Beats, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
@@ -107,7 +107,7 @@
                                 </ListBox.ItemTemplate>
                                 <behaviors:Interaction.Triggers>
                                     <behaviors:EventTrigger EventName="MouseDoubleClick">
-                                        <behaviors:InvokeCommandAction Command="{Binding SeekToSpanCommand}" CommandParameter="{Binding ElementName=lsbBeats, Path=SelectedItem}" />
+                                        <behaviors:InvokeCommandAction Command="{Binding SeekToSpanCommand}" CommandParameter="{Binding ElementName=LsbBeats, Path=SelectedItem}" />
                                     </behaviors:EventTrigger>
                                 </behaviors:Interaction.Triggers>
                             </ListBox>
@@ -124,7 +124,7 @@
                         <DockPanel LastChildFill="True">
                             <Line Stroke="Gray" X1="0" X2="{Binding ElementName=TatumsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom" />
                             <ListBox 
-                                x:Name="lsbTatums"
+                                x:Name="LsbTatums"
                                 ItemsSource="{Binding DataContext.AudioAnalysisResult.Tatums, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, Converter={StaticResource TrackSpanToStringListConverter}}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
@@ -133,7 +133,7 @@
                                 </ListBox.ItemTemplate>
                                 <behaviors:Interaction.Triggers>
                                     <behaviors:EventTrigger EventName="MouseDoubleClick">
-                                        <behaviors:InvokeCommandAction Command="{Binding SeekToSpanCommand}" CommandParameter="{Binding ElementName=lsbTatums, Path=SelectedItem}" />
+                                        <behaviors:InvokeCommandAction Command="{Binding SeekToSpanCommand}" CommandParameter="{Binding ElementName=LsbTatums, Path=SelectedItem}" />
                                     </behaviors:EventTrigger>
                                 </behaviors:Interaction.Triggers>
                             </ListBox>
@@ -153,7 +153,7 @@
                     <DockPanel LastChildFill="True">
                         <Line Stroke="Gray" X1="0" X2="{Binding ElementName=SegmentsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
                         <ListView
-                            x:Name="lsbSegments"
+                            x:Name="LsbSegments"
                             ItemsSource="{Binding
                             DataContext.AudioAnalysisResult.Segments,
                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
@@ -172,7 +172,7 @@
                             </ListView.View>
                             <behaviors:Interaction.Triggers>
                                 <behaviors:EventTrigger EventName="MouseDoubleClick">
-                                    <behaviors:InvokeCommandAction Command="{Binding SeekToSegmentCommand}" CommandParameter="{Binding ElementName=lsbSegments, Path=SelectedItem}" />
+                                    <behaviors:InvokeCommandAction Command="{Binding SeekToSegmentCommand}" CommandParameter="{Binding ElementName=LsbSegments, Path=SelectedItem}" />
                                 </behaviors:EventTrigger>
                             </behaviors:Interaction.Triggers>
                         </ListView>
@@ -218,7 +218,7 @@
                     <DockPanel LastChildFill="True">
                         <Line Stroke="Gray" X1="0" X2="{Binding ElementName=SectionsGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom" />
                         <ListView 
-                            x:Name="lsbSections"
+                            x:Name="LsbSections"
                             ItemsSource="{Binding DataContext.AudioAnalysisResult.Sections, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}}">
                             <ListView.View>
                                 <GridView>
@@ -278,7 +278,7 @@
                             </ListView.View>
                             <behaviors:Interaction.Triggers>
                                 <behaviors:EventTrigger EventName="MouseDoubleClick">
-                                    <behaviors:InvokeCommandAction Command="{Binding SeekToSectionCommand}" CommandParameter="{Binding ElementName=lsbSections, Path=SelectedItem}" />
+                                    <behaviors:InvokeCommandAction Command="{Binding SeekToSectionCommand}" CommandParameter="{Binding ElementName=LsbSections, Path=SelectedItem}" />
                                 </behaviors:EventTrigger>
                             </behaviors:Interaction.Triggers>
                         </ListView>

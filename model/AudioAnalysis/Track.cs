@@ -2,13 +2,14 @@
 
 namespace MiniSpotifyController.model.AudioAnalysis;
 
+// ReSharper disable once ClassNeverInstantiated.Global - Instantiated by deserializer
 internal sealed record Track(
     [property: JsonPropertyName("num_samples")]
     long NumSamples,
     [property: JsonPropertyName("duration")]
     double Duration,
     [property: JsonPropertyName("sample_md5")]
-    string SampleMD5,
+    string SampleMd5,
     [property: JsonPropertyName("offset_seconds")]
     double OffsetSeconds,
     [property: JsonPropertyName("window_seconds")]
@@ -39,14 +40,20 @@ internal sealed record Track(
     int Mode,
     [property: JsonPropertyName("mode_confidence")]
     double ModeConfidence,
+    // ReSharper disable once StringLiteralTypo
     [property: JsonPropertyName("codestring")]
+    // ReSharper disable once StringLiteralTypo
     string Codestring,
+    // ReSharper disable once StringLiteralTypo
     [property: JsonPropertyName("code_version")]
     double CodeVersion,
+    // ReSharper disable once StringLiteralTypo
     [property: JsonPropertyName("echoprintstring")]
     string EchoPrintString,
+    // ReSharper disable once StringLiteralTypo
     [property: JsonPropertyName("echoprint_version")]
     double EchoPrintVersion,
+    // ReSharper disable once StringLiteralTypo
     [property: JsonPropertyName("synchstring")]
     string SynchString,
     [property: JsonPropertyName("synch_version")]

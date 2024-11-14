@@ -11,23 +11,23 @@ namespace MiniSpotifyController.service.implementation
         {
             _ = Task.Run(() =>
             {
-                m_Semaphore.Wait();
+                Semaphore.Wait();
                 try
                 {
                     if (!Directory.Exists("logs"))
                     {
                         Directory.CreateDirectory("logs");
                     }
-                    File.AppendAllText(m_LogFilePath, $"[{DateTime.Now}] [ERROR] {message}\n");
+                    File.AppendAllText(_logFilePath, $"[{DateTime.Now}] [ERROR] {message}\n");
                 }
                 finally
                 {
-                    m_Semaphore.Release();
+                    Semaphore.Release();
                 }
             });
         }
 
-        private readonly string m_LogFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MiniSpotifyController", "application.log");
-        private static readonly SemaphoreSlim m_Semaphore = new(1, 1);
+        private readonly string _logFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MiniSpotifyController", "application.log");
+        private static readonly SemaphoreSlim Semaphore = new(1, 1);
     }
 }

@@ -8,14 +8,13 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel"
         d:DataContext="{d:DesignInstance Type=viewmodel:AuthViewModel}"
-        xmlns:local="clr-namespace:MiniSpotifyController.window"
         mc:Ignorable="d"
         Title="" Height="450" Width="800">
     <DockPanel LastChildFill="True">
-        <wv2:WebView2 Name="webView" Source="">
+        <wv2:WebView2 Name="WebView" Source="">
             <behaviors:Interaction.Triggers>
                 <behaviors:EventTrigger EventName="NavigationCompleted">
-                    <behaviors:InvokeCommandAction Command="{Binding Path=NavigationCompletedCommand}" CommandParameter="{Binding ElementName=webView, Path=Source}" />
+                    <behaviors:InvokeCommandAction Command="{Binding Path=NavigationCompletedCommand}" CommandParameter="{Binding ElementName=WebView, Path=Source}" />
                 </behaviors:EventTrigger>
             </behaviors:Interaction.Triggers>
         </wv2:WebView2>

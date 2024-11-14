@@ -8,7 +8,7 @@ namespace MiniSpotifyController.viewmodel
     {
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-        private string clientId = "";
+        private string _clientId = "";
 
         [RelayCommand(CanExecute = nameof(SaveCanExecute))]
         void Save()
