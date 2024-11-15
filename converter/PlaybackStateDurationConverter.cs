@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
+using PlaybackState = MiniSpotifyController.model.Spotify.PlaybackState;
 
 namespace MiniSpotifyController.converter
 {
@@ -12,7 +13,7 @@ namespace MiniSpotifyController.converter
             var result = 1;
             if (value is PlaybackState playbackState)
             {
-                result = ((int)Math.Floor(playbackState.DurationMs / 1000.0));
+                result = (int)Math.Floor((playbackState.Track?.DurationMs ?? 0)/ 1000.0);
             }
             return result;
         }

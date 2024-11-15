@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MiniSpotifyController.OAuth;
 using MiniSpotifyController.service;
 using MiniSpotifyController.service.implementation;
+using MiniSpotifyController.service.Spotify;
 using MiniSpotifyController.viewmodel;
 using MiniSpotifyController.window;
 using Serilog;
@@ -15,17 +16,30 @@ internal static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCoreServices(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddSingleton<ISpotifyService, SpotifyService>();
         serviceCollection.AddSingleton<IToastService, ToastService>();
         serviceCollection.AddSingleton<IPreferenceService, PreferenceService>();
         serviceCollection.AddSingleton<IWindowService, WindowService>();
-        serviceCollection.AddSingleton<ILogService, LogService>();
         serviceCollection.AddSingleton<IResourceService, ResourceService>();
         serviceCollection.AddTransient<ILyricsService, GeniusService>();
         
         return serviceCollection;
     }
-    
+
+    public static IServiceCollection AddSpotifyServices(this IServiceCollection serviceCollection)
+    {
+        AddOAuthAuthenticator(serviceCollection);
+        serviceCollection.AddSingleton<DeviceManager>();
+        serviceCollection.AddSingleton<TrackManager>();
+        serviceCollection.AddSingleton<PlaybackManager>();
+        serviceCollection.AddSingleton<AudioManager>();
+        serviceCollection.AddSingleton<RecommendationManager>();
+        serviceCollection.AddSingleton<UserManager>();
+        serviceCollection.AddSingleton<ISpotifyService, SpotifyService>();
+        
+        
+        return serviceCollection;
+    }
+
     public static IServiceCollection AddViewModelMapping(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<IDictionary<Type, Type>>(_ => new Dictionary<Type, Type>
@@ -64,7 +78,7 @@ internal static class ServiceCollectionExtensions
         return serviceCollection;
     }
     
-    public static IServiceCollection AddOAuthAuthenticator(this IServiceCollection serviceCollection)
+    private static void AddOAuthAuthenticator(IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<OAuthAuthenticator>(provider =>
         {
@@ -87,8 +101,6 @@ internal static class ServiceCollectionExtensions
             return new OAuthAuthenticator(config, tokenStorage, preferenceService, windowService, httpClientFactory);
             
         });
-        
-        return serviceCollection;
     }
     
 }

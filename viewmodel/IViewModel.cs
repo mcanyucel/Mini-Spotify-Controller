@@ -2,6 +2,6 @@
 
 public interface IViewModel
 {
-    public const string ParameterAudioFeatures = "ParameterAudioFeatures";
-    public const string ParameterId = "ParameterId";
+    public const string ParameterSpotifyTrackId = "ParameterSpotifyTrackId";
+    public const string ParameterTrackName = "ParameterTrackName";
 }

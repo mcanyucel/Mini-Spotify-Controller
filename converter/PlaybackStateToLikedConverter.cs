@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Data;
+using MiniSpotifyController.model.Spotify;
 
 namespace MiniSpotifyController.converter
 {
@@ -9,7 +10,7 @@ namespace MiniSpotifyController.converter
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is model.PlaybackState playbackState)
+            if (value is PlaybackState playbackState)
                 return playbackState.IsLiked ? Color.Red : Color.LightGray;
             throw new ArgumentException("Value is not of type PlaybackState");
         }

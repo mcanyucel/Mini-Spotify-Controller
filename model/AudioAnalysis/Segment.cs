@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace MiniSpotifyController.model.AudioAnalysis;
 
-internal sealed record Segment(
+public sealed record Segment(
     [property: JsonPropertyName("start")]
     double Start,
     [property: JsonPropertyName("duration")]

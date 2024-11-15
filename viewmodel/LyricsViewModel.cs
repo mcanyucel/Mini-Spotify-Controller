@@ -1,11 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MiniSpotifyController.model;
 using MiniSpotifyController.model.Lyrics;
 using MiniSpotifyController.service;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using PlaybackState = MiniSpotifyController.model.Spotify.PlaybackState;
 
 namespace MiniSpotifyController.viewmodel
 {
@@ -33,9 +34,11 @@ namespace MiniSpotifyController.viewmodel
         {
             try
             {
-                if (string.IsNullOrEmpty(PlaybackState?.CurrentlyPlaying) || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingArtist)) return;
+                var songName = PlaybackState?.Track?.Name;
+                var artistName = PlaybackState?.Track?.Artists?.FirstOrDefault()?.Name;
+                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(artistName)) return;
 
-                var searchQuery = $"{PlaybackState.CurrentlyPlaying} {PlaybackState.CurrentlyPlayingArtist}";
+                var searchQuery = $"{songName} {artistName} lyrics";
                 Process process = new();
                 process.StartInfo.FileName = "https://www.google.com/search?q=" + searchQuery;
                 process.StartInfo.UseShellExecute = true;
@@ -68,10 +71,12 @@ namespace MiniSpotifyController.viewmodel
 
         private async Task GetLyrics()
         {
-            if (string.IsNullOrEmpty(PlaybackState?.CurrentlyPlaying) || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingArtist)) return;
+            var songName = PlaybackState?.Track?.Name;
+            var artistName = PlaybackState?.Track?.Artists?.FirstOrDefault()?.Name;
+            if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(artistName)) return;
 
             IsBusy = true;
-            LyricsResult = await _lyricsService.GetLyrics(PlaybackState.CurrentlyPlaying, PlaybackState.CurrentlyPlayingArtist);
+            LyricsResult = await _lyricsService.GetLyrics(songName, artistName);
             IsBusy = false;
         }
 

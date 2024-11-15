@@ -2,9 +2,9 @@
 
 namespace MiniSpotifyController.Extensions;
 
-public class ServiceExtensions
+public static class ServiceExtensions
 {
-    public static int GetHash(string viewModelName, int? id = null)
+    public static int GetHash(string viewModelName, string? id = null)
     {
         return id == null ? viewModelName.GetHashCode() : HashCode.Combine(viewModelName, id);
     }

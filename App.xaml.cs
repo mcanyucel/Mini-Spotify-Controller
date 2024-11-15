@@ -59,11 +59,11 @@ public partial class App
         return new ServiceCollection()
             .AddLogger()
             .AddHttpClientFactory()
-            .AddOAuthAuthenticator()
             .AddCoreServices()
             .AddViewModelMapping()
             .AddViewModelFactory()
             .AddWindowFactory()
+            .AddSpotifyServices()
             .BuildServiceProvider();
     }
 

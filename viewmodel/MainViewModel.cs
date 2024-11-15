@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MiniSpotifyController.model;
 using MiniSpotifyController.model.Lyrics;
 using MiniSpotifyController.service;
 using System;
@@ -8,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MiniSpotifyController.model.Spotify;
+using PlaybackState = MiniSpotifyController.model.Spotify.PlaybackState;
 
 namespace MiniSpotifyController.viewmodel;
 
@@ -44,9 +45,9 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
         _windowService = windowService;
         _resourceService = resourceService;
 
-        _asyncCommandList = [TogglePlayCommand, NextCommand, PreviousCommand, ToggleLikedCommand, RandomizeCommand, GetShareUrlCommand, RefreshCommand, StartSongRadioCommand,
-            GetAudioFeaturesCommand, AuthorizeCommand, SeekEndCommand];
-        _commandList = [SeekStartCommand, OpenSettingsCommand, UpdateMetricsCommand, SeekStartCommand, GetAudioAnalysisCommand];
+        _asyncCommandList = [TogglePlayCommand, NextCommand, PreviousCommand, ToggleLikedCommand, RandomizeCommand, RefreshCommand, StartSongRadioCommand,
+            AuthorizeCommand, SeekEndCommand];
+        _commandList = [SeekStartCommand, OpenSettingsCommand, UpdateMetricsCommand, SeekStartCommand, GetShareUrlCommand, GetAudioAnalysisCommand, GetAudioFeaturesCommand];
 
         _progressTimer = new Timer(_ => UpdateProgress(), null, Timeout.Infinite, ProgressUpdateIntervalMs);
         
@@ -127,10 +128,10 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
     }
 
     // The method that is transferred to the context menu to transfer playback to the selected device.
-    private async Task TransferPlayback(string deviceId)
+    private async Task TransferPlayback(Device device)
     {
         IsBusy = true;
-        var result = await _spotifyService.TransferPlayback(deviceId);
+        var result = await _spotifyService.TransferPlayback(device);
         if (!result)
             ShowError("Error", "Failed to transfer playback!");
         IsBusy = false;
@@ -143,23 +144,23 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
     [RelayCommand(CanExecute = nameof(StartSongRadioCanExecute))]
     private async Task StartSongRadio()
     {
-        PlaybackState.IsBusy = true;
-        var success = await _spotifyService.StartSongRadio(_playbackState.DeviceId!, _playbackState.CurrentlyPlayingId!);
+        var currentlyPlayingId = _playbackState.Track?.Id;
+        if (currentlyPlayingId == null) return;
+        IsBusy = true;
+        var success = await _spotifyService.StartSongRadio(currentlyPlayingId);
         if (!success)
             ShowError("Error", "Failed to start song radio.");
-
-        PlaybackState.IsBusy = false;
+        IsBusy = false;
     }
 
     [RelayCommand]
     private async Task Randomize()
     {
-        PlaybackState.IsBusy = true;
-        var success = await _spotifyService.Randomize(_playbackState.DeviceId!);
+        IsBusy = true;
+        var success = await _spotifyService.Randomize();
         if (!success)
             ShowError("Error", "Failed to randomize.");
-
-        PlaybackState.IsBusy = false;
+        IsBusy = false;
     }
 
     [RelayCommand]
@@ -171,35 +172,27 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
             await Play();
     }
 
-    
+
     private async Task Play()
     {
-        if (await _spotifyService.IsAuthorized() && _playbackState.DeviceId != null)
-            await _spotifyService.StartPlay(_playbackState.DeviceId);
-        else if (_playbackState.DeviceId == null)
+        var device = await _spotifyService.GetLastListenedDevice();
+        if (device?.Id == null)
+        {
             ShowError("Error", "No active devices, you should start at least one device manually.");
+            return;
+        }
+
+        await _spotifyService.StartPlayback(device);
     }
 
-    
-    private async Task Pause()
-    {
-        if (await _spotifyService.IsAuthorized() && _playbackState.DeviceId != null)
-            await _spotifyService.PausePlay(_playbackState.DeviceId);
-    }
+
+    private async Task Pause() => await _spotifyService.PausePlayback();
 
     [RelayCommand(CanExecute = nameof(NextCanExecute))]
-    private async Task Next()
-    {
-        if (await _spotifyService.IsAuthorized() && _playbackState.DeviceId != null)
-            await _spotifyService.NextTrack(_playbackState.DeviceId);
-    }
+    private async Task Next() => await _spotifyService.NextTrack();
 
     [RelayCommand(CanExecute = nameof(PreviousCanExecute))]
-    private async Task Previous()
-    {
-        if (await _spotifyService.IsAuthorized() && _playbackState.DeviceId != null)
-            await _spotifyService.PreviousTrack(_playbackState.DeviceId);
-    }
+    private async Task Previous() => await _spotifyService.PreviousTrack();
     
     [RelayCommand]
     private async Task Refresh()
@@ -223,18 +216,18 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
         if (_playbackState.IsPlaying && _isSeeking)
         {
             var progressMs = (int)(progressSec * 1000);
-            if (await _spotifyService.IsAuthorized() && _playbackState.DeviceId != null)
-                await _spotifyService.Seek(_playbackState.DeviceId, progressMs);
-
+            await _spotifyService.Seek(progressMs);
             _isSeeking = false;
         }
     }
 
     private void UpdateProgress()
     {
+        if (!_playbackState.IsPlaying || PlaybackState.Track?.DurationMs == null) return;
+        
         PlaybackState.IncrementProgress(ProgressUpdateIntervalMs, _isSeeking);
-
-        if (PlaybackState.ProgressMs < PlaybackState.DurationMs) return;
+        
+        if (PlaybackState.ProgressMs < PlaybackState.Track?.DurationMs) return;
         PlaybackState.ResetProgress();
         _ = Task.Run(async () => await _spotifyService.UpdatePlaybackState());
     }
@@ -258,49 +251,50 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
     [RelayCommand(CanExecute = nameof(ToggleLikedCanExecute))]
     private async Task ToggleLiked()
     {
+        var currentlyPlayingId = _playbackState.Track?.Id;
+        if (currentlyPlayingId == null) return;
+        
         var oldValue = _playbackState.IsLiked;
-        bool saved;
+        bool? saved;
         if (oldValue)
-            saved = await _spotifyService.RemoveTrack(_playbackState.CurrentlyPlayingId ?? string.Empty);
+            saved = await _spotifyService.RemoveTrack(currentlyPlayingId);
         else
-            saved = await _spotifyService.SaveTrack(_playbackState.CurrentlyPlayingId ?? string.Empty);
+            saved = await _spotifyService.SaveTrack(currentlyPlayingId);
 
-        if (saved)
+        if (saved.HasValue && saved.Value)
             _playbackState.IsLiked = !oldValue;
     }
 
     [RelayCommand(CanExecute = nameof(GetAudioMetricsCanExecute))]
-    private async Task GetAudioFeatures()
+    private void GetAudioFeatures()
     {
-        if (_playbackState.CurrentlyPlayingId == null) return;
+        var currentlyPlayingId = _playbackState.Track?.Id;
+        if (currentlyPlayingId == null) return;
 
-        var audioFeatures = await _spotifyService.GetAudioFeatures(_playbackState.CurrentlyPlayingId);
-        if (audioFeatures != null)
+        var audioFeatureWindowParameters = new Dictionary<string, object>
         {
-            audioFeatures.TrackName = PlaybackState.CurrentlyPlaying ?? string.Empty;
-            var audioParams = new Dictionary<string, object>
-            {
-                { IViewModel.ParameterAudioFeatures, audioFeatures }
-            };
-            _windowService.ShowWindow<AudioMetricsViewModel>(parameters: audioParams);
-        }
-        else
-            ShowError("Error", "Failed to get audio metrics.");
+            { IViewModel.ParameterTrackName, _playbackState.Track?.Name ?? "Unknown" },
+            { IViewModel.ParameterSpotifyTrackId, currentlyPlayingId }
+        };
+
+        _windowService.ShowWindow<AudioMetricsViewModel>(parameters: audioFeatureWindowParameters);
     }
 
     [RelayCommand(CanExecute = nameof(GetAudioMetricsCanExecute))]
     private void GetAudioAnalysis()
     {
-        if (_playbackState.CurrentlyPlayingId == null) return;
+        if (_playbackState.Track?.Id == null) return;
         _windowService.ShowWindow<AudioAnalysisViewModel>();
     }
 
     [RelayCommand(CanExecute = nameof(GetShareUrlCanExecute))]
-    private async Task GetShareUrl()
+    private void GetShareUrl()
     {
-        var url = await _spotifyService.GetShareUrl(_playbackState.CurrentlyPlayingId ?? string.Empty);
+        var url = _playbackState.Track?.ExternalUrls.Spotify; 
         if (string.IsNullOrEmpty(url))
+        {
             ShowError("Error", "Failed to get share url.");
+        }
         else
         {
             _windowService.SetClipboardText(url);
@@ -320,7 +314,7 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
 
     private bool IsBusyCanExecute() => !IsBusy;
 
-    private bool StartSongRadioCanExecute() => _playbackState.CurrentlyPlayingId != null;
+    private bool StartSongRadioCanExecute() => _playbackState.IsPlaying;
     
     private bool GetAudioMetricsCanExecute() => _playbackState.IsPlaying;
     private bool GetShareUrlCanExecute() => _playbackState.IsPlaying;
@@ -361,7 +355,7 @@ internal sealed partial class MainViewModel : ObservableObject, IDisposable, IVi
     private readonly List<IAsyncRelayCommand> _asyncCommandList;
     private readonly List<IRelayCommand> _commandList;
     private readonly Timer _progressTimer;
-    private PlaybackState _playbackState = new();
+    private PlaybackState _playbackState = PlaybackState.CreatePaused();
     private bool _isSeeking;
     private bool _topmost;
     private const int ProgressUpdateIntervalMs = 1000;

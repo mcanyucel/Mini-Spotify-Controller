@@ -194,7 +194,7 @@
                         <Line Stroke="Gray" X1="0" X2="{Binding ElementName=TrackInformationGroup, Path=ActualWidth}"  Y1="0" Y2="0" StrokeThickness="1" DockPanel.Dock="Bottom"/>
                         <ItemsControl
                         ItemsSource="{Binding 
-                            Path=DataContext.AudioAnalysisResult.Track, 
+                            Path=DataContext.AudioAnalysisResult.TrackAnalysisData, 
                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=mah:MetroWindow}, 
                             Converter={StaticResource AudioAnalysisDisplayConverter}}">
                             <ItemsControl.ItemTemplate>

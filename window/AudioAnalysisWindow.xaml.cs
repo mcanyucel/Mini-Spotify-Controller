@@ -5,5 +5,5 @@
 /// </summary>
 public partial class AudioAnalysisWindow
 {
-    internal AudioAnalysisWindow() => InitializeComponent();
+    public AudioAnalysisWindow() => InitializeComponent();
 }

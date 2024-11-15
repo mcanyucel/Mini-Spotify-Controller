@@ -2,7 +2,7 @@
 
 namespace MiniSpotifyController.model.AudioAnalysis;
 
-internal sealed record Bar(
+public sealed record Bar(
     [property: JsonPropertyName("start")]
     double Start,
     [property: JsonPropertyName("duration")]

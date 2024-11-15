@@ -21,10 +21,17 @@ public sealed partial class OAuthAuthenticator(
     IHttpClientFactory httpClientFactory) : IDisposable
 {
     public string? AccessToken { get; private set; }
-    
-    
     private readonly SemaphoreSlim _authorizationSemaphore = new(1, 1);
     private bool _isApiInitialized;
+    private DateTime _accessTokenExpirationUtc = DateTime.MinValue;
+
+    internal async Task<HttpRequestMessage> CreateAuthorizedHttpRequestMessage(HttpMethod httpMethod, string requestUri)
+    {
+        await EnsureAuthorized();
+        var httpRequestMessage = new HttpRequestMessage(httpMethod, requestUri);
+        httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+        return httpRequestMessage;
+    }
 
     private void EnsureApiInitialized()
     {
@@ -34,7 +41,7 @@ public sealed partial class OAuthAuthenticator(
         _isApiInitialized = true;
     }
 
-    private async Task EnsureAuthorized()
+    public async Task EnsureAuthorized()
     {
         if (!await IsAuthorized())
         {
@@ -49,11 +56,11 @@ public sealed partial class OAuthAuthenticator(
         
         await _authorizationSemaphore.WaitAsync();
         var hasAccessToken = !string.IsNullOrEmpty(AccessToken);
+        var isAccessTokenExpired = DateTime.UtcNow >= _accessTokenExpirationUtc;
 
-        if (!hasAccessToken)
+        if (!hasAccessToken || isAccessTokenExpired)
         {
             var refreshToken = tokenStorage.RetrieveRefreshToken();
-            // try to refresh the access token
             if (!string.IsNullOrEmpty(refreshToken))
             {
                 try
@@ -62,6 +69,7 @@ public sealed partial class OAuthAuthenticator(
                     if (refreshTokenResponse is { AccessToken: not null })
                     {
                         AccessToken = refreshTokenResponse.AccessToken;
+                        _accessTokenExpirationUtc = DateTime.UtcNow.AddSeconds(refreshTokenResponse.ExpiresIn);
                         hasAccessToken = true;
                     }
                 }
@@ -92,6 +100,7 @@ public sealed partial class OAuthAuthenticator(
                 if (refreshTokenResponse is { AccessToken: not null })
                 {
                     AccessToken = refreshTokenResponse.AccessToken;
+                    _accessTokenExpirationUtc = DateTime.UtcNow.AddSeconds(refreshTokenResponse.ExpiresIn);
                 }
                 else
                 {
@@ -118,6 +127,7 @@ public sealed partial class OAuthAuthenticator(
         if (authorizationResponse is { AccessToken: not null, RefreshToken: not null })
         {
             AccessToken = authorizationResponse.AccessToken;
+            _accessTokenExpirationUtc = DateTime.UtcNow.AddSeconds(authorizationResponse.ExpiresIn);
             tokenStorage.StoreRefreshToken(authorizationResponse.RefreshToken);
         }
         else
@@ -251,7 +261,7 @@ public sealed partial class OAuthAuthenticator(
             const int retryLimit = 3;
             var retryCount = 0;
 
-            string? id = preferenceService.GetClientId();
+            var id = preferenceService.GetClientId();
             while (string.IsNullOrEmpty(id) && retryCount < retryLimit)
             {
                 windowService.ShowWindow<ClientIdViewModel>(isModal: true);

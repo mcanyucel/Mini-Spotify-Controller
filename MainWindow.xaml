@@ -125,7 +125,7 @@
                 <iconPacks:PackIconMaterial HorizontalAlignment="Center" VerticalAlignment="Center">
                     <iconPacks:PackIconMaterial.Kind>
                         <MultiBinding Mode="OneWay" Converter="{StaticResource PlaybackStateButtonConverter}">
-                            <Binding Path="PlaybackState.IsBusy" />
+                            <Binding Path="IsBusy" />
                             <Binding Path="PlaybackState.IsPlaying" />
                         </MultiBinding>
                     </iconPacks:PackIconMaterial.Kind>
@@ -145,7 +145,7 @@
             </TextBlock.ToolTip>
         </TextBlock>
 
-        <Image Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
+        <Image Grid.Row="0" Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
 
         <Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,-4,0,0" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Value="{Binding Path=PlaybackState.ProgressMs, Converter={StaticResource PlaybackStateToProgressConverter}, Mode=OneWay}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}, Mode=OneWay}" SmallChange="30" LargeChange="60">
             <behaviors:Interaction.Triggers>
@@ -171,7 +171,7 @@
             Grid.Row="2"
             Grid.Column="0"
             Grid.ColumnSpan="4"
-            x:Name="webView"
+            x:Name="WebView"
             Source="" />
 
     </Grid>

@@ -13,7 +13,7 @@ internal sealed class AudioAnalysisDisplayConverter : IValueConverter
         return value switch
         {
             Meta meta => meta.ToDisplayItems(),
-            Track track => track.ToDisplayItems(),
+            TrackAnalysisData track => track.ToDisplayItems(),
             _ => throw new ArgumentException("Value is not of type Meta or Track.")
         };
     }

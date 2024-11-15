@@ -1,11 +1,11 @@
-﻿using MiniSpotifyController.model;
-using MiniSpotifyController.window;
+﻿using MiniSpotifyController.window;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using MiniSpotifyController.Extensions;
+using MiniSpotifyController.model.Spotify;
 using MiniSpotifyController.viewmodel;
 using Serilog;
 
@@ -16,13 +16,13 @@ namespace MiniSpotifyController.service.implementation
         public void ShowWindow<TViewModel>(bool isModal = false, Dictionary<string, object>? parameters = null) where TViewModel : IViewModel
         {
             int windowHash;
-            if (parameters == null || !parameters.TryGetValue(IViewModel.ParameterId, out var id))
+            if (parameters == null || !parameters.TryGetValue(IViewModel.ParameterSpotifyTrackId, out var id))
             {
                 windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name);
             }
             else
             {
-                windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name, (int)id);
+                windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name, id.ToString());
             }
             
             if (_openWindows.TryGetValue(windowHash, out var existingWindow))
@@ -52,7 +52,7 @@ namespace MiniSpotifyController.service.implementation
             }
         }
         
-        public void CloseWindow<TViewModel>(int? id = null) where TViewModel : IViewModel
+        public void CloseWindow<TViewModel>(string? id = null) where TViewModel : IViewModel
         {
             var windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name, id);
             if (_openWindows.TryGetValue(windowHash, out var window))
@@ -63,7 +63,7 @@ namespace MiniSpotifyController.service.implementation
 
         public void SetClipboardText(string text) => Clipboard.SetText(text);
 
-        public void ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback)
+        public void ShowDevicesContextMenu(Device[] devices, Func<Device, Task> transferPlayback)
         {
             ContextMenu contextMenu = new();
 
@@ -72,16 +72,13 @@ namespace MiniSpotifyController.service.implementation
                 MenuItem menuItem = new()
                 {
                     Header = device.Name,
-                    Tag = device.Id,
+                    Tag = device,
                     IsCheckable = true,
                     IsChecked = device.IsActive,
                 };
                 menuItem.Click += async (sender, _) =>
                 {
-                    if (sender is MenuItem item)
-                    {
-                        await transferPlayback(item.Tag as string ?? string.Empty);
-                    }
+                    if (sender is MenuItem { Tag: Device targetDevice }) await transferPlayback(targetDevice);
                 };
                 contextMenu.Items.Add(menuItem);
             }

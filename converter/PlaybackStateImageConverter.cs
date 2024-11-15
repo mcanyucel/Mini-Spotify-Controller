@@ -2,8 +2,10 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Data;
+using PlaybackState = MiniSpotifyController.model.Spotify.PlaybackState;
 
 namespace MiniSpotifyController.converter
 {
@@ -11,8 +13,8 @@ namespace MiniSpotifyController.converter
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is PlaybackState { IsPlaying: true, CurrentlyPlayingAlbum.ImageUrl: not null } playbackState)
-                return new Uri(playbackState.CurrentlyPlayingAlbum.ImageUrl);
+            if (value is PlaybackState { IsPlaying: true,Track.Album.Images: not null } playbackState)
+                return new Uri(playbackState.Track.Album.Images.FirstOrDefault()?.Url ?? string.Empty);
 
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", "assets", "spotify.png");
             return new Uri(path);

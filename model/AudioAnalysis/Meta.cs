@@ -2,7 +2,7 @@
 
 namespace MiniSpotifyController.model.AudioAnalysis;
 
-internal sealed record Meta(
+public sealed record Meta(
     [property: JsonPropertyName("analyzer_version")]
     string AnalyzerVersion,
     [property: JsonPropertyName("platform")]

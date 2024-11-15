@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
+using MiniSpotifyController.model.AudioFeature;
 
 namespace MiniSpotifyController.converter
 {

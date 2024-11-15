@@ -25,11 +25,11 @@ namespace MiniSpotifyController
                 // Define environment for WebView2
                 var userDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\MiniSpotifyController";
                 var environment = await CoreWebView2Environment.CreateAsync(userDataFolder: userDataFolder);
-                await webView.EnsureCoreWebView2Async(environment);
+                await WebView.EnsureCoreWebView2Async(environment);
 
 
                 // handle messages from the player so that we can transfer playback once the player is ready
-                webView.CoreWebView2.WebMessageReceived += (_, coreWebView2WebMessageReceivedEventArgs) =>
+                WebView.CoreWebView2.WebMessageReceived += (_, coreWebView2WebMessageReceivedEventArgs) =>
                 {
                     var message = coreWebView2WebMessageReceivedEventArgs.TryGetWebMessageAsString();
                     var parts = message.Split('|');
@@ -63,9 +63,9 @@ namespace MiniSpotifyController
                 // Update UI elements on the main thread
                 Dispatcher.Invoke(() =>
                 {
-                    webView.CoreWebView2.SetVirtualHostNameToFolderMapping(VirtualHostName, htmlFolder, CoreWebView2HostResourceAccessKind.Deny);
+                    WebView.CoreWebView2.SetVirtualHostNameToFolderMapping(VirtualHostName, htmlFolder, CoreWebView2HostResourceAccessKind.Deny);
                     // Navigate to the player HTML
-                    webView.CoreWebView2.Navigate($"https://{VirtualHostName}/{playerHtmlName}");
+                    WebView.CoreWebView2.Navigate($"https://{VirtualHostName}/{playerHtmlName}");
                 });
 
             }

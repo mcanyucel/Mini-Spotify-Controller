@@ -1,16 +1,17 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MiniSpotifyController.model;
 using MiniSpotifyController.model.AudioAnalysis;
 using MiniSpotifyController.service;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using PlaybackState = MiniSpotifyController.model.Spotify.PlaybackState;
 
 namespace MiniSpotifyController.viewmodel
 {
     internal sealed partial class AudioAnalysisViewModel : ObservableObject, IViewModel
     {
+        public event EventHandler<PlaybackState>? PlaybackStateChanged; 
         [ObservableProperty] private AudioAnalysisResult? _audioAnalysisResult;
         [ObservableProperty] private bool _isBusy;
 
@@ -21,7 +22,7 @@ namespace MiniSpotifyController.viewmodel
             {
                 SetProperty(ref _playbackState, value);
                 SeekToSpanCommand.NotifyCanExecuteChanged();
-                Task.Run(GetAudioAnalysis);
+                _ = Task.Run(GetAudioAnalysis);
             }
         }
 
@@ -45,9 +46,9 @@ namespace MiniSpotifyController.viewmodel
             _shouldUpdateAudioAnalysis = false;
             var spanStringArray = spanString.Split('-');
             if (spanStringArray.Length == 2)
-                // the format of the time spans tring is "mm:ss.fff"
+                // the format of the time spans string is "mm:ss.fff"
                 if (TimeSpan.TryParseExact(spanStringArray[0].Trim(), "mm\\:ss\\.fff", CultureInfo.InvariantCulture, out var start))
-                    await _spotifyService.Seek(PlaybackState!.DeviceId!, (int)start.TotalMilliseconds);
+                    await _spotifyService.Seek((int)start.TotalMilliseconds);
         }
 
         [RelayCommand(CanExecute = nameof(GetAudioAnalysisCanExecute))]
@@ -55,7 +56,7 @@ namespace MiniSpotifyController.viewmodel
         {
             // do not update the audio analysis while seeking - prevents flickering and unnecessary requests
             _shouldUpdateAudioAnalysis = false;
-            await _spotifyService.Seek(PlaybackState!.DeviceId!, (int)(segment.Start * 1000));
+            await _spotifyService.Seek((int)(segment.Start * 1000));
         }
 
         [RelayCommand(CanExecute = nameof(GetAudioAnalysisCanExecute))]
@@ -63,19 +64,23 @@ namespace MiniSpotifyController.viewmodel
         {
             // do not update the audio analysis while seeking - prevents flickering and unnecessary requests
             _shouldUpdateAudioAnalysis = false;
-            await _spotifyService.Seek(PlaybackState!.DeviceId!, (int)(section.Start * 1000));
+            await _spotifyService.Seek((int)(section.Start * 1000));
         }
 
         private async Task GetAudioAnalysis()
         {
-            if (!_shouldUpdateAudioAnalysis || IsBusy || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId))
+            var spotifyId = PlaybackState?.Track?.Id;
+            if (spotifyId == null || !GetAudioAnalysisCanExecute) return;
+            
+            if (!_shouldUpdateAudioAnalysis || IsBusy)
             {
                 _shouldUpdateAudioAnalysis = true;
                 return;
             }
 
             IsBusy = true;
-            var result = await _spotifyService.GetAudioAnalysis(PlaybackState.CurrentlyPlayingId);
+            
+            var result = await _spotifyService.GetAudioAnalysis(spotifyId);
             if (result != null)
                 AudioAnalysisResult = result;
             else
@@ -91,7 +96,7 @@ namespace MiniSpotifyController.viewmodel
             _spotifyService.PlaybackStateChanged += SpotifyService_PlaybackStateChanged;
         }
 
-        private bool GetAudioAnalysisCanExecute => !IsBusy && !string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingId);
+        private bool GetAudioAnalysisCanExecute => !IsBusy && PlaybackState is { IsPlaying: true };
 
         private void SpotifyService_PlaybackStateChanged(object? _, PlaybackState e)
         {

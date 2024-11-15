@@ -1,7 +1,12 @@
-﻿namespace MiniSpotifyController.model;
+﻿namespace MiniSpotifyController.model.AudioFeature;
 
 public record AudioFeature(string FeatureName, double FeatureValue, double FeatureMin, double FeatureMax, FeatureType FeatureType = FeatureType.Number)
 {
+    public virtual bool Equals(AudioFeature? other) => other?.FeatureName == FeatureName;
+    
+    public override int GetHashCode() => FeatureName.GetHashCode();
+
+    public AudioFeature CloneWithNewValue(double newValue) => this with { FeatureValue = newValue };
     public override string ToString()
     {
         string result;
@@ -12,8 +17,8 @@ public record AudioFeature(string FeatureName, double FeatureValue, double Featu
         {
             result = FeatureName switch
             {
-                "Key" => $"{FeatureName}: {KeyNumberToKey()}",
-                "Mode" => $"{FeatureName}: {ModeNumberToMode()}",
+                "key" => $"{FeatureName}: {KeyNumberToKey()}",
+                "mode" => $"{FeatureName}: {ModeNumberToMode()}",
                 _ => $"{FeatureName}: {FeatureValue}"
             };
         }

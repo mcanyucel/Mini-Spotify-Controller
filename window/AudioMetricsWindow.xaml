@@ -6,24 +6,31 @@
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:model="clr-namespace:MiniSpotifyController.model"
                 xmlns:converter="clr-namespace:MiniSpotifyController.converter"
+                xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
                  SizeToContent="Height"
                  Background="DarkCyan"
-                xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel" d:DataContext="{d:DesignInstance Type=viewmodel:AudioMetricsViewModel}"
+                xmlns:viewmodel="clr-namespace:MiniSpotifyController.viewmodel"
+                xmlns:audioFeature="clr-namespace:MiniSpotifyController.model.AudioFeature"
+                d:DataContext="{d:DesignInstance Type=viewmodel:AudioMetricsViewModel}"
         mc:Ignorable="d"
-        Title="{Binding AudioFeatures.TrackName, StringFormat=AUDIO METRICS FOR {0}}" Width="400">
+        Title="{Binding TrackName, StringFormat=AUDIO METRICS FOR {0}}" Width="400">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="ContentRendered">
+            <i:InvokeCommandAction Command="{Binding LoadDataCommand}"></i:InvokeCommandAction>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <mah:MetroWindow.Resources>
         <converter:AudioFeatureTitleConverter x:Key="AudioFeatureTitleConverter" />
     </mah:MetroWindow.Resources>
     <Grid Margin="0,8,0,8">
         <ItemsControl ItemsSource="{Binding AudioFeatures.Features}">
             <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="model:AudioFeature">
+                <DataTemplate DataType="audioFeature:AudioFeature">
                     <DockPanel LastChildFill="True">
                         
                         <TextBlock Text="Low" DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="8,0,4,0" Foreground="DarkBlue" VerticalAlignment="Center" />
                         <TextBlock Text="High" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,8,0" Foreground="DarkRed" VerticalAlignment="Center"/>
                         <Grid >
-                            
                             <mah:MetroProgressBar Value="{Binding FeatureValue, Mode=OneTime}" Minimum="{Binding FeatureMin}" Maximum="{Binding FeatureMax}" Foreground="DarkGreen" Margin="0,4,0,4" />
                             <TextBlock Text="{Binding Converter={StaticResource AudioFeatureTitleConverter}}" TextAlignment="Center" FontWeight="Bold" Foreground="AliceBlue" Margin="0,4,0,4"/>
                         </Grid>
@@ -32,5 +39,13 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        
+        <mah:ProgressRing HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+                          IsLarge="True" />
+        
     </Grid>
+    
+    
 </mah:MetroWindow>

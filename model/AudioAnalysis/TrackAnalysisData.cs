@@ -3,7 +3,7 @@
 namespace MiniSpotifyController.model.AudioAnalysis;
 
 // ReSharper disable once ClassNeverInstantiated.Global - Instantiated by deserializer
-internal sealed record Track(
+public sealed record TrackAnalysisData(
     [property: JsonPropertyName("num_samples")]
     long NumSamples,
     [property: JsonPropertyName("duration")]
