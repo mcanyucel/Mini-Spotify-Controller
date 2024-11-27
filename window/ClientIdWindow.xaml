@@ -8,9 +8,20 @@
         d:DataContext="{d:DesignInstance Type=viewmodel:ClientIdViewModel}"
         mc:Ignorable="d"
         Title="ENTER CLIENT ID" SizeToContent="WidthAndHeight">
-    <DockPanel LastChildFill="True" Margin="8">
-        <TextBlock Text="Client ID" Margin="8" DockPanel.Dock="Left" VerticalAlignment="Center"/>
-        <TextBox Margin="8" Width="200" Focusable="True" Text="{Binding Path=ClientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        <Button Margin="8" Content="Save" Command="{Binding SaveCommand}" />
-    </DockPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Client ID" Margin="8" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="8" Width="200" Focusable="True" Text="{Binding Path=ClientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        
+            <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="8" Content="Save" Command="{Binding SaveCommand}" />
+    </Grid>
+    
 </mah:MetroWindow>

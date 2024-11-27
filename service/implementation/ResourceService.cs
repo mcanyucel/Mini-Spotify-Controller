@@ -13,7 +13,7 @@ namespace MiniSpotifyController.service.implementation
             // replace variables
             var map = new Dictionary<string, string>
             {
-                { "{{internalPlayerName}}", ISpotifyService.INTERNAL_PLAYER_NAME },
+                { "{{internalPlayerName}}", ISpotifyService.InternalPlayerName },
                 { "{{accessToken}}", accessToken }
             };
             var html = MultipleReplace(source, map);

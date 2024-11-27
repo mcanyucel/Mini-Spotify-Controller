@@ -12,7 +12,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <Version>$(VersionPrefix)</Version>
     <AssemblyVersion>2.0.2.1</AssemblyVersion>
-    <FileVersion></FileVersion>
+    <FileVersion>3.0.0.0</FileVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>spotify.png</PackageIcon>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -56,20 +56,17 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.67" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
     <PackageReference Include="MahApps.Metro" Version="2.4.10" />
-    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="5.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2849.39" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="Serilog" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="SimMetrics.Net" Version="1.0.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="AutoUpdater">
-      <HintPath>AutoUpdater.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -115,9 +112,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
-    <None Update="AutoUpdater.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -1,47 +1,77 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Globalization;
+using System.IO;
+using System.Windows;
+using MiniSpotifyController.Extensions;
 using MiniSpotifyController.service;
 using MiniSpotifyController.service.implementation;
 using MiniSpotifyController.viewmodel;
-using System;
-using System.Windows;
+using MiniSpotifyController.window;
+using Serilog;
 
 namespace MiniSpotifyController;
 
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : Application
+public partial class App
 {
     public App()
     {
+        ConfigureLogger();
         Services = ConfigureServices();
-
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     public new static App Current => (App)Application.Current;
+    
+    public const string SpotifyWebApiClientName = "SpotifyWebApiClient";
+    public const string SpotifyAuthClientName = "SpotifyAuthClient";
 
-    public IServiceProvider Services { get; }
+    private IServiceProvider Services { get; }
+
+    private static void ConfigureLogger()
+    {
+        var logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "MiniSpotifyController", "logs");
+
+        if (!Directory.Exists(logDirectory))
+        {
+            Directory.CreateDirectory(logDirectory);
+        }
+
+        var loggerConfiguration = new LoggerConfiguration()
+            .WriteTo.File(Path.Combine(logDirectory, "log-.txt"), rollingInterval: RollingInterval.Day, formatProvider:CultureInfo.InvariantCulture);
+        
+#if DEBUG
+        loggerConfiguration.MinimumLevel.Debug();
+#else
+        loggerConfiguration.MinimumLevel.Error();
+#endif
+        
+        Log.Logger = loggerConfiguration.CreateLogger();
+        Log.Information("Application started");
+    }
 
     private static ServiceProvider ConfigureServices()
     {
-        var services = new ServiceCollection();
+        return new ServiceCollection()
+            .AddLogger()
+            .AddHttpClientFactory()
+            .AddCoreServices()
+            .AddViewModelMapping()
+            .AddViewModelFactory()
+            .AddWindowFactory()
+            .AddSpotifyServices()
+            .BuildServiceProvider();
+    }
 
-        services.AddSingleton<ISpotifyService, SpotifyService>();
-        services.AddSingleton<IToastService, ToastService>();
-        services.AddSingleton<IPreferenceService, PreferenceService>();
-        services.AddSingleton<IWindowService, WindowService>();
-        services.AddSingleton<ILogService, LogService>();
-        services.AddSingleton<IResourceService, ResourceService>();
-        services.AddSingleton<MainViewModel>();
-
-        services.AddTransient<AuthViewModel>();
-        services.AddTransient<ClientIdViewModel>();
-        services.AddTransient<AudioMetricsViewModel>();
-        services.AddTransient<AudioAnalysisViewModel>();
-        services.AddTransient<ILyricsService, GeniusService>();
-        services.AddTransient<LyricsViewModel>();
-
-        return services.BuildServiceProvider();
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+        
+        var windowService = Services.GetRequiredService<IWindowService>();
+        windowService.ShowWindow<MainViewModel>();
     }
 }

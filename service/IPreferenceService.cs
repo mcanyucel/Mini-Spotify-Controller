@@ -1,11 +1,9 @@
 ﻿namespace MiniSpotifyController.service;
 
-internal interface IPreferenceService
+public interface IPreferenceService
 {
-    internal void SetRefreshToken(string refreshToken);
-    internal string? GetRefreshToken();
-    internal string? GetClientId();
-    internal void SetClientId(string clientId);
-    internal string? GetGeniusClientId();
-    internal string? GetGeniusAccessToken();
+    public string? GetClientId();
+    public void SetClientId(string clientId);
+    public string? GetGeniusClientId();
+    public string? GetGeniusAccessToken();
 }

@@ -1,57 +1,29 @@
-﻿namespace MiniSpotifyController.service.implementation
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace MiniSpotifyController.service.implementation
 {
     internal sealed class PreferenceService : IPreferenceService
     {
-        void IPreferenceService.SetClientId(string clientId)
+        public void SetClientId(string clientId)
         {
             Properties.Settings.Default.ClientId = clientId;
             Properties.Settings.Default.Save();
         }
 
-        string? IPreferenceService.GetClientId()
+        public string? GetClientId()
         {
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.ClientId))
-            {
-                return null;
-            }
-            else
-            {
-                return Properties.Settings.Default.ClientId;
-            }
+            return string.IsNullOrWhiteSpace(Properties.Settings.Default.ClientId) ? null : Properties.Settings.Default.ClientId;
         }
 
-        string? IPreferenceService.GetRefreshToken()
+        public string? GetGeniusClientId()
         {
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.RefreshToken))
-            {
-                return null;
-            }
-            else
-            {
-                return Properties.Settings.Default.RefreshToken;
-            }
+            return string.IsNullOrWhiteSpace(Properties.Settings.Default.GeniusClientId) ? null : Properties.Settings.Default.GeniusClientId;
         }
 
-        void IPreferenceService.SetRefreshToken(string refreshToken)
+        public string? GetGeniusAccessToken()
         {
-            Properties.Settings.Default.RefreshToken = refreshToken;
-            Properties.Settings.Default.Save();
-        }
-
-        string? IPreferenceService.GetGeniusClientId()
-        {
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.GeniusClientId))
-                return null;
-            else
-                return Properties.Settings.Default.GeniusClientId;
-        }
-
-        string? IPreferenceService.GetGeniusAccessToken()
-        {
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.GeniusClientAccessToken))
-                return null;
-            else
-                return Properties.Settings.Default.GeniusClientAccessToken;
+            return string.IsNullOrWhiteSpace(Properties.Settings.Default.GeniusClientAccessToken) ? null : Properties.Settings.Default.GeniusClientAccessToken;
         }
     }
 }

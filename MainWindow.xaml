@@ -3,7 +3,6 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:local="clr-namespace:MiniSpotifyController"
                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                 xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
                 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
@@ -12,7 +11,7 @@
                 xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
                 ContentRendered="MetroWindow_ContentRendered" 
                 Topmost="{Binding Topmost}"
-                Title="{Binding Path=User.DisplayName}"
+                Title="{Binding Path=User.DisplayName, FallbackValue=''}"
                 d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
                 ResizeMode="NoResize"
                 Width="480" Height="100"
@@ -28,7 +27,6 @@
         <converters:PlaybackStateDurationConverter x:Key="PlaybackStateDurationConverter" />
         <converters:PlaybackStateToProgressConverter x:Key="PlaybackStateToProgressConverter" />
         <converters:PlaybackStateImageConverter x:Key="PlaybackStateImageConverter" />
-        <converters:PlaybackStateToLikedConverter x:Key="PlaybackStateToLikedConverter" />
     </mah:MetroWindow.Resources>
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
@@ -117,7 +115,7 @@
             </Button>
         </UniformGrid>
 
-        <StackPanel Orientation="Horizontal" Grid.Column="1" Margin="8,4,8,4">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Margin="8,4,8,4">
             <Button Command="{Binding Path=PreviousCommand}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource MahApps.Styles.Button.Circle}" Width="32" Height="32" Background="Bisque" Margin="0,0,4,0">
                 <Button.Content>
                     <iconPacks:PackIconMaterial Kind="SkipPrevious" />
@@ -127,7 +125,7 @@
                 <iconPacks:PackIconMaterial HorizontalAlignment="Center" VerticalAlignment="Center">
                     <iconPacks:PackIconMaterial.Kind>
                         <MultiBinding Mode="OneWay" Converter="{StaticResource PlaybackStateButtonConverter}">
-                            <Binding Path="PlaybackState.IsBusy" />
+                            <Binding Path="IsBusy" />
                             <Binding Path="PlaybackState.IsPlaying" />
                         </MultiBinding>
                     </iconPacks:PackIconMaterial.Kind>
@@ -141,13 +139,13 @@
 
         </StackPanel>
 
-        <TextBlock Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap">
+        <TextBlock Grid.Row="0" Grid.Column="2" Margin="8" Text="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="NoWrap">
             <TextBlock.ToolTip>
                 <ToolTip Content="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateToNowPlayingConverter}}" />
             </TextBlock.ToolTip>
         </TextBlock>
 
-        <Image Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
+        <Image Grid.Row="0" Grid.Column="3" Margin="8" Source="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateImageConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="48" Height="48" />
 
         <Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,-4,0,0" Style="{DynamicResource MahApps.Styles.Slider.Flat}" Value="{Binding Path=PlaybackState.ProgressMs, Converter={StaticResource PlaybackStateToProgressConverter}, Mode=OneWay}" Minimum="0" Maximum="{Binding Path=PlaybackState, Converter={StaticResource PlaybackStateDurationConverter}, Mode=OneWay}" SmallChange="30" LargeChange="60">
             <behaviors:Interaction.Triggers>
@@ -173,7 +171,7 @@
             Grid.Row="2"
             Grid.Column="0"
             Grid.ColumnSpan="4"
-            x:Name="webView"
+            x:Name="WebView"
             Source="" />
 
     </Grid>

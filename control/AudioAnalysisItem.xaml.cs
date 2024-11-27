@@ -8,7 +8,7 @@ namespace MiniSpotifyController.control;
 /// <summary>
 /// Interaction logic for AudioAnalysisItem.xaml
 /// </summary>
-public partial class AudioAnalysisItem : UserControl
+public partial class AudioAnalysisItem
 {
     public AudioAnalysisItem()
     {

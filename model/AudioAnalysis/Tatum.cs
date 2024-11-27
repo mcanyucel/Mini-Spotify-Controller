@@ -2,7 +2,7 @@
 
 namespace MiniSpotifyController.model.AudioAnalysis;
 
-internal sealed record Tatum(
+public sealed record Tatum(
     [property: JsonPropertyName("start")]
     double Start,
     [property: JsonPropertyName("duration")]

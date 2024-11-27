@@ -1,43 +1,44 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MiniSpotifyController.model;
 using MiniSpotifyController.model.Lyrics;
 using MiniSpotifyController.service;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using PlaybackState = MiniSpotifyController.model.Spotify.PlaybackState;
 
 namespace MiniSpotifyController.viewmodel
 {
-    internal sealed partial class LyricsViewModel : ObservableObject
+    internal sealed partial class LyricsViewModel : ObservableObject, IViewModel
     {
-        [ObservableProperty]
-        LyricsResult? lyricsResult;
+        [ObservableProperty] private LyricsResult? _lyricsResult;
 
-        [ObservableProperty]
-        bool isBusy;
+        [ObservableProperty] private bool _isBusy;
 
-        public PlaybackState? PlaybackState
+        private PlaybackState? PlaybackState
         {
-            get => playbackState;
+            get => _playbackState;
             set
             {
-                SetProperty(ref playbackState, value);
+                SetProperty(ref _playbackState, value);
                 Task.Run(GetLyrics);
             }
         }
 
         [RelayCommand]
-        public void Initialize() => spotifyService.UpdatePlaybackState();
+        private void Initialize() => _spotifyService.UpdatePlaybackState();
 
         [RelayCommand]
-        void OpenInGoogleSearch()
+        private void OpenInGoogleSearch()
         {
             try
             {
-                if (string.IsNullOrEmpty(PlaybackState?.CurrentlyPlaying) || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingArtist)) return;
+                var songName = PlaybackState?.Track?.Name;
+                var artistName = PlaybackState?.Track?.Artists?.FirstOrDefault()?.Name;
+                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(artistName)) return;
 
-                var searchQuery = $"{PlaybackState.CurrentlyPlaying} {PlaybackState.CurrentlyPlayingArtist}";
+                var searchQuery = $"{songName} {artistName} lyrics";
                 Process process = new();
                 process.StartInfo.FileName = "https://www.google.com/search?q=" + searchQuery;
                 process.StartInfo.UseShellExecute = true;
@@ -45,12 +46,12 @@ namespace MiniSpotifyController.viewmodel
             }
             catch (Exception)
             {
-                toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
+                _toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
             }
         }
 
         [RelayCommand]
-        void OpenInGenius()
+        private void OpenInGenius()
         {
             try
             {
@@ -63,37 +64,40 @@ namespace MiniSpotifyController.viewmodel
             }
             catch (Exception)
             {
-                toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
+                _toastService.ShowTextToast("status", 0, "Error", "Error opening browser");
             }
         }
 
 
-        async Task GetLyrics()
+        private async Task GetLyrics()
         {
-            if (string.IsNullOrEmpty(PlaybackState?.CurrentlyPlaying) || string.IsNullOrEmpty(PlaybackState?.CurrentlyPlayingArtist)) return;
+            var songName = PlaybackState?.Track?.Name;
+            var artistName = PlaybackState?.Track?.Artists?.FirstOrDefault()?.Name;
+            if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(artistName)) return;
 
             IsBusy = true;
-            LyricsResult = await lyricsService.GetLyrics(PlaybackState.CurrentlyPlaying, PlaybackState.CurrentlyPlayingArtist);
+            LyricsResult = await _lyricsService.GetLyrics(songName, artistName);
             IsBusy = false;
         }
 
         public LyricsViewModel(ISpotifyService spotifyService, IToastService toastService, ILyricsService lyricsService)
         {
-            this.spotifyService = spotifyService;
-            this.toastService = toastService;
-            this.lyricsService = lyricsService;
+            _spotifyService = spotifyService;
+            _toastService = toastService;
+            _lyricsService = lyricsService;
 
-            this.spotifyService.PlaybackStateChanged += (_, e) =>
+            _spotifyService.PlaybackStateChanged += (_, e) =>
             {
                 PlaybackState = e;
             };
 
         }
         #region Fields
-        readonly ISpotifyService spotifyService;
-        readonly IToastService toastService;
-        readonly ILyricsService lyricsService;
-        PlaybackState? playbackState;
+
+        private readonly ISpotifyService _spotifyService;
+        private readonly IToastService _toastService;
+        private readonly ILyricsService _lyricsService;
+        private PlaybackState? _playbackState;
         #endregion
     }
 }

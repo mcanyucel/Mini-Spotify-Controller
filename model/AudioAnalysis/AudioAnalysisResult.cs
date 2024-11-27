@@ -3,11 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace MiniSpotifyController.model.AudioAnalysis;
 
-internal sealed record AudioAnalysisResult(
+public sealed record AudioAnalysisResult(
     [property: JsonPropertyName("meta")]
     Meta Meta,
     [property: JsonPropertyName("track")]
-    Track Track,
+    TrackAnalysisData TrackAnalysisData,
     [property: JsonPropertyName("bars")]
     IEnumerable<Bar> Bars,
     [property: JsonPropertyName("beats")]

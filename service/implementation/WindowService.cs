@@ -1,117 +1,155 @@
-﻿using MiniSpotifyController.model;
-using MiniSpotifyController.window;
+﻿using MiniSpotifyController.window;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using MiniSpotifyController.Extensions;
+using MiniSpotifyController.model.Spotify;
+using MiniSpotifyController.viewmodel;
+using Serilog;
 
 namespace MiniSpotifyController.service.implementation
 {
-    internal sealed class WindowService : IWindowService
+    internal sealed partial class WindowService(ViewModelFactory viewModelFactory, WindowFactory windowFactory, ILogger logger) : IWindowService, IDisposable
     {
-        void IWindowService.ShowClientIdWindowDialog()
+        public void ShowWindow<TViewModel>(bool isModal = false, Dictionary<string, object>? parameters = null) where TViewModel : IViewModel
         {
-            clientIdWindow = new ClientIdWindow();
-            clientIdWindow.ShowDialog();
-        }
-        void IWindowService.CloseClientIdWindowDialog()
-        {
-            clientIdWindow?.Close();
-            clientIdWindow = null;
-        }
-        void IWindowService.ShowAuthorizationWindowDialog()
-        {
-            authWindow = new AuthWindow();
-            authWindow.ShowDialog();
-        }
-        void IWindowService.CloseAuthorizationWindowDialog()
-        {
-            authWindow?.Close();
-            authWindow = null;
-        }
-
-        void IWindowService.SetClipboardText(string text) => Clipboard.SetText(text);
-
-        void IWindowService.ShowAudioFeaturesWindow(AudioFeatures audioFeatures)
-        {
-            if (audioMetricsWindow == null)
+            int windowHash;
+            if (parameters == null || !parameters.TryGetValue(IViewModel.ParameterSpotifyTrackId, out var id))
             {
-                audioMetricsWindow = new AudioMetricsWindow(audioFeatures);
-                audioMetricsWindow.Show();
-                audioMetricsWindow.Closed += (sender, args) => audioMetricsWindow = null;
+                windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name);
             }
             else
             {
-                audioMetricsWindow.UpdateData(audioFeatures);
-                audioMetricsWindow.Activate();
+                windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name, id.ToString());
             }
-        }
-
-        void IWindowService.ShowAudioAnalysisWindow()
-        {
-            if (audioAnalysisWindow == null)
+            
+            if (_openWindows.TryGetValue(windowHash, out var existingWindow))
             {
-                audioAnalysisWindow = new();
-                audioAnalysisWindow.Show();
-                audioAnalysisWindow.Closed += (sender, args) => audioAnalysisWindow = null;
+                existingWindow.Activate();
             }
             else
             {
-                audioAnalysisWindow.Activate();
-            }
+                var viewModel = viewModelFactory.Create<TViewModel>(parameters);
+                var window = windowFactory.CreateWindowForViewModel<TViewModel>();
+                _openWindows.Add(windowHash, window);
+                SubscribeToWindowClosed(window, windowHash);
+                window.DataContext = viewModel;
+                if (isModal)
+                {
+                    window.ShowDialog();
+                }
+                else
+                {
+                    window.Show();
+                }
 
+                if (typeof(TViewModel) == typeof(MainViewModel))
+                {
+                    _homeWindowHash = windowHash;
+                }
+            }
+        }
+        
+        public void CloseWindow<TViewModel>(string? id = null) where TViewModel : IViewModel
+        {
+            var windowHash = ServiceExtensions.GetHash(typeof(TViewModel).Name, id);
+            if (_openWindows.TryGetValue(windowHash, out var window))
+                window.Close();
+            else
+                logger.Warning("Window with hash {windowHash} not found.", windowHash);
         }
 
-        bool IWindowService.IsAudioMetricsWindowOpen() => audioMetricsWindow != null;
+        public void SetClipboardText(string text) => Clipboard.SetText(text);
 
-        bool IWindowService.ShowUpdateWindowDialog() => MessageBox.Show("A new version of Mini Spotify Controller is available. Do you want to download it?", "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
-
-        void IWindowService.ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback)
+        public void ShowDevicesContextMenu(Device[] devices, Func<Device, Task> transferPlayback)
         {
             ContextMenu contextMenu = new();
 
-            foreach (Device device in devices)
+            foreach (var device in devices)
             {
                 MenuItem menuItem = new()
                 {
                     Header = device.Name,
-                    Tag = device.Id,
+                    Tag = device,
                     IsCheckable = true,
                     IsChecked = device.IsActive,
                 };
-                menuItem.Click += async (sender, args) =>
+                menuItem.Click += async (sender, _) =>
                 {
-                    if (sender is MenuItem menuItem)
-                    {
-                        await transferPlayback(menuItem.Tag as string ?? string.Empty);
-                    }
+                    if (sender is MenuItem { Tag: Device targetDevice }) await transferPlayback(targetDevice);
                 };
                 contextMenu.Items.Add(menuItem);
             }
 
             contextMenu.IsOpen = true;
         }
-
-        void IWindowService.ShowLyricsWindow()
+        
+        /// <summary>
+        /// Subscribe to the Closed event of a window to remove it from the openWindows dictionary when it is closed.
+        /// </summary>
+        /// <param name="window"></param>
+        /// <param name="windowHash"></param>
+        private void SubscribeToWindowClosed(Window window, int windowHash)
         {
-            if (lyricsWindow == null)
+            window.Closed += OnWindowClosedHandler;
+            return;
+
+            void OnWindowClosedHandler(object? _, EventArgs e)
             {
-                lyricsWindow = new();
-                lyricsWindow.Show();
-                lyricsWindow.Closed += (sender, args) => lyricsWindow = null;
-            }
-            else
-            {
-                lyricsWindow.Activate();
+                _openWindows.Remove(windowHash);
+                window.Closed -= OnWindowClosedHandler;
+
+                if (windowHash == _homeWindowHash)
+                {
+                    Application.Current.Shutdown();
+                }
             }
         }
 
         #region Fields
-        AuthWindow? authWindow;
-        ClientIdWindow? clientIdWindow;
-        AudioMetricsWindow? audioMetricsWindow;
-        AudioAnalysisWindow? audioAnalysisWindow;
-        LyricsWindow? lyricsWindow;
+
+        private readonly Dictionary<int, Window> _openWindows = [];
+        private int _homeWindowHash;
+        #endregion
+        
+        #region IDisposable Support
+        private bool _disposedValue;
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposedValue) return;
+            if (disposing)
+            {
+                // Dispose managed state (managed objects)
+
+                // Close all open windows
+                foreach (var window in _openWindows.Values)
+                {
+                    window.Close();
+                }
+            }
+
+            // Free unmanaged resources (unmanaged objects) and override finalizer
+            // Set large fields to null
+            _disposedValue = true;
+        }
+
+        // override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~WindowService()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            // GC.SuppressFinalize(this); // uncomment if 'Dispose(bool disposing)' has code to free unmanaged resources
+        }
+    
         #endregion
     }
 }

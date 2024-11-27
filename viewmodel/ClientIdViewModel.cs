@@ -4,17 +4,17 @@ using MiniSpotifyController.service;
 
 namespace MiniSpotifyController.viewmodel
 {
-    internal sealed partial class ClientIdViewModel(IPreferenceService preferenceService, IWindowService windowService) : ObservableObject
+    internal sealed partial class ClientIdViewModel(IPreferenceService preferenceService, IWindowService windowService) : ObservableObject, IViewModel
     {
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-        private string clientId = "";
+        private string _clientId = "";
 
         [RelayCommand(CanExecute = nameof(SaveCanExecute))]
-        void Save()
+        private void Save()
         {
             preferenceService.SetClientId(ClientId);
-            windowService.CloseClientIdWindowDialog();
+            windowService.CloseWindow<ClientIdViewModel>();
         }
 
         private bool SaveCanExecute() => !string.IsNullOrWhiteSpace(ClientId);

@@ -1,22 +1,17 @@
 ﻿using MiniSpotifyController.model;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using MiniSpotifyController.model.Spotify;
+using MiniSpotifyController.viewmodel;
 
 namespace MiniSpotifyController.service;
 
-internal interface IWindowService
+public interface IWindowService
 {
-    internal void ShowClientIdWindowDialog();
-    internal void CloseClientIdWindowDialog();
-    internal void ShowAuthorizationWindowDialog();
-    internal void CloseAuthorizationWindowDialog();
+    public void ShowWindow<TViewModel>(bool isModal = false, Dictionary<string, object>? parameters = null) where TViewModel : IViewModel;
+    public void CloseWindow<TViewModel>(string? id = null) where TViewModel : IViewModel;
     internal void SetClipboardText(string text);
-    internal void ShowAudioFeaturesWindow(AudioFeatures audioFeatures);
-    internal void ShowAudioAnalysisWindow();
-    internal bool IsAudioMetricsWindowOpen();
-    internal bool ShowUpdateWindowDialog();
-    internal void ShowDevicesContextMenu(Device[] devices, Func<string, Task> transferPlayback);
-    internal void ShowLyricsWindow();
-
-
+    internal void ShowDevicesContextMenu(Device[] devices, Func<Device, Task> transferPlayback);
+    
 }

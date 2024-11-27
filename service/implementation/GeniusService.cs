@@ -10,51 +10,54 @@ using System.Threading.Tasks;
 
 namespace MiniSpotifyController.service.implementation;
 
-internal partial class GeniusService(IPreferenceService preferenceService) : ILyricsService, IDisposable
+internal sealed partial class GeniusService(IPreferenceService preferenceService) : ILyricsService, IDisposable
 {
     public async Task<LyricsResult> GetLyrics(string songName, string artist)
     {
         LyricsResult result;
 
-        if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(accessToken))
-            result = LyricsResult.CreateError("Genius API credentials not found");
+        if (string.IsNullOrEmpty(_clientId) || string.IsNullOrEmpty(_accessToken))
+            LyricsResult.CreateError("Genius API credentials not found");
 
         // replace spaces with %20 in the song name
         var searchQuery = songName.Replace(" ", "%20");
-        var searchUrl = $"{SEARCH_ENDPOINT}{searchQuery}";
+        var searchUrl = $"{SearchEndpoint}{searchQuery}";
         HttpRequestMessage httpRequest = new(HttpMethod.Get, searchUrl);
-        httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-        httpRequest.Headers.Add("User-Agent", clientId);
-        var response = await httpClient.SendAsync(httpRequest);
+        httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+        httpRequest.Headers.Add("User-Agent", _clientId);
+        var response = await _httpClient.SendAsync(httpRequest);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
-        ReturnData? responseRoot = await Task.Run(() => JsonSerializer.Deserialize<ReturnData>(responseContent, jsonOptions));
+        var responseRoot = await Task.Run(() => JsonSerializer.Deserialize<ReturnData>(responseContent, _jsonOptions));
 
         if (responseRoot is null)
             result = LyricsResult.CreateError("Failed to deserialize Genius API response");
         else
         {
             var hits = responseRoot.Response.Hits;
-            if (hits.Any())
+            var hitsList = hits.ToList();
+            if (hitsList.Count != 0)
             {
                 Hit finalMatch;
                 LyricsResultType resultType;
 
-                var nameMatches = hits.Where(hit => hit.Result.Title.Equals(songName, StringComparison.OrdinalIgnoreCase));
-                if (nameMatches.Any())
+                var nameMatches = hitsList.Where(hit => hit.Result.Title.Equals(songName, StringComparison.OrdinalIgnoreCase));
+                var nameMatchesList = nameMatches.ToList();
+                if (nameMatchesList.Count != 0)
                 {
-                    var artistMatches = nameMatches.Where(hit => hit.Result.PrimaryArtist.Name.Equals(artist, StringComparison.OrdinalIgnoreCase));
+                    var artistMatches = nameMatchesList.Where(hit => hit.Result.PrimaryArtist.Name.Equals(artist, StringComparison.OrdinalIgnoreCase));
 
-                    if (artistMatches.Any())
+                    var artistMatchesList = artistMatches.ToList();
+                    if (artistMatchesList.Count != 0)
                     {
                         // assume the first match is the correct one
-                        finalMatch = artistMatches.First();
+                        finalMatch = artistMatchesList.First();
                         resultType = LyricsResultType.ExactMatch;
                     }
                     else
                     {
                         // name matches but artist does not - possibly a cover. Return the match with the highest page views
-                        finalMatch = nameMatches.OrderByDescending(hit => hit.Result.Stats.Pageviews).First();
+                        finalMatch = nameMatchesList.OrderByDescending(hit => hit.Result.Stats.Pageviews).First();
                         resultType = LyricsResultType.NameMatch;
                     }
 
@@ -63,7 +66,7 @@ internal partial class GeniusService(IPreferenceService preferenceService) : ILy
                 {
                     // name does not match - return the match whose name is closest to the search query name
                     SmithWaterman smithWaterman = new();
-                    var bestMatch = hits.Select(hit => new { Hit = hit, Distance = smithWaterman.GetSimilarity(songName, hit.Result.Title) })
+                    var bestMatch = hitsList.Select(hit => new { Hit = hit, Distance = smithWaterman.GetSimilarity(songName, hit.Result.Title) })
                                         .OrderByDescending(match => match.Distance)
                                         .First();
 
@@ -81,10 +84,10 @@ internal partial class GeniusService(IPreferenceService preferenceService) : ILy
         return result;
     }
 
-    async Task<string> GetLyricsFromUrl(string url)
+    private async Task<string> GetLyricsFromUrl(string url)
     {
         HttpRequestMessage httpRequest = new(HttpMethod.Get, url);
-        var response = await httpClient.SendAsync(httpRequest);
+        var response = await _httpClient.SendAsync(httpRequest);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
         // lyrics are in a div where data-lyrics-container attribute is set to "true"
@@ -101,14 +104,15 @@ internal partial class GeniusService(IPreferenceService preferenceService) : ILy
         return responseContent;
     }
 
-    public void Dispose() => httpClient.Dispose();
+    public void Dispose() => _httpClient.Dispose();
 
-    const string SEARCH_ENDPOINT = "https://api.genius.com/search?q=";
+    private const string SearchEndpoint = "https://api.genius.com/search?q=";
 
-    readonly HttpClient httpClient = new();
-    readonly string? clientId = preferenceService.GetGeniusClientId();
-    readonly string? accessToken = preferenceService.GetGeniusAccessToken();
-    readonly JsonSerializerOptions jsonOptions = new()
+    private readonly HttpClient _httpClient = new();
+    private readonly string? _clientId = preferenceService.GetGeniusClientId();
+    private readonly string? _accessToken = preferenceService.GetGeniusAccessToken();
+
+    private readonly JsonSerializerOptions _jsonOptions = new()
     {
         UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip
     };
