@@ -12,7 +12,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <Version>$(VersionPrefix)</Version>
     <AssemblyVersion>2.0.2.1</AssemblyVersion>
-    <FileVersion></FileVersion>
+    <FileVersion>3.0.0.0</FileVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>spotify.png</PackageIcon>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
