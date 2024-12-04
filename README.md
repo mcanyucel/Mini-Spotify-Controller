@@ -1,6 +1,6 @@
 # Mini Spotify Controller
 
-I am not a big fan of the original Spotify App that does not have a mini player. I just want a tiny window that displays current track, and play/pause, next, previous track feeatures. So I have written this small applicatin which uses Spotify Web API to control the streaming. Note that this application does not stream; it just works as a mini controller to the actual device that is streaming the track. It gets the active device from the API, so you can control any source (phone, PC...etc.). It only displays the current track name, artist name and album name to be minimal; but you can always open your streaming app for more information.
+I am not a big fan of the original Spotify App that does not have a mini player. I just want a tiny window that displays current track, and play/pause, next, previous track features. So I have written this small applicatin which uses Spotify Web API to control the streaming. Note that this application does not stream; it just works as a mini controller to the actual device that is streaming the track. It gets the active device from the API, so you can control any source (phone, PC...etc.). It only displays the current track name, artist name and album name to be minimal; but you can always open your streaming app for more information.
 *UPDATE:* With versions 2.0.0.1+, the app can also play the track internally. 
 
 **The application requires to have a Spotify Premium account to work. It will not work with free accounts, since free accounts does not support Web API.**
@@ -8,6 +8,9 @@ I am not a big fan of the original Spotify App that does not have a mini player.
 When you run the application, it will open a small window that you need to enter the client id for the Spotify API . You can get the client id from https://developer.spotify.com/dashboard/applications. You need to create an application and get the client id. Then you need to enter the client id to the application. After that, it will open a browser window to authenticate and authorize the application. After you authorize the application, it will close the browser window and start working.
 
 ![Sample](./assets/mini-spotify-controller.png "All that the app does")
+
+## Important Notice
+In their infinite wisdom, Spotify removed the API for recommendation and song radio endpoints. Until they are open again (if ever), these functions will not work, and return an error message. Sad.
 
 ## Features
 * Mini controller to start, pause, next, previous tracks.
